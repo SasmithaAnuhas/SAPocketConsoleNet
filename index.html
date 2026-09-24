@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pocket Console</title>
+</head>
+<body>
+<div id="consoleContainer">
+  <!-- Ambient background -->
+  <div class="bg-orb orb1" aria-hidden="true"></div>
+  <div class="bg-orb orb2" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brandDot" aria-hidden="true"></div>
+      <div>
+        <div class="brandTitle">Pocket Console</div>
+        <div class="brandSub">Instant games • No installs</div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <button class="pill" id="scrollLeft" type="button" aria-label="Scroll featured left">‹</button>
+      <button class="pill" id="scrollRight" type="button" aria-label="Scroll featured right">›</button>
+    </div>
+  </header>
+
+  <!-- Featured carousel -->
+  <section class="section">
+    <div class="sectionTitleRow">
+      <h2 class="sectionTitle">Featured</h2>
+      <div class="sectionHint">Swipe</div>
+    </div>
+
+    <div class="carousel" id="featured">
+      <a class="tile" href="Games/TurboDrift2D/TurboDrift.html" aria-label="Turbo Drift">
+        <div class="tileMedia">
+          <img
+            src="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.png"
+            alt="Turbo Drift banner"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="tileMeta">
+          <div class="tileTitle">Lane Rush</div>
+          <div class="tileTag">Arcade • Quick</div>
+        </div>
+        <div class="shine" aria-hidden="true"></div>
+      </a>
+
+      <a class="tile" href="Games/LaneRushV1/LaneRushV1.html" aria-label="Play Lane Rush">
+        <div class="tileMedia">
+          <!-- NOTE: your original URL had a line break; fixed into one line -->
+          <img
+            src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp"
+            alt="LaneRushV banner"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="tileMeta">
+          <div class="tileTitle">TurboDrift</div>
+          <div class="tileTag">Classic • Chill</div>
+        </div>
+        <div class="shine" aria-hidden="true"></div>
+      </a>
+
+      <a class="tile tileEmpty" href="#" aria-label="Coming soon">
+        <div class="tileMedia">
+          <div class="emptyState">
+            <div class="emptyIcon" aria-hidden="true">+</div>
+            <div class="emptyText">Add next banner</div>
+          </div>
+        </div>
+        <div class="tileMeta">
+          <div class="tileTitle">Coming soon</div>
+          <div class="tileTag">New drop</div>
+        </div>
+        <div class="shine" aria-hidden="true"></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Library grid -->
+  <section class="section" style="padding-bottom: 140px;">
+    <div class="sectionTitleRow">
+      <h2 class="sectionTitle">Library</h2>
+      <div class="sectionHint">Tap a card</div>
+    </div>
+
+    <div class="library">
+      <a class="gameCard gameEmpty" href="Games/XOV1/XOV1.html" aria-label="Game 1">
+        <div class="gameMedia">
+          <div class="emptyState">
+            <div class="emptyIcon" aria-hidden="true">+</div>
+            <div class="emptyText">Banner</div>
+          </div>
+        </div>
+        <div class="gameMeta">
+          <div class="gameTitle">XO Tic Tac Toe</div>
+          <div class="gameSub">Classic</div>
+        </div>
+      </a>
+
+      <a class="gameCard" href="Games/SnakeGameV1/SnakeGameV1.html" aria-label="Game 2">
+        <div class="gameMedia">
+          <img
+            src="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg"
+            alt="LaneRushV banner"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="gameMeta">
+          <div class="gameTitle">SnakeGameV1</div>
+          <div class="gameSub">Add link</div>
+        </div>
+      </a>
+
+      <a class="gameCard gameEmpty" href="Games/KennyDash/HTML5/KennyDash-HTML5-Shipping.html" aria-label="Game 3">
+        <div class="gameMedia">
+          <div class="emptyState">
+            <div class="emptyIcon" aria-hidden="true">+</div>
+            <div class="emptyText">Banner</div>
+          </div>
+        </div>
+        <div class="gameMeta">
+          <div class="gameTitle">Game 3</div>
+          <div class="gameSub">Add link</div>
+        </div>
+      </a>
+
+      <a class="gameCard gameEmpty" href="#" aria-label="Game 4">
+        <div class="gameMedia">
+          <div class="emptyState">
+            <div class="emptyIcon" aria-hidden="true">+</div>
+            <div class="emptyText">Banner</div>
+          </div>
+        </div>
+        <div class="gameMeta">
+          <div class="gameTitle">Game 4</div>
+          <div class="gameSub">Add link</div>
+        </div>
+      </a>
+
+      <a class="gameCard gameEmpty" href="#" aria-label="Game 5">
+        <div class="gameMedia">
+          <div class="emptyState">
+            <div class="emptyIcon" aria-hidden="true">+</div>
+            <div class="emptyText">Banner</div>
+          </div>
+        </div>
+        <div class="gameMeta">
+          <div class="gameTitle">Game 5</div>
+          <div class="gameSub">Add link</div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Bottom nav -->
+  <nav id="bottomBar" class="bottomBar">
+    <div class="navLinks">
+      <a class="navLink active" href="#">Home</a>
+      <a class="navLink" href="#">Store</a>
+      <a class="navLink" href="#">Settings</a>
+    </div>
+
+    <div id="bottomTime" class="bottomTime">00:00</div>
+
+    <a href="FriendManagementPage.html" class="iconButton" aria-label="Friends">
+      <span class="iconBubble" aria-hidden="true">👥</span>
+    </a>
+
+    <a href="AccSettings.html" class="avatarWrap" aria-label="Account">
+      <div id="userAvatar" class="userAvatar"></div>
+      <span class="onlineDot" aria-hidden="true"></span>
+    </a>
+  </nav>
+
+  <a href="ChatPage.html" class="floatingChat" aria-label="Open chat">💬</a>
+  
+  
+  <style>
+    :root {
+      color-scheme: dark;
+      --game-card-width: 160px;
+      --game-card-media-height: 160px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; margin: 0; overflow-x: hidden; }
+    a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+    img { display: block; }
+
+    /* Container */
+    #consoleContainer{
+      width:100%;
+      min-height:100vh;
+      min-height:100dvh;
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(0,255,204,0.12), transparent 55%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(140,110,255,0.14), transparent 55%),
+                  #0e0f12;
+      color:#fff;
+      font-family:'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient orbs + noise */
+    .bg-orb{
+      position:absolute; inset:auto;
+      width: 520px; height: 520px;
+      border-radius: 50%;
+      filter: blur(32px);
+      opacity: 0.45;
+      pointer-events:none;
+      transform: translate3d(0,0,0);
+      animation: floaty 10s ease-in-out infinite;
+    }
+    .orb1{ left:-160px; top:80px; background: radial-gradient(circle at 30% 30%, rgba(0,255,204,0.40), transparent 55%); }
+    .orb2{ right:-220px; top:260px; background: radial-gradient(circle at 30% 30%, rgba(140,110,255,0.42), transparent 60%); animation-duration: 12s; }
+
+    .noise{
+      position: absolute; inset: 0;
+      pointer-events: none;
+      opacity: 0.07;
+      mix-blend-mode: overlay;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+      background-size: 120px 120px;
+    }
+
+    @keyframes floaty{
+      0%,100%{ transform: translate3d(0,0,0) scale(1); }
+      50%{ transform: translate3d(0,-18px,0) scale(1.03); }
+    }
+
+    /* Top bar */
+    .topbar{
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 18px 18px 10px;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(14,15,18,0.88), rgba(14,15,18,0.55));
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .brand{
+      display:flex; align-items:center; gap: 12px;
+      min-width: 0;
+    }
+    .brandDot{
+      width: 12px; height: 12px; border-radius: 999px;
+      background: #00ffcc;
+      box-shadow: 0 0 18px rgba(0,255,204,0.65);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+    .brandTitle{ font-weight: 700; letter-spacing: 0.2px; }
+    .brandSub{ font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+
+    @keyframes pulse{
+      0%,100%{ transform: scale(1); opacity: .9; }
+      50%{ transform: scale(1.25); opacity: 1; }
+    }
+
+    .topActions{ display:flex; gap: 8px; }
+    .pill{
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+      user-select: none;
+    }
+    .pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.22); }
+    .pill:active{ transform: translateY(0px) scale(0.98); }
+
+    /* Sections */
+    .section{ padding: 12px 18px 6px; }
+    .sectionTitleRow{
+      display:flex; align-items: baseline; justify-content: space-between;
+      gap: 10px; margin: 4px 2px 10px;
+    }
+    .sectionTitle{ margin:0; font-size: 15px; font-weight: 700; letter-spacing: .2px; }
+    .sectionHint{ font-size: 12px; color: rgba(255,255,255,0.55); }
+
+    /* Carousel */
+    .carousel{
+      display:flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 6px 2px 14px;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .carousel::-webkit-scrollbar{ display: none; }
+
+    .tile{
+      position: relative;
+      min-width: var(--game-card-width);
+      height: auto;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+      transform: translateZ(0);
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+      animation: popIn .45s ease both;
+      display: flex;
+      flex-direction: column;
+    }
+    .tile:nth-child(2){ animation-delay: .06s; }
+    .tile:nth-child(3){ animation-delay: .12s; }
+
+    @keyframes popIn{
+      from{ opacity: 0; transform: translateY(10px) scale(0.98); }
+      to{ opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .tile:hover{
+      transform: translateY(-4px) scale(1.01);
+      border-color: rgba(0,255,204,0.35);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+    }
+    .tile:active{ transform: translateY(-2px) scale(0.995); }
+
+    .tileMedia{
+      position: relative;
+      height: var(--game-card-media-height);
+      background: #000;
+    }
+    .tileMedia img{
+      width:100%; height:100%;
+      object-fit: cover;
+      object-position: center;
+      filter: saturate(1.05) contrast(1.02);
+      transform: scale(1.02);
+      transition: transform .35s ease;
+    }
+    .tile:hover .tileMedia img{ transform: scale(1.06); }
+
+    .tileMeta{
+      position: relative;
+      margin: 12px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.20));
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(8px);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .tileTitle{ font-weight: 700; font-size: 14px; }
+    .tileTag{
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* "Satisfying" shine sweep */
+    .shine{
+      position:absolute;
+      inset:-40% -40%;
+      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.20) 45%, transparent 55%);
+      transform: translateX(-60%);
+      opacity: 0;
+      pointer-events:none;
+    }
+    .tile:hover .shine{
+      opacity: 1;
+      animation: shine 1.05s ease;
+    }
+    @keyframes shine{
+      from{ transform: translateX(-60%) rotate(0.001deg); }
+      to{ transform: translateX(60%) rotate(0.001deg); }
+    }
+
+    /* Empty placeholders */
+    .tileEmpty .tileMedia{ background: rgba(0,0,0,0.65); }
+    .emptyState{
+      height: 100%;
+      display:flex; flex-direction: column;
+      align-items:center; justify-content:center;
+      gap: 10px;
+      color: rgba(255,255,255,0.72);
+    }
+    .emptyIcon{
+      width: 46px; height: 46px;
+      border-radius: 16px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      font-size: 22px;
+    }
+    .emptyText{ font-size: 12px; }
+
+    /* Library grid */
+    .library{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(var(--game-card-width), 1fr));
+      gap: 12px;
+      padding: 4px 2px 10px;
+    }
+
+    .gameCard{
+      border-radius: 22px;
+      overflow:hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.38);
+      transform: translateZ(0);
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+      animation: popIn .45s ease both;
+    }
+    .gameCard:hover{
+      transform: translateY(-4px);
+      border-color: rgba(140,110,255,0.35);
+      box-shadow: 0 18px 52px rgba(0,0,0,0.50);
+    }
+    .gameCard:active{ transform: translateY(-2px) scale(0.995); }
+
+    .gameMedia{
+      height: var(--game-card-media-height);
+      background: #000;
+      position: relative;
+    }
+    .gameMedia img{
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transform: scale(1.02);
+      transition: transform .35s ease;
+    }
+    .gameCard:hover .gameMedia img{ transform: scale(1.06); }
+
+    .gameMeta{
+      padding: 12px 12px 13px;
+      display:flex; flex-direction: column;
+      gap: 4px;
+    }
+    .gameTitle{ font-weight: 700; font-size: 13px; }
+    .gameSub{ font-size: 12px; color: rgba(255,255,255,0.60); }
+
+    .gameEmpty .gameMedia{ background: rgba(0,0,0,0.65); display:flex; }
+
+    /* Bottom bar */
+    .bottomBar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      position:fixed;
+      bottom:0; left:0; right:0;
+      width:100%;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(14,15,18,0.70);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      z-index: 9999;
+      box-sizing: border-box;
+    }
+
+    .navLinks{ display:flex; gap: 18px; align-items:center; }
+    .navLink{
+      font-size: 13px;
+      color: rgba(255,255,255,0.80);
+      padding: 8px 10px;
+      border-radius: 12px;
+      transition: background .18s ease, transform .18s ease, color .18s ease;
+    }
+    .navLink:hover{
+      background: rgba(255,255,255,0.07);
+      transform: translateY(-1px);
+      color: #fff;
+    }
+    .navLink.active{
+      color: #00ffcc;
+      background: rgba(0,255,204,0.10);
+      border: 1px solid rgba(0,255,204,0.20);
+    }
+
+    .bottomTime{
+      font-size: 13px;
+      color: rgba(0,255,204,0.95);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.2px;
+    }
+
+    .avatarWrap{
+      position: relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width: 40px; height: 40px;
+    }
+    .floatingChat{
+      position: fixed;
+      right: 16px;
+      bottom: calc(12px + env(safe-area-inset-bottom) + 52px);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 16px;
+      color: #fff;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.38);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      z-index: 10000;
+    }
+    .floatingChat:hover{
+      transform: translateY(-1px);
+      border-color: rgba(0,255,204,0.45);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.48);
+    }
+    .iconButton{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .iconButton:hover{
+      transform: translateY(-1px);
+      border-color: rgba(0,255,204,0.45);
+      background: rgba(255,255,255,0.10);
+    }
+    .iconBubble{
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(0,0,0,0.35);
+      font-size: 16px;
+      line-height: 1;
+    }
+    .userAvatar{
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #333 center/cover no-repeat;
+      border: 2px solid rgba(255,255,255,0.90);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .avatarWrap:hover .userAvatar{
+      transform: translateY(-1px);
+      border-color: rgba(0,255,204,0.65);
+    }
+
+    .onlineDot{
+      position:absolute;
+      right: 3px; bottom: 3px;
+      width: 10px; height: 10px;
+      background: #00ffcc;
+      border: 2px solid rgba(14,15,18,0.85);
+      border-radius: 50%;
+      box-shadow: 0 0 16px rgba(0,255,204,0.6);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .bg-orb, .brandDot, .onlineDot, .tile, .gameCard { animation: none !important; }
+      .tile, .gameCard, .pill, .navLink, .userAvatar { transition: none !important; }
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 720px){
+      .topbar{ flex-wrap: wrap; }
+      .topActions{ width: 100%; justify-content: flex-end; }
+    }
+
+    @media (max-width: 380px){
+      :root{
+        --game-card-width: 150px;
+        --game-card-media-height: 150px;
+      }
+      .navLinks{ gap: 10px; }
+      .navLink{ padding: 8px 8px; }
+    }
+    
+    
+  </style>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const firebaseConfig = {
+      apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
+      authDomain: "pocketconsole-cde70.firebaseapp.com",
+      projectId: "pocketconsole-cde70",
+      storageBucket: "pocketconsole-cde70.firebasestorage.app",
+      messagingSenderId: "85026527206",
+      appId: "1:85026527206:web:67bffb25c7f7e059fc2827",
+      // IMPORTANT: required for RTDB presence
+      databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const rtdb = getDatabase(app);
+
+    const avatarEl = document.getElementById("userAvatar");
+    const onlineDotEl = document.querySelector(".onlineDot");
+
+    // Change this to control behavior:
+    // false = Home works for guests (recommended for instant games)
+    // true  = Home requires login (redirect when signed out)
+    const REQUIRE_AUTH_FOR_HOME = false;
+
+    // Where to send users if login is required
+    const AUTH_REDIRECT_URL = "https://sapocketconsole.blogspot.com/p/accountsettings.html";
+
+    const placeholder =
+      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==";
+
+    function setAvatar(url) {
+      if (!avatarEl) return;
+      const photo = url || placeholder;
+
+      const img = new Image();
+      img.onload = () => (avatarEl.style.backgroundImage = `url("${photo}")`);
+      img.onerror = () => (avatarEl.style.backgroundImage = `url("${placeholder}")`);
+      img.src = photo;
+    }
+
+    // Optional: hide online dot when signed out
+    function setOnlineDotVisible(visible) {
+      if (!onlineDotEl) return;
+      onlineDotEl.style.opacity = visible ? "1" : "0";
+    }
+
+    // --- PRESENCE (ONLINE/OFFLINE) ---
+    function enablePresenceForThisPage(uid) {
+      const statusRef = ref(rtdb, `/status/${uid}`);
+      const connectedRef = ref(rtdb, ".info/connected");
+
+      onValue(connectedRef, (snap) => {
+        if (snap.val() !== true) return;
+
+        onDisconnect(statusRef)
+          .set({ state: "offline", lastChanged: Date.now() })
+          .then(() => set(statusRef, { state: "online", lastChanged: Date.now() }))
+          .catch((e) => console.error("[Presence]", e));
+      });
+
+      // Update the dot based on *your own* status (optional)
+      onValue(statusRef, (snap) => {
+        const val = snap.val();
+        const isOnline = val?.state === "online";
+        if (onlineDotEl) {
+          onlineDotEl.style.opacity = isOnline ? "1" : "0.35";
+          onlineDotEl.style.filter = isOnline ? "" : "grayscale(1)";
+        }
+      });
+
+      // Best effort when leaving the page
+      window.addEventListener("beforeunload", () => {
+        try { set(statusRef, { state: "offline", lastChanged: Date.now() }); } catch {}
+      }, { once: true });
+    }
+    // --- END PRESENCE ---
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // Signed out
+        setAvatar(null);
+        setOnlineDotVisible(false);
+
+        if (REQUIRE_AUTH_FOR_HOME) {
+          window.location.href = AUTH_REDIRECT_URL;
+        }
+        return;
+      }
+
+      // Signed in
+      setAvatar(user.photoURL);
+      setOnlineDotVisible(true);
+
+      // Start presence on this page (THIS is what makes you online here)
+      enablePresenceForThisPage(user.uid);
+    });
+
+    // Time update
+    function updateTime() {
+      const timeEl = document.getElementById("bottomTime");
+      if (!timeEl) return;
+      const now = new Date();
+      timeEl.textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Featured scroll buttons
+    const featured = document.getElementById("featured");
+    const leftBtn = document.getElementById("scrollLeft");
+    const rightBtn = document.getElementById("scrollRight");
+
+    function scrollByCard(dir) {
+      if (!featured) return;
+      const first = featured.querySelector(".tile");
+      const cardW = first ? (first.getBoundingClientRect().width + 14) : 320;
+      const maxScroll = featured.scrollWidth - featured.clientWidth;
+      if (dir > 0 && featured.scrollLeft >= maxScroll - 2) {
+        featured.scrollTo({ left: 0, behavior: "smooth" });
+      } else if (dir < 0 && featured.scrollLeft <= 2) {
+        featured.scrollTo({ left: maxScroll, behavior: "smooth" });
+      } else {
+        featured.scrollBy({ left: dir * cardW, behavior: "smooth" });
+      }
+    }
+
+    leftBtn?.addEventListener("click", () => scrollByCard(-1));
+    rightBtn?.addEventListener("click", () => scrollByCard(1));
+
+    // Auto-scroll featured carousel tab by tab (simulate right button)
+    const prefersReducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const AUTO_SCROLL_MS = 4000;
+
+    if (!prefersReducedMotion && rightBtn) {
+      setInterval(() => {
+        rightBtn.click();
+      }, AUTO_SCROLL_MS);
+    }
+
+    // Hover tilt (desktop only)
+    const tiles = Array.from(document.querySelectorAll(".tile, .gameCard"));
+    const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    if (canHover) {
+      tiles.forEach((el) => {
+        el.addEventListener("mousemove", (e) => {
+          const r = el.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width;
+          const y = (e.clientY - r.top) / r.height;
+          const rx = (y - 0.5) * -6;
+          const ry = (x - 0.5) * 8;
+          el.style.transform = `translateY(-4px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+        });
+        el.addEventListener("mouseleave", () => {
+          el.style.transform = "";
+        });
+      });
+    }
+  });
+
+</script>
+
+
+
+</div>
+</body>
+</html>

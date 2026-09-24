@@ -1,0 +1,1173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pocket Console – Chat</title>
+
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body{
+    margin:0;
+    background:#0b0f14;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:#e8eef6;
+
+    display:flex;
+    justify-content:center;
+    align-items:stretch;
+
+    padding: 12px;
+
+    /* Helps on mobile + keyboard */
+    overflow:auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* App container */
+  .card{
+    width:min(1100px, 100%);
+    max-width:1100px;
+
+    /* Use dvh when available, fallback to vh */
+    height: min(900px, calc(100dvh - 24px));
+    max-height: calc(100dvh - 24px);
+
+    background:#101824;
+    border:1px solid #223044;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    overflow:hidden;
+
+    display:flex;
+    flex-direction:column;
+
+    /* IMPORTANT: allow it to shrink on smaller screens */
+    min-height: 0;
+  }
+
+  .header{
+    padding:16px 16px 12px;
+    border-bottom:1px solid #223044;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    flex:0 0 auto;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.2px; }
+  .dot{ width:10px; height:10px; border-radius:999px; background:#3ea6ff; }
+
+  .content{
+    padding:16px;
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+
+  .row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .avatar{
+    width:56px; height:56px; border-radius:999px;
+    border:1px solid #2a3b52; background:#0b0f14; object-fit:cover;
+  }
+
+  /* ✅ FIX: remove the hard min-width that breaks mobile */
+  .meta{ line-height:1.25; flex:1; min-width:0; }
+
+  .name{ font-size:16px; font-weight:700; margin:0 0 4px; }
+  .sub{ font-size:13px; opacity:.85; margin:0; word-break:break-word; }
+
+  .pill{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
+    border-radius:999px; border:1px solid #2a3b52; background:#152235;
+    font-size:12px; opacity:.95; white-space:nowrap;
+  }
+  .dotLive{
+    width:8px; height:8px; border-radius:999px; background:#e85b5b;
+    box-shadow:0 0 0 2px rgba(232,91,91,.15);
+  }
+  .dotLive.on{ background:#40d17a; box-shadow:0 0 0 2px rgba(64,209,122,.15); }
+
+  .rightActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+
+  button{
+    appearance:none; border:1px solid #2a3b52; background:#152235; color:#e8eef6;
+    padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:650;
+    transition:transform .06s ease, background .15s ease, border-color .15s ease;
+  }
+  button:hover{ background:#1b2c45; border-color:#365173; }
+  button:active{ transform:translateY(1px); }
+  button.primary{ background:#1a3a5a; border-color:#2d6ea8; }
+  button.primary:hover{ background:#20476e; }
+  button.danger{ background:#3a1a1a; border-color:#a84a4a; }
+  button.danger:hover{ background:#4a2121; }
+  button:disabled{ opacity:.55; cursor:not-allowed; }
+
+  .status{
+    font-size:13px; opacity:.92; padding:10px 12px;
+    background:#0b1220; border:1px solid #223044; border-radius:12px;
+    line-height:1.35; word-break:break-word;
+  }
+  .status.ok{ border-color:#2b6b46; }
+  .status.error{ border-color:#a84a4a; }
+
+  /* ====== MAIN SPLIT AREA ====== */
+  .shell{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    gap:12px;
+    align-items:stretch;
+    width:100%;
+  }
+
+  .sidebar{
+    width:340px;
+    min-width:260px;
+    max-width:380px;
+
+    background:#0b1220;
+    border:1px solid #223044;
+    border-radius:12px;
+
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    min-height:0;
+  }
+
+  .sidebarHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    flex-wrap:wrap;
+    flex:0 0 auto;
+  }
+  .small{ font-size:12px; opacity:.85; }
+
+  #friendsList{
+    flex:1 1 auto;
+    min-height:0;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding-right:2px;
+  }
+
+  .friend{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    border:1px solid #223044;
+    border-radius:12px;
+    background:#0b0f14;
+    cursor:pointer;
+    user-select:none;
+    min-width:0;
+  }
+  .friend:hover{ border-color:#365173; background:#0e1422; }
+  .friend.active{ border-color:#2d6ea8; background:#0f1b2f; }
+
+  .friendMeta{ flex:1; min-width:0; }
+  .friendName{
+    margin:0; font-weight:750; line-height:1.1;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .friendSub{
+    margin:3px 0 0; font-size:12px; opacity:.8;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+
+  .presenceDot{
+    width:10px; height:10px; border-radius:999px;
+    background:#e85b5b; box-shadow:0 0 0 2px rgba(232,91,91,.15);
+    flex:0 0 auto;
+  }
+  .presenceDot.on{ background:#40d17a; box-shadow:0 0 0 2px rgba(64,209,122,.15); }
+
+  .badge{
+    min-width:26px; height:22px; padding:0 8px;
+    border-radius:999px;
+    background:#1a3a5a; border:1px solid #2d6ea8;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:800; flex:0 0 auto;
+  }
+
+  .friend.unread{
+    border-color:#2d6ea8;
+    box-shadow:0 0 0 2px rgba(45,110,168,.18);
+  }
+  .friend.unread .friendName{ font-weight:850; }
+  @keyframes unreadPulse { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.25)} }
+  .friend.unread.blink{ animation: unreadPulse 1.2s ease-in-out infinite; }
+
+  .chatPane{
+    flex:1 1 auto;
+    min-width:0;
+
+    background:#0b1220;
+    border:1px solid #223044;
+    border-radius:12px;
+
+    padding:8px;  /* stable padding */
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    min-height:0;
+  }
+
+  .chatTop{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    flex-wrap:wrap;
+    min-width:0;
+  }
+  .chatTitle{ margin:0; font-size:14px; font-weight:800; letter-spacing:.2px; }
+  .chatHint{ margin:2px 0 0; font-size:12px; opacity:.8; word-break:break-word; }
+
+  #msgs{
+    flex:1 1 auto;
+    min-height:0;
+    overflow:auto;
+
+    padding:8px;
+    border-radius:12px;
+    border:1px solid #223044;
+    background:#0b0f14;
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .empty{ opacity:.75; font-size:13px; padding:8px; }
+
+  .msgRow{ width:100%; display:flex; align-items:flex-end; }
+  .msgRow.me{ justify-content:flex-end; }
+  .msgRow.them{ justify-content:flex-start; }
+
+  /* ✅ FIX: remove the broken line-height and let bubble fit content naturally */
+  .bubble{
+    width:fit-content;
+    max-width:min(78%, 540px);
+
+    background:#101824;
+    border:1px solid #223044;
+    border-radius:12px;
+
+    padding:6px 9px;
+    font-size:14px;
+    line-height:1.35;
+
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    white-space:pre-wrap;
+  }
+  .bubble.me{ background:#0f1b2f; border-color:#2d6ea8; }
+
+  .bubbleActions{
+    margin-top:6px;
+    display:flex;
+    gap:6px;
+    justify-content:flex-end;
+    opacity:.85;
+  }
+  .miniBtn{ padding:6px 8px; border-radius:10px; font-size:12px; }
+
+  .msgMeta{
+    margin-top:4px;
+    font-size:11px;
+    line-height:1.2;
+    opacity:.7;
+  }
+
+  .inputBar{
+    flex:0 0 auto;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  #msgInput{
+    flex:1;
+    min-width:0;
+    padding:10px 10px;
+    background:#000;
+    color:#fff;
+    border:1px solid #555;
+    border-radius:12px;
+    outline:none;
+    max-width:100%;
+  }
+  #sendBtn{ flex:0 0 auto; min-width:92px; }
+
+  /* ====== MOBILE ====== */
+  @media (max-width: 860px){
+    body{
+      padding:10px;
+      align-items:stretch;
+    }
+
+    .card{
+      /* ✅ extra-safe mobile height */
+      height: calc(100dvh - 20px);
+      max-height: calc(100dvh - 20px);
+      border-radius:16px;
+      min-height: 0;
+    }
+
+    .content{ padding:12px; }
+
+    .shell{
+      flex-direction:column;
+      min-height:0;
+    }
+
+    .sidebar{
+      width:100%;
+      max-width:none;
+      min-width:0;
+
+      /* ✅ keeps list usable without taking the whole screen */
+      max-height: 34dvh;
+      height:auto;
+    }
+
+    /* ✅ FIX: tiny screens need smaller avatar + allow header row to wrap nicely */
+    .avatar{ width:48px; height:48px; }
+
+    /* ✅ FIX: remove large min widths on small screens */
+    .meta{ min-width:0; }
+
+    .chatPane{
+      width:100%;
+      min-height:0;
+      padding:8px;
+    }
+
+    /* ✅ fit bubbles better on narrow devices */
+    .bubble{
+      max-width: 88%;
+    }
+
+    /* ✅ buttons can be smaller on mobile */
+    #sendBtn{ min-width:80px; padding:10px 10px; }
+  }
+
+  /* ====== VERY SMALL PHONES ====== */
+  @media (max-width: 380px){
+    body{ padding:8px; }
+    .header{ padding:12px 12px 10px; }
+    .content{ padding:10px; }
+    .pill{ font-size:11px; }
+    #sendBtn{ min-width:72px; }
+  }
+</style>
+
+
+
+</head>
+
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="brand"><span class="dot"></span> Pocket Console</div>
+      <div id="authChip" style="font-size:12px;opacity:.85;">Checking sign-in…</div>
+    </div>
+
+    <div class="content">
+      <div class="row">
+        <img id="meAvatar" class="avatar" alt="Profile photo" src="" />
+        <div class="meta">
+          <p id="meName" class="name">Not signed in</p>
+          <p id="meSub" class="sub">—</p>
+        </div>
+
+        <div class="pill" title="Realtime presence (RTDB)">
+          <span id="meDot" class="dotLive"></span>
+          <span id="meLiveText">Offline</span>
+        </div>
+
+        <div class="rightActions">
+          <button id="goFriendsBtn" class="primary" type="button">Friends</button>
+          <button id="goLoginBtn" type="button">Login</button>
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+
+      <div id="status" class="status">Status: Initializing…</div>
+
+      <div class="shell">
+        <aside class="sidebar">
+          <div class="sidebarHead">
+            <div>
+              <div style="font-weight:800;">Friends</div>
+              <div id="friendsCount" class="small">—</div>
+            </div>
+          </div>
+          <div id="friendsList"></div>
+        </aside>
+
+        <main class="chatPane">
+          <div class="chatTop">
+            <div>
+              <p id="chatTitle" class="chatTitle">Select a friend to chat</p>
+              <p id="chatHint" class="chatHint">—</p>
+            </div>
+            <div class="pill" title="Friend presence">
+              <span id="friendDot" class="dotLive"></span>
+              <span id="friendLiveText">—</span>
+            </div>
+          </div>
+
+          <div id="msgs"><div class="empty">No friend selected.</div></div>
+
+          <div class="inputBar">
+            <input id="msgInput" type="text" placeholder="Type a message…" disabled />
+            <button id="sendBtn" class="primary" type="button" disabled>Send</button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      deleteDoc,
+      updateDoc,
+      collection,
+      query,
+      orderBy,
+      limit,
+      onSnapshot,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+    // ==== Firebase config ====
+    const firebaseConfig = {
+      apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
+      authDomain: "pocketconsole-cde70.firebaseapp.com",
+      projectId: "pocketconsole-cde70",
+      storageBucket: "pocketconsole-cde70.firebasestorage.app",
+      messagingSenderId: "85026527206",
+      appId: "1:85026527206:web:67bffb25c7f7e059fc2827",
+      measurementId: "G-1F476LV4XJ",
+      databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (_) {}
+
+    const auth = getAuth(app);
+    const fs = getFirestore(app);
+    const rtdb = getDatabase(app);
+
+    // ==== UI refs ====
+    const authChip = document.getElementById("authChip");
+    const meAvatar = document.getElementById("meAvatar");
+    const meName = document.getElementById("meName");
+    const meSub = document.getElementById("meSub");
+    const meDot = document.getElementById("meDot");
+    const meLiveText = document.getElementById("meLiveText");
+
+    const goFriendsBtn = document.getElementById("goFriendsBtn");
+    const goLoginBtn = document.getElementById("goLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const friendsListEl = document.getElementById("friendsList");
+    const friendsCountEl = document.getElementById("friendsCount");
+    const statusEl = document.getElementById("status");
+
+    const chatTitleEl = document.getElementById("chatTitle");
+    const chatHintEl = document.getElementById("chatHint");
+    const friendDot = document.getElementById("friendDot");
+    const friendLiveText = document.getElementById("friendLiveText");
+
+    const msgsEl = document.getElementById("msgs");
+    const msgInput = document.getElementById("msgInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    const fallbackAvatar =
+      "data:image/svg+xml;charset=utf-8," +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
+          <rect width="100%" height="100%" fill="#0b0f14"/>
+          <circle cx="64" cy="52" r="22" fill="#223044"/>
+          <path d="M24 118c8-22 28-34 40-34s32 12 40 34" fill="#223044"/>
+        </svg>
+      `);
+
+    function setStatus(text, kind="") {
+      statusEl.textContent = text;
+      statusEl.classList.remove("error", "ok");
+      if (kind) statusEl.classList.add(kind);
+    }
+
+    function safeText(v, fallback = "—") {
+      if (v === null || v === undefined) return fallback;
+      const s = String(v).trim();
+      return s.length ? s : fallback;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normalizeGooglePhoto(url) {
+      if (typeof url !== "string" || !url.startsWith("http")) return url;
+      try {
+        const u = new URL(url);
+        if (!u.searchParams.has("sz")) u.searchParams.set("sz", "128");
+        return u.toString();
+      } catch { return url; }
+    }
+
+    function makePublicId(uid) {
+      return "PC-" + uid.slice(0, 8).toUpperCase();
+    }
+
+    function chatIdFor(a, b) {
+      return [a, b].sort().join("_");
+    }
+
+    function setPresenceBadge(dotEl, textEl, isOnline) {
+      dotEl.classList.toggle("on", !!isOnline);
+      textEl.textContent = isOnline ? "Online" : "Offline";
+    }
+
+    // ==== State ====
+    let me = null;
+    let myProfile = null;
+
+    const friends = new Map();
+    const unread = new Map();
+    const prevUnread = new Map();
+
+    const onlineState = new Map();
+    const friendPresenceUnsubs = new Map();
+
+    let activeFriendUid = null;
+    let activeChatId = null;
+
+    let unsubFriends = null;
+    let unsubInbox = null;
+    let unsubMsgs = null;
+
+    let friendPresenceUnsub = null;
+
+    // ==== Presence (RTDB) ====
+    function setupMyPresence(uid) {
+      const statusRef = ref(rtdb, `/status/${uid}`);
+      const connectedRef = ref(rtdb, ".info/connected");
+
+      onValue(connectedRef, (snap) => {
+        const connected = snap.val() === true;
+
+        if (!connected) {
+          setPresenceBadge(meDot, meLiveText, false);
+          setStatus("Status: RTDB not connected (check network / RTDB rules).", "error");
+          return;
+        }
+
+        onDisconnect(statusRef).set({ state: "offline", lastChanged: Date.now() })
+          .then(() => set(statusRef, { state: "online", lastChanged: Date.now() }))
+          .then(() => setStatus("Status: Presence online. Select a friend to chat.", "ok"))
+          .catch((e) => {
+            console.error(e);
+            setStatus("Status: Presence failed (check RTDB rules for /status and .info).", "error");
+          });
+      });
+
+      onValue(statusRef, (snap) => {
+        const val = snap.val();
+        setPresenceBadge(meDot, meLiveText, val?.state === "online");
+      });
+    }
+
+    function listenFriendPresence(friendUid) {
+      if (friendPresenceUnsub) { try { friendPresenceUnsub(); } catch {} }
+      friendDot.classList.remove("on");
+      friendLiveText.textContent = "—";
+
+      const sref = ref(rtdb, `/status/${friendUid}`);
+      friendPresenceUnsub = onValue(sref, (snap) => {
+        const val = snap.val();
+        setPresenceBadge(friendDot, friendLiveText, val?.state === "online");
+      }, () => {
+        friendDot.classList.remove("on");
+        friendLiveText.textContent = "Offline";
+      });
+    }
+
+    function listenFriendPresenceList(friendUid) {
+      if (friendPresenceUnsubs.has(friendUid)) return;
+
+      const sref = ref(rtdb, `/status/${friendUid}`);
+      const unsub = onValue(sref, (snap) => {
+        const v = snap.val();
+        const isOn = v?.state === "online";
+        onlineState.set(friendUid, isOn);
+
+        const row = friendsListEl.querySelector(`[data-fuid="${CSS.escape(friendUid)}"]`);
+        if (row) {
+          const dot = row.querySelector(".presenceDot");
+          if (dot) dot.classList.toggle("on", isOn);
+        }
+      }, () => {
+        onlineState.set(friendUid, false);
+      });
+
+      friendPresenceUnsubs.set(friendUid, unsub);
+    }
+
+    function stopAllFriendPresenceList() {
+      for (const [, fn] of friendPresenceUnsubs) {
+        try { fn(); } catch {}
+      }
+      friendPresenceUnsubs.clear();
+      onlineState.clear();
+    }
+
+    function flashFriendRow(friendUid) {
+      const row = friendsListEl.querySelector(`[data-fuid="${CSS.escape(friendUid)}"]`);
+      if (!row) return;
+      row.classList.add("blink");
+      setTimeout(() => row.classList.remove("blink"), 2500);
+    }
+
+    // ==== Profile upsert ====
+    async function upsertUserDoc(user) {
+      const provider0 = user?.providerData?.[0];
+      const publicId = makePublicId(user.uid);
+
+      const displayName = user.displayName || provider0?.displayName || "Google User";
+      const email = user.email || provider0?.email || null;
+      const photoURL = user.photoURL || provider0?.photoURL || null;
+      const provider = provider0?.providerId || "google";
+
+      await setDoc(doc(fs, "users", user.uid), {
+        uid: user.uid,
+        publicId,
+        displayName,
+        email,
+        photoURL,
+        provider,
+        lastLoginAt: serverTimestamp()
+      }, { merge: true });
+
+      await setDoc(doc(fs, "publicUsers", user.uid), {
+        uid: user.uid,
+        publicId,
+        displayName,
+        photoURL,
+        lastLoginAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    // ==== Chat creation ====
+    async function ensureChatDoc(uidA, uidB) {
+      const members = [uidA, uidB].sort();
+      const chatId = members.join("_");
+
+      await setDoc(doc(fs, "chats", chatId), {
+        chatId,
+        members,
+        createdAt: serverTimestamp(),
+        lastMessageAt: serverTimestamp()
+      }, { merge: true });
+
+      return chatId;
+    }
+
+    async function markChatRead(friendUid) {
+      if (!me) return;
+      const cid = chatIdFor(me.uid, friendUid);
+      await setDoc(doc(fs, `users/${me.uid}/inbox/${cid}`), {
+        chatId: cid,
+        friendUid,
+        unreadCount: 0,
+        lastReadAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    // Avoid increment() for broad rule-compatibility
+    async function bumpReceiverInbox(receiverUid, otherUid, chatId, snippet, fromName) {
+      const inboxRef = doc(fs, `users/${receiverUid}/inbox/${chatId}`);
+      const snap = await getDoc(inboxRef);
+
+      let nextCount = 1;
+      if (snap.exists()) {
+        const cur = snap.data()?.unreadCount;
+        nextCount = (typeof cur === "number" && isFinite(cur) ? cur : 0) + 1;
+      }
+
+      await setDoc(inboxRef, {
+        chatId,
+        friendUid: otherUid,
+        unreadCount: nextCount,
+        lastMessageAt: serverTimestamp(),
+        lastSnippet: snippet,
+        lastFromName: fromName
+      }, { merge: true });
+    }
+
+    function stopMessagesListener() {
+      if (unsubMsgs) { try { unsubMsgs(); } catch {} }
+      unsubMsgs = null;
+    }
+
+    function scrollBottom(force = false) {
+      // keep last message at bottom unless user manually scrolled up
+      const nearBottom = (msgsEl.scrollHeight - msgsEl.scrollTop - msgsEl.clientHeight) < 80;
+      if (force || nearBottom) msgsEl.scrollTop = msgsEl.scrollHeight + 999999;
+    }
+
+    // ===== Message edit/delete UI + logic =====
+    function canEditOrDelete(msg) {
+      // Only allow actions for my own messages
+      return me && msg?.fromUid === me.uid;
+    }
+
+    async function editMessage(messageId, oldText) {
+      if (!activeChatId || !messageId) return;
+      const next = prompt("Edit your message:", oldText || "");
+      if (next === null) return;
+
+      const newText = String(next).trim();
+      if (!newText) {
+        alert("Message cannot be empty.");
+        return;
+      }
+
+      try {
+        await updateDoc(doc(fs, `chats/${activeChatId}/messages/${messageId}`), {
+          text: newText,
+          editedAt: serverTimestamp()
+        });
+        setStatus("Status: Message edited.", "ok");
+      } catch (e) {
+        console.error(e);
+        const code = e?.code ? ` (${e.code})` : "";
+        setStatus(`Status: Edit failed${code}: ${e?.message || e}`, "error");
+      }
+    }
+
+    async function deleteMessage(messageId) {
+      if (!activeChatId || !messageId) return;
+      const ok = confirm("Delete this message?");
+      if (!ok) return;
+
+      try {
+        // Soft-delete is safer, but you asked for delete button: we delete the doc.
+        await deleteDoc(doc(fs, `chats/${activeChatId}/messages/${messageId}`));
+        setStatus("Status: Message deleted.", "ok");
+      } catch (e) {
+        console.error(e);
+        const code = e?.code ? ` (${e.code})` : "";
+        setStatus(`Status: Delete failed${code}: ${e?.message || e}`, "error");
+      }
+    }
+
+    function renderMessages(list) {
+      msgsEl.innerHTML = "";
+
+      if (!activeFriendUid) {
+        msgsEl.innerHTML = `<div class="empty">No friend selected.</div>`;
+        return;
+      }
+      if (!list.length) {
+        msgsEl.innerHTML = `<div class="empty">No messages yet. Say hi.</div>`;
+        return;
+      }
+
+      for (const m of list) {
+        const mine = m.fromUid === me.uid;
+        const ts = m.createdAt?.toDate ? m.createdAt.toDate() : null;
+        const timeText = ts ? ts.toLocaleString() : "";
+        const edited = m.editedAt ? " • edited" : "";
+
+        const row = document.createElement("div");
+        row.className = "msgRow " + (mine ? "me" : "them");
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble " + (mine ? "me" : "them");
+
+        bubble.innerHTML = `
+          <div>${escapeHtml(safeText(m.text, ""))}</div>
+          <div class="msgMeta">${escapeHtml(mine ? "You" : safeText(m.fromName, "Friend"))}${timeText ? " • " + escapeHtml(timeText) : ""}${edited}</div>
+        `;
+
+        if (canEditOrDelete(m)) {
+          const actions = document.createElement("div");
+          actions.className = "bubbleActions";
+          actions.innerHTML = `
+            <button class="miniBtn" type="button" data-edit="${escapeHtml(m.id)}">Edit</button>
+            <button class="miniBtn danger" type="button" data-del="${escapeHtml(m.id)}">Delete</button>
+          `;
+          bubble.appendChild(actions);
+        }
+
+        row.appendChild(bubble);
+        msgsEl.appendChild(row);
+      }
+
+      // wire actions after DOM is built
+      msgsEl.querySelectorAll("[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-edit");
+          const msg = list.find(x => x.id === id);
+          if (!msg) return;
+          editMessage(id, msg.text || "");
+        });
+      });
+
+      msgsEl.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-del");
+          deleteMessage(id);
+        });
+      });
+
+      scrollBottom(false);
+    }
+
+    function startMessagesListener(friendUid) {
+      stopMessagesListener();
+
+      const cid = chatIdFor(me.uid, friendUid);
+      activeChatId = cid;
+
+      const msgsQ = query(
+        collection(fs, `chats/${cid}/messages`),
+        orderBy("createdAt", "asc"),
+        limit(300)
+      );
+
+      unsubMsgs = onSnapshot(msgsQ, async (snap) => {
+        const out = [];
+        snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+        renderMessages(out);
+        try { await markChatRead(friendUid); } catch {}
+      }, (e) => {
+        console.error(e);
+        setStatus("Status: Cannot read messages (check Firestore rules for chats/messages).", "error");
+      });
+    }
+
+    async function selectFriend(friendUid) {
+      activeFriendUid = friendUid;
+      const f = friends.get(friendUid);
+
+      chatTitleEl.textContent = f ? `Chat with ${safeText(f.displayName, "User")}` : "Chat";
+      chatHintEl.textContent = f?.publicId ? `Public ID: ${f.publicId} • UID: ${f.uid}` : `UID: ${friendUid}`;
+
+      msgInput.disabled = false;
+      sendBtn.disabled = false;
+
+      renderFriends();
+      listenFriendPresence(friendUid);
+
+      setStatus("Status: Opening chat…");
+      try {
+        const cid = await ensureChatDoc(me.uid, friendUid);
+        activeChatId = cid;
+        startMessagesListener(friendUid);
+        await markChatRead(friendUid);
+        setStatus("Status: Chat ready.", "ok");
+        // when selecting a friend, always jump to bottom
+        setTimeout(() => scrollBottom(true), 30);
+      } catch (e) {
+        console.error(e);
+        const code = e?.code ? ` (${e.code})` : "";
+        setStatus(`Status: Chat open failed${code}: ${e?.message || e}`, "error");
+      }
+    }
+
+    async function sendMessage() {
+      if (!me || !activeFriendUid) return;
+
+      const text = safeText(msgInput.value, "");
+      if (!text) return;
+
+      msgInput.value = "";
+      msgInput.focus();
+
+      const friend = friends.get(activeFriendUid);
+      const fromName = me.displayName || myProfile?.displayName || "User";
+      const cid = chatIdFor(me.uid, activeFriendUid);
+      const snippet = text.slice(0, 120);
+
+      setStatus("Status: Sending…");
+
+      try {
+        await ensureChatDoc(me.uid, activeFriendUid);
+
+        await addDoc(collection(fs, `chats/${cid}/messages`), {
+          fromUid: me.uid,
+          toUid: activeFriendUid,
+          fromName,
+          toName: friend?.displayName || "User",
+          text,
+          createdAt: serverTimestamp()
+        });
+
+        await setDoc(doc(fs, "chats", cid), {
+          lastMessageAt: serverTimestamp(),
+          lastText: text,
+          lastFromUid: me.uid
+        }, { merge: true });
+
+        await setDoc(doc(fs, `users/${me.uid}/inbox/${cid}`), {
+          chatId: cid,
+          friendUid: activeFriendUid,
+          unreadCount: 0,
+          lastMessageAt: serverTimestamp(),
+          lastSnippet: snippet,
+          lastFromName: fromName,
+          lastReadAt: serverTimestamp()
+        }, { merge: true });
+
+        await bumpReceiverInbox(activeFriendUid, me.uid, cid, snippet, fromName);
+
+        setStatus("Status: Sent.", "ok");
+        // ensure latest message at bottom
+        setTimeout(() => scrollBottom(true), 30);
+      } catch (e) {
+        console.error(e);
+        const code = e?.code ? ` (${e.code})` : "";
+        setStatus(`Status: Send failed${code}: ${e?.message || e}`, "error");
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    msgInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    // ==== Friends render + listeners ====
+    function renderFriends() {
+      const items = Array.from(friends.values()).sort((a,b) =>
+        (a.displayName || "").localeCompare(b.displayName || "")
+      );
+
+      friendsCountEl.textContent = `${items.length} friend(s)`;
+      friendsListEl.innerHTML = "";
+
+      if (!items.length) {
+        friendsListEl.innerHTML = `
+          <div class="friend" style="cursor:default;opacity:.85;">
+            <img class="avatar" src="${fallbackAvatar}" alt="">
+            <div class="friendMeta">
+              <p class="friendName">No friends yet</p>
+              <p class="friendSub">Add friends in the Friends page.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      for (const f of items) {
+        const cid = me ? chatIdFor(me.uid, f.uid) : "";
+        const u = unread.get(cid) || 0;
+        const isActive = (f.uid === activeFriendUid);
+        const isUnread = (u > 0 && !isActive);
+        const isOnline = onlineState.get(f.uid) === true;
+
+        const row = document.createElement("div");
+        row.className = "friend" + (isActive ? " active" : "") + (isUnread ? " unread" : "");
+        row.setAttribute("data-fuid", f.uid);
+
+        row.innerHTML = `
+          <img class="avatar" alt="User" src="${escapeHtml(normalizeGooglePhoto(f.photoURL || fallbackAvatar))}">
+          <span class="presenceDot ${isOnline ? "on" : ""}"></span>
+          <div class="friendMeta">
+            <p class="friendName">${escapeHtml(safeText(f.displayName, "User"))}</p>
+            <p class="friendSub">${escapeHtml(f.publicId ? ("Public: " + f.publicId) : "—")}</p>
+          </div>
+          <div class="badge" style="display:${u > 0 ? "flex" : "none"};">${u > 99 ? "99+" : u}</div>
+        `;
+
+        row.addEventListener("click", () => selectFriend(f.uid));
+        friendsListEl.appendChild(row);
+
+        listenFriendPresenceList(f.uid);
+      }
+    }
+
+    // ==== Navigation buttons ====
+    goFriendsBtn.addEventListener("click", () => {
+      location.href = "https://sapocketconsole.blogspot.com/p/friends.html";
+    });
+    goLoginBtn.addEventListener("click", () => {
+      location.href = "https://sapocketconsole.blogspot.com/p/login.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      logoutBtn.disabled = true;
+      setStatus("Status: Signing out…");
+      try {
+        const u = auth.currentUser;
+        if (u) {
+          await set(ref(rtdb, `/status/${u.uid}`), { state: "offline", lastChanged: Date.now() }).catch(() => {});
+        }
+        await signOut(auth);
+      } catch (e) {
+        console.error(e);
+        setStatus("Status: Logout failed.", "error");
+      } finally {
+        logoutBtn.disabled = false;
+      }
+    });
+
+    function stopAll() {
+      if (unsubFriends) { try { unsubFriends(); } catch {} }
+      if (unsubInbox) { try { unsubInbox(); } catch {} }
+      stopMessagesListener();
+      if (friendPresenceUnsub) { try { friendPresenceUnsub(); } catch {} }
+
+      stopAllFriendPresenceList();
+
+      unsubFriends = null;
+      unsubInbox = null;
+      friendPresenceUnsub = null;
+
+      friends.clear();
+      unread.clear();
+      prevUnread.clear();
+      activeFriendUid = null;
+      activeChatId = null;
+
+      friendsListEl.innerHTML = "";
+      friendsCountEl.textContent = "—";
+
+      chatTitleEl.textContent = "Select a friend to chat";
+      chatHintEl.textContent = "—";
+      friendDot.classList.remove("on");
+      friendLiveText.textContent = "—";
+
+      msgsEl.innerHTML = `<div class="empty">No friend selected.</div>`;
+      msgInput.disabled = true;
+      sendBtn.disabled = true;
+    }
+
+    async function initSignedIn(user) {
+      me = user;
+      authChip.textContent = "Signed in";
+      meAvatar.src = normalizeGooglePhoto(user.photoURL || fallbackAvatar);
+      meName.textContent = safeText(user.displayName, "Google User");
+      meSub.textContent = `Public ID: ${makePublicId(user.uid)} • UID: ${user.uid}`;
+
+      setStatus("Status: Preparing profile…");
+
+      try {
+        await upsertUserDoc(user);
+      } catch (e) {
+        console.error(e);
+        setStatus("Status: Profile save failed (check /users + /publicUsers rules).", "error");
+      }
+
+      try {
+        const snap = await getDoc(doc(fs, "users", user.uid));
+        myProfile = snap.exists() ? snap.data() : null;
+      } catch {}
+
+      try { setupMyPresence(user.uid); }
+      catch (e) {
+        console.error(e);
+        setStatus("Status: Presence init failed.", "error");
+      }
+
+      if (unsubFriends) { try { unsubFriends(); } catch {} }
+      unsubFriends = onSnapshot(collection(fs, `users/${user.uid}/friends`), (snap) => {
+        stopAllFriendPresenceList();
+        friends.clear();
+
+        snap.forEach(d => {
+          const v = d.data() || {};
+          const uid = v.uid || d.id;
+          friends.set(uid, {
+            uid,
+            publicId: v.publicId || null,
+            displayName: v.displayName || "User",
+            photoURL: v.photoURL || null
+          });
+        });
+
+        renderFriends();
+      }, (e) => {
+        console.error(e);
+        setStatus("Status: Friends listener failed (check users/{uid}/friends rules).", "error");
+      });
+
+      if (unsubInbox) { try { unsubInbox(); } catch {} }
+      unsubInbox = onSnapshot(collection(fs, `users/${user.uid}/inbox`), (snap) => {
+        unread.clear();
+
+        snap.forEach(d => {
+          const v = d.data() || {};
+          const count = v.unreadCount || 0;
+
+          const old = prevUnread.get(d.id) || 0;
+          prevUnread.set(d.id, count);
+
+          unread.set(d.id, count);
+
+          if (count > old) {
+            const friendUid = v.friendUid;
+            if (friendUid && friendUid !== activeFriendUid) {
+              setTimeout(() => flashFriendRow(friendUid), 50);
+            }
+          }
+        });
+
+        renderFriends();
+      });
+
+      setStatus("Status: Ready. Select a friend to chat.", "ok");
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        authChip.textContent = "Signed out";
+        meAvatar.src = fallbackAvatar;
+        meName.textContent = "Not signed in";
+        meSub.textContent = "Please go to Login page and sign in.";
+        setPresenceBadge(meDot, meLiveText, false);
+        setStatus("Status: Signed out.");
+        stopAll();
+        return;
+      }
+      await initSignedIn(user);
+    });
+  </script>
+</body>
+</html>

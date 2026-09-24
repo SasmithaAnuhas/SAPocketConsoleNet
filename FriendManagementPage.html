@@ -1,0 +1,988 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pocket Console - Friends</title>
+  <style>
+    :root { color-scheme: dark; }
+    body{
+      margin:0; min-height:100vh; display:grid; place-items:center;
+      background:#0b0f14; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:#e8eef6;
+    }
+    .card{
+      width:min(980px, calc(100% - 28px));
+      background:#101824; border:1px solid #223044; border-radius:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35); overflow:hidden;
+    }
+    .header{
+      padding:18px 18px 12px; border-bottom:1px solid #223044;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.2px; }
+    .dot{ width:10px; height:10px; border-radius:999px; background:#3ea6ff; }
+    .content{ padding:18px; }
+
+    .row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+    .avatar{ width:56px; height:56px; border-radius:999px; border:1px solid #2a3b52; background:#0b0f14; object-fit:cover; }
+    .meta{ line-height:1.25; flex:1; min-width:220px; }
+    .name{ font-size:16px; font-weight:700; margin:0 0 4px; }
+    .sub{ font-size:13px; opacity:.85; margin:0; word-break:break-word; }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
+      border-radius:999px; border:1px solid #2a3b52; background:#152235;
+      font-size:12px; opacity:.95; white-space:nowrap;
+    }
+    .dotLive{
+      width:8px; height:8px; border-radius:999px; background:#e85b5b;
+      box-shadow:0 0 0 2px rgba(232,91,91,.15);
+    }
+    .dotLive.on{ background:#40d17a; box-shadow:0 0 0 2px rgba(64,209,122,.15); }
+
+    .status{
+      margin-top:14px; font-size:13px; opacity:.92; padding:10px 12px;
+      background:#0b1220; border:1px solid #223044; border-radius:12px;
+      line-height:1.35; word-break:break-word;
+    }
+    .hint{ margin-top:10px; font-size:12px; opacity:.8; line-height:1.35; }
+    .tabs{ margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; }
+    .tabBtn{
+      appearance:none; border:1px solid #2a3b52; background:#152235; color:#e8eef6;
+      padding:9px 12px; border-radius:12px; cursor:pointer; font-weight:650;
+    }
+    .tabBtn.active{ background:#1a3a5a; border-color:#2d6ea8; }
+    .panel{ margin-top:14px; display:none; }
+    .panel.active{ display:block; }
+
+    .field{
+      background:#0b1220; border:1px solid #223044; border-radius:12px; padding:12px;
+    }
+    .fieldLabel{ font-size:12px; opacity:.8; margin:0 0 6px; }
+    .fieldRow{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    input[type="text"]{
+      padding:10px 10px; background:#000; color:#fff; border:1px solid #555;
+      border-radius:12px; width:min(420px, 100%); outline:none;
+    }
+    button{
+      appearance:none; border:1px solid #2a3b52; background:#152235; color:#e8eef6;
+      padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:650;
+      transition:transform .06s ease, background .15s ease, border-color .15s ease;
+    }
+    button:hover{ background:#1b2c45; border-color:#365173; }
+    button:active{ transform:translateY(1px); }
+    button.primary{ background:#1a3a5a; border-color:#2d6ea8; }
+    button.primary:hover{ background:#20476e; }
+    button.danger{ background:#3a1a1a; border-color:#a84a4a; }
+    button.danger:hover{ background:#4a2121; }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .list{ margin-top:10px; display:grid; gap:10px; }
+    .item{
+      background:#0b1220; border:1px solid #223044; border-radius:12px;
+      padding:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;
+    }
+    .itemMeta{ flex:1; min-width:220px; }
+    .itemTitle{ margin:0 0 4px; font-weight:750; }
+    .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; font-size:12px; opacity:.95; word-break:break-all; }
+    .rightActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .footer{
+      padding:12px 18px 16px; border-top:1px solid #223044;
+      font-size:12px; opacity:.8; line-height:1.35;
+    }
+    code{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <div class="header">
+      <div class="brand"><span class="dot"></span> Pocket Console</div>
+      <div id="authChip" style="font-size:12px;opacity:.85;">Checking sign-in...</div>
+    </div>
+
+    <div class="content">
+      <div class="row">
+        <img id="avatar" class="avatar" alt="Profile photo" src="" />
+        <div class="meta">
+          <p id="name" class="name">Not signed in</p>
+          <p id="subline" class="sub">-</p>
+        </div>
+
+        <div class="pill" title="Realtime presence (RTDB)">
+          <span id="liveDot" class="dotLive"></span>
+          <span id="liveText">Offline</span>
+        </div>
+
+        <div class="rightActions">
+          <button id="goLoginBtn" class="primary" type="button">Go to Login</button>
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+
+      <div id="status" class="status">Status: Initializing...</div>
+      <div id="debug" class="hint">Debug: -</div>
+
+      <div class="tabs">
+        <button class="tabBtn active" data-tab="tabFriends" type="button">Friends</button>
+        <button class="tabBtn" data-tab="tabRequests" type="button">Requests</button>
+        <button class="tabBtn" data-tab="tabSearch" type="button">Add Friends</button>
+      </div>
+
+      <!-- SEARCH -->
+      <div id="tabSearch" class="panel">
+        <div class="field">
+          <p class="fieldLabel">Search by Public ID</p>
+          <div class="fieldRow">
+            <input id="publicSearchInput" type="text" placeholder="Example: PC-1A2B3C4D" />
+            <button id="searchBtn" class="primary" type="button">Search</button>
+          </div>
+          <div class="hint">
+            Tip: Public ID is generated from the user UID (your format: <code>PC-</code> + first 8 chars).
+          </div>
+        </div>
+
+        <div class="list" id="searchResults"></div>
+      </div>
+
+      <!-- REQUESTS -->
+      <div id="tabRequests" class="panel">
+        <div class="field">
+          <p class="fieldLabel">Incoming Requests</p>
+          <div class="list" id="incomingList"></div>
+        </div>
+        <div style="height:10px;"></div>
+        <div class="field">
+          <p class="fieldLabel">Outgoing Requests</p>
+          <div class="list" id="outgoingList"></div>
+        </div>
+      </div>
+
+      <!-- FRIENDS -->
+      <div id="tabFriends" class="panel active">
+        <div class="field">
+          <p class="fieldLabel">Your Friends</p>
+          <div class="list" id="friendsList"></div>
+        </div>
+        <div class="hint">
+          Presence badge uses RTDB path <code>/status/{uid}</code>. This is why your friends can show Online/Offline.
+        </div>
+      </div>
+
+      <div class="hint">
+        Run from a proper origin (Hosting / Live Server), not <code>file://</code>.
+      </div>
+    </div>
+
+    <div class="footer">
+      If Requests/Friends is empty, first sign in on the Login page at least once so the profile exists in Firestore.
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      collection,
+      query,
+      where,
+      getDocs,
+      onSnapshot,
+      serverTimestamp,
+      writeBatch,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    import {
+      getDatabase,
+      ref,
+      set,
+      onValue,
+      onDisconnect
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+    // Your config (RTDB URL included)
+    const firebaseConfig = {
+      apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
+      authDomain: "pocketconsole-cde70.firebaseapp.com",
+      projectId: "pocketconsole-cde70",
+      storageBucket: "pocketconsole-cde70.firebasestorage.app",
+      messagingSenderId: "85026527206",
+      appId: "1:85026527206:web:67bffb25c7f7e059fc2827",
+      measurementId: "G-1F476LV4XJ",
+      databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch (_) {}
+
+    const auth = getAuth(app);
+    const fs = getFirestore(app);
+    const rtdb = getDatabase(app);
+
+    // UI
+    const authChip = document.getElementById("authChip");
+    const avatarEl = document.getElementById("avatar");
+    const nameEl = document.getElementById("name");
+    const sublineEl = document.getElementById("subline");
+    const statusEl = document.getElementById("status");
+    const debugEl = document.getElementById("debug");
+    const liveDot = document.getElementById("liveDot");
+    const liveText = document.getElementById("liveText");
+
+    const goLoginBtn = document.getElementById("goLoginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const publicSearchInput = document.getElementById("publicSearchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const searchResults = document.getElementById("searchResults");
+
+    const incomingList = document.getElementById("incomingList");
+    const outgoingList = document.getElementById("outgoingList");
+    const friendsList = document.getElementById("friendsList");
+
+    const fallbackAvatar =
+      "data:image/svg+xml;charset=utf-8," +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128">
+          <rect width="100%" height="100%" fill="#0b0f14"/>
+          <circle cx="64" cy="52" r="22" fill="#223044"/>
+          <path d="M24 118c8-22 28-34 40-34s32 12 40 34" fill="#223044"/>
+        </svg>
+      `);
+
+    function safeText(v, fallback = "-") {
+      if (v === null || v === undefined) return fallback;
+      const s = String(v).trim();
+      return s.length ? s : fallback;
+    }
+    function getBestPhotoURL(user) {
+      if (user?.photoURL) return user.photoURL;
+      const providerPhoto = user?.providerData?.find(p => p?.photoURL)?.photoURL;
+      return providerPhoto || fallbackAvatar;
+    }
+    function normalizeGooglePhoto(url) {
+      if (typeof url !== "string" || !url.startsWith("http")) return url;
+      try {
+        const u = new URL(url);
+        if (!u.searchParams.has("sz")) u.searchParams.set("sz", "256");
+        return u.toString();
+      } catch {
+        return url;
+      }
+    }
+    function showError(prefix, e) {
+      const msg = e?.message ? e.message : String(e);
+      const code = e?.code ? ` (${e.code})` : "";
+      debugEl.textContent = `Debug: ${prefix}${code}: ${msg}`;
+    }
+    function setPresenceBadge(isOnline) {
+      liveDot.classList.toggle("on", !!isOnline);
+      liveText.textContent = isOnline ? "Online" : "Offline";
+    }
+    function makePublicId(uid) {
+      return "PC-" + uid.slice(0, 8).toUpperCase();
+    }
+    function requestId(fromUid, toUid) {
+      return `${fromUid}_${toUid}`;
+    }
+    async function cleanupStaleRequests() {
+      if (!me || myFriends.size === 0) return;
+      const deletes = [];
+      myFriends.forEach((uid) => {
+        deletes.push(deleteDoc(doc(fs, "friendRequests", requestId(me.uid, uid))).catch(() => {}));
+        deletes.push(deleteDoc(doc(fs, "friendRequests", requestId(uid, me.uid))).catch(() => {}));
+      });
+      await Promise.allSettled(deletes);
+    }
+
+    // Tabs
+    document.querySelectorAll(".tabBtn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabBtn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Presence setup for the signed-in user
+    function setupMyPresence(uid) {
+      const statusRef = ref(rtdb, `/status/${uid}`);
+      const connectedRef = ref(rtdb, ".info/connected");
+
+      onValue(connectedRef, (snap) => {
+        const connected = snap.val() === true;
+        if (!connected) { setPresenceBadge(false); return; }
+
+        onDisconnect(statusRef).set({ state: "offline", lastChanged: Date.now() })
+          .then(() => set(statusRef, { state: "online", lastChanged: Date.now() }))
+          .catch((e) => showError("RTDB presence", e));
+      });
+
+      onValue(statusRef, (snap) => {
+        const val = snap.val();
+        setPresenceBadge(val?.state === "online");
+      });
+    }
+
+    // Friend presence listeners (keep small; fine for limited friend counts)
+    const friendPresenceUnsubs = new Map(); // uid -> unsubscribe fn (here we simulate with off by tracking a flag)
+    const friendPresenceState = new Map(); // uid -> boolean online
+
+    function listenFriendPresence(friendUid, onUpdate) {
+      if (friendPresenceUnsubs.has(friendUid)) return;
+
+      const statusRef = ref(rtdb, `/status/${friendUid}`);
+      let active = true;
+
+      const unsub = onValue(statusRef, (snap) => {
+        if (!active) return;
+        const val = snap.val();
+        const online = val?.state === "online";
+        friendPresenceState.set(friendUid, online);
+        onUpdate(friendUid, online);
+      });
+
+      // Firebase v9+ onValue returns an unsubscribe-like function in modular SDK
+      friendPresenceUnsubs.set(friendUid, () => {
+        active = false;
+        try { unsub(); } catch {}
+      });
+    }
+
+    function stopAllFriendPresence() {
+      for (const [, fn] of friendPresenceUnsubs) {
+        try { fn(); } catch {}
+      }
+      friendPresenceUnsubs.clear();
+      friendPresenceState.clear();
+    }
+
+    function miniPresencePill(isOnline) {
+      const dotClass = isOnline ? "dotLive on" : "dotLive";
+      const txt = isOnline ? "Online" : "Offline";
+      return `<span class="pill"><span class="${dotClass}"></span><span>${txt}</span></span>`;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    // State caches (to decide buttons)
+    let me = null;                 // auth user
+    let myProfile = null;          // users/{uid}
+    const myFriends = new Set();   // friendUid
+    const outgoingReqTo = new Set(); // toUid
+    const incomingReqFrom = new Set(); // fromUid
+
+    async function ensureMyProfile(user) {
+      const uid = user.uid;
+      const publicId = makePublicId(uid);
+
+      const uref = doc(fs, "users", uid);
+      const snap = await getDoc(uref);
+
+      const displayName = user.displayName || "Google User";
+      const photoURL = user.photoURL || null;
+
+      if (!snap.exists()) {
+        await setDoc(uref, {
+          uid,
+          publicId,
+          displayName,
+          photoURL,
+          // email intentionally omitted from public profile
+          createdAt: serverTimestamp(),
+          lastLoginAt: serverTimestamp()
+        }, { merge: true });
+      } else {
+        // keep profile fresh
+        await setDoc(uref, {
+          uid,
+          publicId,
+          displayName,
+          photoURL,
+          lastLoginAt: serverTimestamp()
+        }, { merge: true });
+      }
+
+      // Keep publicUsers in sync for public ID search.
+      await setDoc(doc(fs, "publicUsers", uid), {
+        uid,
+        publicId,
+        displayName,
+        photoURL,
+        lastLoginAt: serverTimestamp()
+      }, { merge: true });
+
+      const latest = await getDoc(uref);
+      return latest.data();
+    }
+
+    function renderEmpty(listEl, text) {
+      listEl.innerHTML = `
+        <div class="item" style="opacity:.85;">
+          <div class="itemMeta">
+            <p class="itemTitle">${escapeHtml(text)}</p>
+            <div class="mono">-</div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function searchByPublicId(publicId) {
+      const cleaned = safeText(publicId, "").toUpperCase();
+      if (!cleaned) return [];
+
+      const q = query(collection(fs, "publicUsers"), where("publicId", "==", cleaned));
+      const res = await getDocs(q);
+      const out = [];
+      res.forEach(d => out.push(d.data()));
+      return out;
+    }
+
+    async function sendFriendRequest(targetProfile) {
+      if (!me || !myProfile) return;
+
+      if (targetProfile.uid === me.uid) {
+        statusEl.textContent = "Status: You cannot add yourself.";
+        return;
+      }
+
+      // already friends?
+      if (myFriends.has(targetProfile.uid)) {
+        statusEl.textContent = "Status: You are already friends.";
+        return;
+      }
+
+      const rid = requestId(me.uid, targetProfile.uid);
+      const rref = doc(fs, "friendRequests", rid);
+      const existing = await getDoc(rref);
+      if (existing.exists()) {
+        // Clear stale request so a fresh one can be sent.
+        await deleteDoc(rref);
+      }
+      await setDoc(rref, {
+        fromUid: me.uid,
+        toUid: targetProfile.uid,
+        fromPublicId: myProfile.publicId,
+        toPublicId: targetProfile.publicId,
+        fromName: myProfile.displayName || "User",
+        fromPhoto: myProfile.photoURL || null,
+        toName: targetProfile.displayName || "User",
+        toPhoto: targetProfile.photoURL || null,
+        createdAt: serverTimestamp()
+      }, { merge: false });
+
+      statusEl.textContent = "Status: Friend request sent.";
+    }
+
+    async function sendResyncRequest(targetProfile) {
+      if (!me || !myProfile) return;
+      const rid = requestId(me.uid, targetProfile.uid);
+      const rref = doc(fs, "friendRequests", rid);
+      const existing = await getDoc(rref);
+      if (existing.exists()) {
+        statusEl.textContent = "Status: Request already pending.";
+        return;
+      }
+
+      await setDoc(rref, {
+        fromUid: me.uid,
+        toUid: targetProfile.uid,
+        fromPublicId: myProfile.publicId,
+        toPublicId: targetProfile.publicId || null,
+        fromName: myProfile.displayName || "User",
+        fromPhoto: myProfile.photoURL || null,
+        toName: targetProfile.displayName || "User",
+        toPhoto: targetProfile.photoURL || null,
+        createdAt: serverTimestamp()
+      }, { merge: false });
+
+      statusEl.textContent = "Status: Sync request sent.";
+    }
+
+    async function cancelOutgoing(toUid) {
+      if (!me) return;
+      await deleteDoc(doc(fs, "friendRequests", requestId(me.uid, toUid)));
+      statusEl.textContent = "Status: Request cancelled.";
+    }
+
+    async function rejectIncoming(fromUid) {
+      if (!me) return;
+      await deleteDoc(doc(fs, "friendRequests", requestId(fromUid, me.uid)));
+      statusEl.textContent = "Status: Request rejected.";
+    }
+
+    async function acceptIncoming(fromUid) {
+      if (!me || !myProfile) return;
+
+      const reqRef = doc(fs, "friendRequests", requestId(fromUid, me.uid));
+      const reverseReqRef = doc(fs, "friendRequests", requestId(me.uid, fromUid));
+
+      if (myFriends.has(fromUid)) {
+        await Promise.allSettled([deleteDoc(reqRef), deleteDoc(reverseReqRef)]);
+        statusEl.textContent = "Status: Already friends (cleared request).";
+        return;
+      }
+
+      const reqSnap = await getDoc(reqRef);
+      if (!reqSnap.exists()) {
+        statusEl.textContent = "Status: Request not found (maybe already handled).";
+        return;
+      }
+
+      const req = reqSnap.data() || {};
+      let other = {
+        uid: req.fromUid || fromUid,
+        publicId: req.fromPublicId || null,
+        displayName: req.fromName || "User",
+        photoURL: req.fromPhoto || null
+      };
+
+      const needsPublicFetch = !other.publicId || !other.displayName || !other.photoURL;
+      if (needsPublicFetch) {
+        try {
+          const publicSnap = await getDoc(doc(fs, "publicUsers", fromUid));
+          if (publicSnap.exists()) {
+            const p = publicSnap.data() || {};
+            other = {
+              uid: fromUid,
+              publicId: p.publicId || other.publicId,
+              displayName: p.displayName || other.displayName,
+              photoURL: p.photoURL || other.photoURL
+            };
+          }
+        } catch (e) {
+          showError("Public profile lookup", e);
+        }
+      }
+
+      const myFriendRef = doc(fs, `users/${me.uid}/friends/${fromUid}`);
+      try {
+        const myFriendSnap = await getDoc(myFriendRef);
+        if (myFriendSnap.exists()) {
+          await deleteDoc(myFriendRef);
+        }
+      } catch (e) {
+        showError("Cleanup existing friend", e);
+      }
+
+      const batch = writeBatch(fs);
+
+      // add to my friends
+      batch.set(myFriendRef, {
+        uid: fromUid,
+        publicId: other.publicId || null,
+        displayName: other.displayName || "User",
+        photoURL: other.photoURL || null,
+        createdAt: serverTimestamp()
+      }, { merge: false });
+
+      // add to their friends
+      batch.set(doc(fs, `users/${fromUid}/friends/${me.uid}`), {
+        uid: me.uid,
+        publicId: myProfile.publicId || null,
+        displayName: myProfile.displayName || "User",
+        photoURL: myProfile.photoURL || null,
+        createdAt: serverTimestamp()
+      }, { merge: false });
+
+      // delete request
+      batch.delete(reqRef);
+
+      await batch.commit();
+      try {
+        const reverseSnap = await getDoc(reverseReqRef);
+        if (reverseSnap.exists()) {
+          await deleteDoc(reverseReqRef);
+        }
+      } catch (e) {
+        showError("Cleanup reverse request", e);
+      }
+      statusEl.textContent = "Status: Friend request accepted.";
+    }
+
+    async function removeFriend(friendUid) {
+      if (!me) return;
+      const batch = writeBatch(fs);
+      batch.delete(doc(fs, `users/${me.uid}/friends/${friendUid}`));
+      batch.delete(doc(fs, `users/${friendUid}/friends/${me.uid}`));
+      await batch.commit();
+      statusEl.textContent = "Status: Friend removed.";
+    }
+
+
+    function renderIncoming(reqs) {
+      incomingList.innerHTML = "";
+      if (!reqs.length) { renderEmpty(incomingList, "No incoming requests."); return; }
+
+      reqs.forEach(r => {
+        const photo = normalizeGooglePhoto(r.fromPhoto || fallbackAvatar);
+        incomingList.insertAdjacentHTML("beforeend", `
+          <div class="item">
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <div class="itemMeta">
+              <p class="itemTitle">${escapeHtml(r.fromName || "User")}</p>
+              <div class="mono">From: ${escapeHtml(r.fromPublicId || "-")}</div>
+              <div class="mono">UID: ${escapeHtml(r.fromUid || "-")}</div>
+            </div>
+            <div class="rightActions">
+              <button class="primary" data-accept="${escapeHtml(r.fromUid)}" type="button">Accept</button>
+              <button class="danger" data-reject="${escapeHtml(r.fromUid)}" type="button">Reject</button>
+            </div>
+          </div>
+        `);
+      });
+
+      incomingList.querySelectorAll("[data-accept]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const fromUid = btn.getAttribute("data-accept");
+          btn.disabled = true;
+          try { await acceptIncoming(fromUid); }
+          catch (e) { showError("Accept request", e); statusEl.textContent = "Status: Failed to accept request."; }
+          finally { btn.disabled = false; }
+        });
+      });
+
+      incomingList.querySelectorAll("[data-reject]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const fromUid = btn.getAttribute("data-reject");
+          btn.disabled = true;
+          try { await rejectIncoming(fromUid); }
+          catch (e) { showError("Reject request", e); statusEl.textContent = "Status: Failed to reject request."; }
+          finally { btn.disabled = false; }
+        });
+      });
+    }
+
+    function renderOutgoing(reqs) {
+      outgoingList.innerHTML = "";
+      if (!reqs.length) { renderEmpty(outgoingList, "No outgoing requests."); return; }
+
+      reqs.forEach(r => {
+        const photo = normalizeGooglePhoto(r.toPhoto || fallbackAvatar);
+        outgoingList.insertAdjacentHTML("beforeend", `
+          <div class="item">
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <div class="itemMeta">
+              <p class="itemTitle">${escapeHtml(r.toName || "User")}</p>
+              <div class="mono">To: ${escapeHtml(r.toPublicId || "-")}</div>
+              <div class="mono">UID: ${escapeHtml(r.toUid || "-")}</div>
+            </div>
+            <div class="rightActions">
+              <button class="danger" data-cancel="${escapeHtml(r.toUid)}" type="button">Cancel</button>
+            </div>
+          </div>
+        `);
+      });
+
+      outgoingList.querySelectorAll("[data-cancel]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const toUid = btn.getAttribute("data-cancel");
+          btn.disabled = true;
+          try { await cancelOutgoing(toUid); }
+          catch (e) { showError("Cancel outgoing", e); statusEl.textContent = "Status: Failed to cancel request."; }
+          finally { btn.disabled = false; }
+        });
+      });
+    }
+
+    function renderSearchResults(results) {
+      searchResults.innerHTML = "";
+
+      if (!results.length) {
+        renderEmpty(searchResults, "No users found for that Public ID.");
+        return;
+      }
+
+      results.forEach(p => {
+        const isMe = p.uid === me.uid;
+        const isFriend = myFriends.has(p.uid);
+        const outgoing = outgoingReqTo.has(p.uid);
+        const incoming = incomingReqFrom.has(p.uid);
+
+        let actionHtml = "";
+        if (isMe) {
+          actionHtml = `<button disabled type="button">This is you</button>`;
+        } else if (isFriend) {
+          actionHtml = `<button disabled type="button">Already friends</button>`;
+        } else if (incoming) {
+          actionHtml = `<button disabled type="button">They requested you (check Requests)</button>`;
+        } else if (outgoing) {
+          actionHtml = `<button class="danger" data-cancel="${escapeHtml(p.uid)}" type="button">Cancel request</button>`;
+        } else {
+          actionHtml = `<button class="primary" data-add="${escapeHtml(p.uid)}" type="button">Send request</button>`;
+        }
+
+        const photo = normalizeGooglePhoto(p.photoURL || fallbackAvatar);
+        searchResults.insertAdjacentHTML("beforeend", `
+          <div class="item">
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <div class="itemMeta">
+              <p class="itemTitle">${escapeHtml(p.displayName || "User")}</p>
+              <div class="mono">Public ID: ${escapeHtml(p.publicId || "-")}</div>
+              <div class="mono">UID: ${escapeHtml(p.uid || "-")}</div>
+            </div>
+            <div class="rightActions">
+              ${actionHtml}
+            </div>
+          </div>
+        `);
+      });
+
+      // wire actions
+      searchResults.querySelectorAll("[data-add]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const uid = btn.getAttribute("data-add");
+          const target = results.find(x => x.uid === uid);
+          if (!target) return;
+          btn.disabled = true;
+          try { await sendFriendRequest(target); }
+          catch (e) { showError("Send request", e); statusEl.textContent = "Status: Failed to send request."; }
+          finally { btn.disabled = false; }
+        });
+      });
+
+      searchResults.querySelectorAll("[data-cancel]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const uid = btn.getAttribute("data-cancel");
+          btn.disabled = true;
+          try { await cancelOutgoing(uid); }
+          catch (e) { showError("Cancel request", e); statusEl.textContent = "Status: Failed to cancel request."; }
+          finally { btn.disabled = false; }
+        });
+      });
+    }
+
+    function renderFriends(friends) {
+      friendsList.innerHTML = "";
+      stopAllFriendPresence();
+
+      if (!friends.length) { renderEmpty(friendsList, "You have no friends yet."); return; }
+      const friendMap = new Map(friends.map(f => [f.uid, f]));
+
+      // render immediately (presence will update live)
+      friends.forEach(f => {
+        const photo = normalizeGooglePhoto(f.photoURL || fallbackAvatar);
+        const online = friendPresenceState.get(f.uid) || false;
+
+        friendsList.insertAdjacentHTML("beforeend", `
+          <div class="item" data-friend-item="${escapeHtml(f.uid)}">
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <div class="itemMeta">
+              <p class="itemTitle">${escapeHtml(f.displayName || "User")}</p>
+              <div class="mono">Public ID: ${escapeHtml(f.publicId || "-")}</div>
+              <div class="mono">UID: ${escapeHtml(f.uid || "-")}</div>
+            </div>
+            <div class="rightActions" style="align-items:center;">
+              <span class="presenceSlot">${miniPresencePill(online)}</span>
+              <button class="primary" data-resync="${escapeHtml(f.uid)}" type="button">Resync</button>
+              <button class="danger" data-remove="${escapeHtml(f.uid)}" type="button">Remove</button>
+            </div>
+          </div>
+        `);
+
+        // attach presence listener
+        listenFriendPresence(f.uid, (uid, isOnline) => {
+          const row = friendsList.querySelector(`[data-friend-item="${CSS.escape(uid)}"]`);
+          if (!row) return;
+          const slot = row.querySelector(".presenceSlot");
+          if (slot) slot.innerHTML = miniPresencePill(isOnline);
+        });
+      });
+
+      friendsList.querySelectorAll("[data-remove]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const uid = btn.getAttribute("data-remove");
+          btn.disabled = true;
+          try { await removeFriend(uid); }
+          catch (e) { showError("Remove friend", e); statusEl.textContent = "Status: Failed to remove friend."; }
+          finally { btn.disabled = false; }
+        });
+      });
+
+      friendsList.querySelectorAll("[data-resync]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const uid = btn.getAttribute("data-resync");
+          const target = friendMap.get(uid);
+          if (!target) return;
+          btn.disabled = true;
+          try { await sendResyncRequest(target); }
+          catch (e) { showError("Resync request", e); statusEl.textContent = "Status: Resync failed."; }
+          finally { btn.disabled = false; }
+        });
+      });
+    }
+
+    function wireRealtimeListeners() {
+      // friends subcollection
+      onSnapshot(collection(fs, `users/${me.uid}/friends`), (snap) => {
+        myFriends.clear();
+        const friends = [];
+        snap.forEach(d => {
+          const data = d.data();
+          const uid = data?.uid || d.id;
+          if (uid) myFriends.add(uid);
+          friends.push({ uid: d.id, ...data });
+        });
+        renderFriends(friends);
+        cleanupStaleRequests();
+      }, (e) => showError("Friends onSnapshot", e));
+
+      // incoming requests (toUid == me)
+      onSnapshot(query(collection(fs, "friendRequests"), where("toUid", "==", me.uid)), (snap) => {
+        incomingReqFrom.clear();
+        const reqs = [];
+        snap.forEach(d => {
+          const r = d.data();
+          if (r?.fromUid) incomingReqFrom.add(r.fromUid);
+          reqs.push(r);
+        });
+        renderIncoming(reqs);
+      }, (e) => showError("Incoming onSnapshot", e));
+
+      // outgoing requests (fromUid == me)
+      onSnapshot(query(collection(fs, "friendRequests"), where("fromUid", "==", me.uid)), (snap) => {
+        outgoingReqTo.clear();
+        const reqs = [];
+        snap.forEach(d => {
+          const r = d.data();
+          if (r?.toUid) outgoingReqTo.add(r.toUid);
+          reqs.push(r);
+        });
+        renderOutgoing(reqs);
+      }, (e) => showError("Outgoing onSnapshot", e));
+    }
+
+    // Search button
+    searchBtn.addEventListener("click", async () => {
+      if (!me) { statusEl.textContent = "Status: Please sign in first."; return; }
+      const pid = publicSearchInput.value;
+      statusEl.textContent = "Status: Searching...";
+      debugEl.textContent = "Debug: -";
+      searchBtn.disabled = true;
+
+      try {
+        const res = await searchByPublicId(pid);
+        renderSearchResults(res);
+        statusEl.textContent = `Status: Found ${res.length} result(s).`;
+      } catch (e) {
+        showError("Search", e);
+        statusEl.textContent = "Status: Search failed (see Debug).";
+      } finally {
+        searchBtn.disabled = false;
+      }
+    });
+
+    // Login navigation / logout
+    goLoginBtn.addEventListener("click", () => {
+      // Change this if your login page is different
+      location.href = "https://sapocketconsole.blogspot.com/p/login.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      logoutBtn.disabled = true;
+      statusEl.textContent = "Status: Signing out...";
+      debugEl.textContent = "Debug: -";
+
+      try {
+        const u = auth.currentUser;
+        if (u) {
+          await set(ref(rtdb, `/status/${u.uid}`), { state: "offline", lastChanged: Date.now() }).catch(() => {});
+        }
+        await signOut(auth);
+      } catch (e) {
+        showError("Auth signOut", e);
+        statusEl.textContent = "Status: Logout failed (see Debug).";
+      } finally {
+        logoutBtn.disabled = false;
+      }
+    });
+
+    function setLoggedOutUI() {
+      authChip.textContent = "Signed out";
+      avatarEl.src = fallbackAvatar;
+      nameEl.textContent = "Not signed in";
+      sublineEl.textContent = "Please go to Login page and sign in.";
+      setPresenceBadge(false);
+      statusEl.textContent = "Status: Signed out.";
+      debugEl.textContent = "Debug: -";
+      searchResults.innerHTML = "";
+      renderEmpty(incomingList, "Sign in to see incoming requests.");
+      renderEmpty(outgoingList, "Sign in to see outgoing requests.");
+      renderEmpty(friendsList, "Sign in to see friends.");
+
+      stopAllFriendPresence();
+    }
+
+    async function setLoggedInUI(user) {
+      authChip.textContent = "Signed in";
+      avatarEl.src = normalizeGooglePhoto(getBestPhotoURL(user));
+      nameEl.textContent = safeText(user.displayName, "Google User");
+      sublineEl.textContent = `Public ID: ${makePublicId(user.uid)} | UID: ${user.uid}`;
+    }
+
+    async function init() {
+      statusEl.textContent = "Status: Initializing...";
+      renderEmpty(incomingList, "Loading...");
+      renderEmpty(outgoingList, "Loading...");
+      renderEmpty(friendsList, "Loading...");
+
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          me = null;
+          myProfile = null;
+          myFriends.clear();
+          outgoingReqTo.clear();
+          incomingReqFrom.clear();
+          setLoggedOutUI();
+          return;
+        }
+
+        me = user;
+        await setLoggedInUI(user);
+
+        statusEl.textContent = "Status: Loading your profile...";
+        try {
+          myProfile = await ensureMyProfile(user);
+          statusEl.textContent = "Status: Profile ready. Loading friends & requests...";
+        } catch (e) {
+          showError("Ensure profile", e);
+          statusEl.textContent = "Status: Signed in, but profile load failed (see Debug).";
+        }
+
+        try {
+          setupMyPresence(user.uid);
+        } catch (e) {
+          showError("My presence", e);
+        }
+
+        wireRealtimeListeners();
+
+        statusEl.textContent = "Status: Ready.";
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
