@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>XO Online/Offline</title>
+  <style>
+    :root { color-scheme: dark; }
+    body{
+      margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:#0b0f14; color:#e8eef6; min-height:100vh;
+      display:flex; align-items:center; justify-content:center; padding:16px;
+    }
+    .app{
+      width:min(980px, 100%); background:#101824; border:1px solid #223044;
+      border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    header{
+      padding:14px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between;
+      border-bottom:1px solid #223044; background:rgba(255,255,255,.02);
+    }
+    header > div:first-child{ min-width:0; }
+    .brand{ font-weight:700; letter-spacing:.3px; }
+    .row{ display:flex; gap:16px; padding:16px; flex-wrap:wrap; }
+    .card{
+      flex:1 1 300px; min-width:280px; background:#0e1622; border:1px solid #223044;
+      border-radius:14px; padding:14px;
+    }
+    button{
+      background:#1a2a3d; color:#e8eef6; border:1px solid #2a3f59;
+      padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+    }
+    button:hover{ filter:brightness(1.07); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .pill{ padding:7px 10px; border-radius:999px; font-size:13px; }
+    .muted{ color:#9db0c7; font-size:13px; }
+    .endedNotice{
+      background:#2a1b0f;
+      border:1px solid #e3a23b;
+      color:#ffd9a6;
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:700;
+      display:inline-block;
+    }
+    .ctaGlow{
+      border-color:#e3a23b;
+      box-shadow:0 0 0 2px rgba(227,162,59,.25);
+      color:#ffe0b5;
+      background:#2a2112;
+    }
+    .grid{
+      display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:12px;
+      width:min(360px, 100%);
+    }
+    .cell{
+      aspect-ratio:1/1; border:1px solid #2a3f59; border-radius:12px;
+      display:grid; place-items:center; font-size:40px; font-weight:800;
+      background:#0b111a; user-select:none;
+    }
+    .cell:hover{ filter:brightness(1.06); }
+    .topline{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .item{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px; border-radius:12px; border:1px solid #223044; background:#0b111a;
+    }
+    .item > div:first-child{ min-width:0; }
+    .item > div:first-child div,
+    #pX, #pO,
+    #statusLine{
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .badge{ font-size:12px; padding:3px 8px; border-radius:999px; border:1px solid #2a3f59; }
+    .ok{ border-color:#2d5; }
+    .warn{ border-color:#ea5; }
+    .err{ border-color:#e55; }
+    .hidden{ display:none !important; }
+    .twoBtns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    input{
+      background:#0b111a; color:#e8eef6; border:1px solid #223044;
+      padding:10px 12px; border-radius:12px; width:100%;
+    }
+    @media (max-width: 720px){
+      header{ flex-direction:column; align-items:flex-start; gap:8px; }
+      .twoBtns{ width:100%; justify-content:flex-start; }
+      .row{ padding:12px; }
+      .card{ flex:1 1 100%; min-width:0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <div class="brand">XO (Offline / Online)</div>
+        <div class="muted" id="statusLine">Not signed in</div>
+      </div>
+      <div class="twoBtns">
+        <button class="pill" id="btnBack" disabled>Back</button>
+        <button class="pill" id="btnSignIn">Sign in</button>
+      </div>
+    </header>
+
+    <!-- MAIN MENU -->
+    <div class="row" id="viewMenu">
+      <div class="card">
+        <div class="topline">
+          <div>
+            <div style="font-weight:700;">Offline mode</div>
+            <div class="muted">Two players on the same device</div>
+          </div>
+          <button id="startOffline">Start Offline</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="topline">
+          <div>
+            <div style="font-weight:700;">Online mode</div>
+            <div class="muted">Invite an online friend and play</div>
+          </div>
+          <button id="startOnline">Start Online</button>
+        </div>
+        <div class="muted" style="margin-top:10px;" id="onlineHint">
+          Online mode requires sign-in.
+        </div>
+      </div>
+    </div>
+
+    <!-- OFFLINE GAME -->
+    <div class="row hidden" id="viewOffline">
+      <div class="card">
+        <div class="topline">
+          <div>
+            <div style="font-weight:700;">Offline Game</div>
+            <div class="muted" id="offlineTurn">Turn: X</div>
+          </div>
+          <button id="offlineReset">Reset</button>
+        </div>
+        <div class="grid" id="offlineBoard"></div>
+        <div class="muted" style="margin-top:10px;" id="offlineMsg"></div>
+      </div>
+    </div>
+
+    <!-- ONLINE LOBBY -->
+    <div class="row hidden" id="viewOnline">
+      <div class="card">
+        <div class="topline">
+          <div>
+            <div style="font-weight:700;">Online Lobby</div>
+            <div class="muted">Friends online</div>
+          </div>
+          <span class="badge err" id="presenceBadge">Offline</span>
+        </div>
+
+        <div class="list" id="friendsList"></div>
+      </div>
+
+      <div class="card">
+        <div class="topline">
+          <div>
+            <div style="font-weight:700;">Invites</div>
+            <div class="muted">Incoming match requests</div>
+          </div>
+        </div>
+        <div class="list" id="invitesList"></div>
+      </div>
+    </div>
+
+    <!-- ONLINE GAME -->
+    <div class="row hidden" id="viewRoom">
+      <div class="card" style="flex: 2 1 420px;">
+        <div class="topline">
+          <div>
+            <div style="font-weight:700;">Online Match</div>
+            <div class="muted" id="roomLine">Room: -</div>
+          </div>
+          <div class="twoBtns">
+            <button id="btnLeave" class="warn">Leave</button>
+            <button id="btnRematch" disabled>Rematch</button>
+          </div>
+        </div>
+
+        <div class="muted" style="margin-top:10px;" id="matchMsg"></div>
+        <div class="muted" style="margin-top:10px;" id="matchInfo">-</div>
+        <div class="grid" id="onlineBoard"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;">Players</div>
+        <div class="list" style="margin-top:10px;">
+          <div class="item"><div id="pX">X: -</div><span class="badge" id="pXb">-</span></div>
+          <div class="item"><div id="pO">O: -</div><span class="badge" id="pOb">-</span></div>
+        </div>
+        <div class="muted" style="margin-top:10px;">
+          If a player disconnects, the match ends for both.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+  // Firebase v10+ modules (Auth + Firestore + RTDB presence)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import {
+    getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  import {
+    getDatabase, ref, set, get, update, onValue, serverTimestamp, onDisconnect
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+  import {
+    getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc,
+    collection, onSnapshot, query, where, getDocs, serverTimestamp as fsTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
+    authDomain: "pocketconsole-cde70.firebaseapp.com",
+    projectId: "pocketconsole-cde70",
+    storageBucket: "pocketconsole-cde70.firebasestorage.app",
+    messagingSenderId: "85026527206",
+    appId: "1:85026527206:web:67bffb25c7f7e059fc2827",
+    databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
+  };
+
+  // ---------- init ----------
+  const $ = (id) => document.getElementById(id);
+  const views = {
+    menu: $("viewMenu"),
+    offline: $("viewOffline"),
+    online: $("viewOnline"),
+    room: $("viewRoom")
+  };
+  function showView(name){
+    for (const k of Object.keys(views)) views[k].classList.add("hidden");
+    views[name].classList.remove("hidden");
+    $("btnBack").disabled = (name === "menu");
+  }
+  function setStatus(text){
+    $("statusLine").textContent = text;
+    $("statusLine").classList.remove("endedNotice");
+  }
+  function resetAllInviteButtons(){
+    const buttons = $("friendsList")?.querySelectorAll("button");
+    if (!buttons) return;
+    buttons.forEach((b) => resetInviteButton(b));
+  }
+
+  function escapeHtml(s){
+    return (s||"").replace(/[&<>"']/g, (c) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function newRoomId(){
+    return "room_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  // ---------- winner ----------
+  function winnerOf(board){
+    const lines = [
+      [0,1,2],[3,4,5],[6,7,8],
+      [0,3,6],[1,4,7],[2,5,8],
+      [0,4,8],[2,4,6]
+    ];
+    for (const [a,b,c] of lines){
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+    }
+    if (board.every(v => v)) return "draw";
+    return "";
+  }
+
+  // ---------- board builder ----------
+  function buildBoard(container, onClick){
+    container.innerHTML = "";
+    for (let i=0;i<9;i++){
+      const d = document.createElement("div");
+      d.className = "cell";
+      d.addEventListener("click", () => onClick(i));
+      container.appendChild(d);
+    }
+  }
+
+  // ---------- Offline game ----------
+  const offline = { board: Array(9).fill(""), turn: "X", ended: false };
+
+  function renderOffline(){
+    $("offlineTurn").textContent = offline.ended ? "Match ended." : `Turn: ${offline.turn}`;
+    const win = winnerOf(offline.board);
+    const msg = win === "draw" ? "Draw." : (win ? `${win} wins.` : "");
+    if (win){
+      $("offlineTurn").textContent = `Match ended - ${msg}`;
+      $("offlineTurn").classList.add("endedNotice");
+      $("offlineMsg").textContent = "";
+    } else {
+      $("offlineTurn").classList.remove("endedNotice");
+      $("offlineMsg").textContent = "";
+    }
+  }
+
+  buildBoard($("offlineBoard"), (i) => {
+    if (offline.ended) return;
+    if (offline.board[i]) return;
+    offline.board[i] = offline.turn;
+    const win = winnerOf(offline.board);
+    if (win) offline.ended = true;
+    offline.turn = offline.turn === "X" ? "O" : "X";
+    [...$("offlineBoard").children].forEach((c, idx) => c.textContent = offline.board[idx]);
+    renderOffline();
+  });
+
+  $("offlineReset").addEventListener("click", () => {
+    offline.board = Array(9).fill("");
+    offline.turn = "X";
+    offline.ended = false;
+    [...$("offlineBoard").children].forEach(c => c.textContent = "");
+    renderOffline();
+  });
+
+  // ---------- Firebase enable guard ----------
+  let app, auth, db, fs;
+  let firebaseEnabled = true;
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getDatabase(app);     // RTDB presence only
+    fs = getFirestore(app);    // Firestore: friends + invites + rooms
+  } catch (e) {
+    firebaseEnabled = false;
+    console.warn("[Firebase disabled]", e);
+  }
+
+  // ---------- Presence (RTDB) ----------
+  async function writePresenceOnline(uid, name){
+    const statusRef = ref(db, `status/${uid}`);
+    const connRef = ref(db, ".info/connected");
+
+    onValue(connRef, async (snap) => {
+      if (snap.val() !== true) return;
+
+      await onDisconnect(statusRef).set({
+        state: "offline",
+        name: name || "Player",
+        lastChanged: Date.now()
+      });
+
+      await set(statusRef, {
+        state: "online",
+        name: name || "Player",
+        lastChanged: Date.now()
+      });
+
+      $("presenceBadge").textContent = "Online";
+      $("presenceBadge").className = "badge ok";
+    });
+  }
+
+  async function loadMyNameFromPresence(uid){
+    const s = await get(ref(db, `status/${uid}/name`));
+    return s.exists() ? s.val() : "";
+  }
+
+  // ---------- Online state ----------
+  let me = null;              // { uid, name }
+  let currentRoomId = null;
+
+  // Unsub holders
+  let friendsUnsub = null;
+  let invitesUnsub = null;
+  let inviteWatchUnsub = null;
+  let roomUnsub = null;
+  let presenceUnsubs = [];
+
+  function cleanupOnlineSubs(){
+    if (friendsUnsub) friendsUnsub(), friendsUnsub = null;
+    if (invitesUnsub) invitesUnsub(), invitesUnsub = null;
+    if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
+    if (roomUnsub) roomUnsub(), roomUnsub = null;
+    if (presenceUnsubs.length){
+      presenceUnsubs.forEach((u) => u && u());
+      presenceUnsubs = [];
+    }
+  }
+
+  async function clearMyPendingInvites(){
+    if (!me) return;
+    try {
+      // Rules allow delete only for invites you sent.
+      const qFrom = query(
+        collection(fs, "gameInvites"),
+        where("fromUid", "==", me.uid),
+        where("status", "==", "pending")
+      );
+      const snapFrom = await getDocs(qFrom);
+      const updates = [];
+      const deletes = [];
+      snapFrom.forEach((d) => {
+        updates.push(updateDoc(d.ref, { status: "cancelled", updatedAt: fsTimestamp() }));
+        deletes.push(deleteDoc(d.ref));
+      });
+      await Promise.allSettled(updates);
+      await Promise.allSettled(deletes);
+    } catch (e) {
+      console.error("[Invite cleanup]", e);
+    }
+  }
+
+  // ---------- Friends list (Firestore) + presence (RTDB) ----------
+  async function subscribeFriends(){
+    const listEl = $("friendsList");
+    listEl.innerHTML = `<div class="muted">Loading friends...</div>`;
+
+    if (friendsUnsub) friendsUnsub();
+
+    const friendsCol = collection(fs, "users", me.uid, "friends");
+    friendsUnsub = onSnapshot(friendsCol, async (snap) => {
+      const friendUids = snap.docs.map(d => d.id);
+
+      if (!friendUids.length){
+        listEl.innerHTML = `<div class="muted">No friends found in Firestore users/${me.uid}/friends</div>`;
+        return;
+      }
+
+      const rows = [];
+      for (const fuid of friendUids){
+        // Optional profile read (nice names)
+        let nameFromFs = "";
+        const prof = await getDoc(doc(fs, "users", fuid));
+        if (prof.exists()){
+          const d = prof.data();
+          nameFromFs = d.displayName || d.name || "";
+        }
+
+        // Initial presence (RTDB)
+        const st = await get(ref(db, `status/${fuid}`));
+        const val = st.val();
+        const online = !!(val && val.state === "online");
+        rows.push({ uid: fuid, name: nameFromFs || val?.name || fuid.slice(0,6), online });
+      }
+
+      listEl.innerHTML = "";
+      rows.sort((a,b) => Number(b.online)-Number(a.online) || a.name.localeCompare(b.name));
+
+      for (const r of rows){
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<div style="font-weight:700;">${escapeHtml(r.name)}</div>
+                          <div class="muted">${r.uid}</div>`;
+
+        const right = document.createElement("div");
+        right.className = "twoBtns";
+
+        const badge = document.createElement("span");
+        badge.className = `badge ${r.online ? "ok" : "err"}`;
+        badge.textContent = r.online ? "Online" : "Offline";
+
+        const btn = document.createElement("button");
+        btn.textContent = "Invite";
+        btn.disabled = !r.online || !!currentRoomId;
+        btn.addEventListener("click", () => sendInviteFs(r.uid, r.name, btn));
+
+        right.appendChild(badge);
+        right.appendChild(btn);
+
+        item.appendChild(left);
+        item.appendChild(right);
+        listEl.appendChild(item);
+
+        const presenceRef = ref(db, `status/${r.uid}`);
+        const unsub = onValue(presenceRef, (snapPresence) => {
+          const p = snapPresence.val();
+          const isOnline = !!(p && p.state === "online");
+          const inviteSent = btn.dataset.inviteState === "sent";
+          badge.className = `badge ${isOnline ? "ok" : "err"}`;
+          badge.textContent = isOnline ? "Online" : "Offline";
+          btn.disabled = !isOnline || !!currentRoomId || inviteSent;
+          if (!inviteSent) btn.textContent = "Invite";
+        });
+        presenceUnsubs.push(unsub);
+      }
+    });
+  }
+
+  // ---------- Invites (Firestore) ----------
+  function subscribeInvites(){
+    const listEl = $("invitesList");
+    listEl.innerHTML = `<div class="muted">Waiting for invites...</div>`;
+
+    if (invitesUnsub) invitesUnsub();
+
+    const qInv = query(
+      collection(fs, "gameInvites"),
+      where("toUid", "==", me.uid),
+      where("status", "==", "pending")
+    );
+
+    invitesUnsub = onSnapshot(qInv, (snap) => {
+      if (snap.empty){
+        listEl.innerHTML = `<div class="muted">No incoming invites.</div>`;
+        return;
+      }
+
+      const invites = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+
+      listEl.innerHTML = "";
+      for (const inv of invites){
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<div style="font-weight:700;">${escapeHtml(inv.fromName || "Friend")}</div>
+                          <div class="muted">${inv.fromUid}</div>`;
+
+        const right = document.createElement("div");
+        right.className = "twoBtns";
+
+        const accept = document.createElement("button");
+        accept.textContent = "Accept";
+        accept.addEventListener("click", () => acceptInviteFs(inv.id, inv));
+
+        const reject = document.createElement("button");
+        reject.textContent = "Reject";
+        reject.addEventListener("click", () => rejectInviteFs(inv.id));
+
+        right.appendChild(accept);
+        right.appendChild(reject);
+
+        item.appendChild(left);
+        item.appendChild(right);
+        listEl.appendChild(item);
+      }
+    });
+  }
+
+  function resetInviteButton(btn){
+    if (!btn) return;
+    btn.dataset.inviteState = "";
+    btn.textContent = "Invite";
+    btn.disabled = !!currentRoomId;
+  }
+
+  async function sendInviteFs(toUid, toName, btn){
+    if (!me) return;
+
+    const roomId = newRoomId();
+    try {
+      // Cancel any pending invites to the same friend to avoid conflicts.
+      const qExisting = query(
+        collection(fs, "gameInvites"),
+        where("fromUid", "==", me.uid),
+        where("toUid", "==", toUid),
+        where("status", "==", "pending")
+      );
+      const snapExisting = await getDocs(qExisting);
+      const updates = [];
+      const deletes = [];
+      snapExisting.forEach((d) => {
+        updates.push(updateDoc(d.ref, { status: "cancelled", updatedAt: fsTimestamp() }));
+        deletes.push(deleteDoc(d.ref));
+      });
+      await Promise.allSettled(updates);
+      await Promise.allSettled(deletes);
+
+      const inviteRef = doc(collection(fs, "gameInvites"));
+      await setDoc(inviteRef, {
+        fromUid: me.uid,
+        toUid,
+        fromName: me.name || "Player",
+        status: "pending",
+        roomId,
+        createdAt: fsTimestamp(),
+        updatedAt: fsTimestamp()
+      });
+
+      if (btn){
+        btn.dataset.inviteState = "sent";
+        btn.textContent = "Invitation sent";
+        btn.disabled = true;
+      }
+      watchInviteResult(inviteRef.id, () => resetInviteButton(btn));
+    } catch (e) {
+      console.error("[Invite]", e);
+      setStatus("Invite failed. Make sure the friend accepted your request.");
+      resetInviteButton(btn);
+    }
+  }
+
+  function watchInviteResult(inviteId, onResolve){
+    if (inviteWatchUnsub) inviteWatchUnsub();
+
+    const inviteRef = doc(fs, "gameInvites", inviteId);
+    inviteWatchUnsub = onSnapshot(inviteRef, (snap) => {
+      if (!snap.exists()){
+        if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
+        if (onResolve) onResolve();
+        return;
+      }
+      const inv = snap.data();
+
+      if (inv.status === "accepted" && inv.roomId){
+        if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
+        if (onResolve) onResolve();
+        joinRoomFs(inv.roomId);
+      } else if (inv.status === "rejected"){
+        if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
+        if (onResolve) onResolve();
+      } else if (inv.status === "cancelled"){
+        if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
+        if (onResolve) onResolve();
+      }
+    });
+  }
+
+  async function acceptInviteFs(inviteId, inv){
+    const roomId = inv.roomId;
+    const roomRef = doc(fs, "gameRooms", roomId);
+
+    await setDoc(roomRef, {
+      members: [inv.fromUid, me.uid],
+      players: { X: inv.fromUid, O: me.uid },
+      names: { [inv.fromUid]: inv.fromName || "Player X", [me.uid]: me.name || "Player O" },
+
+      board: Array(9).fill(""),
+      turn: "X",
+      status: "playing",
+      winner: "",
+      endedReason: "",
+
+      createdAt: fsTimestamp(),
+      updatedAt: fsTimestamp()
+    });
+
+    await updateDoc(doc(fs, "gameInvites", inviteId), {
+      status: "accepted",
+      updatedAt: fsTimestamp()
+    });
+
+    // Join immediately; cleanup can fail due to rules.
+    joinRoomFs(roomId);
+    try {
+      await deleteDoc(doc(fs, "gameInvites", inviteId));
+    } catch (e) {
+      console.warn("[Invite cleanup]", e);
+    }
+  }
+
+  async function rejectInviteFs(inviteId){
+    await updateDoc(doc(fs, "gameInvites", inviteId), {
+      status: "rejected",
+      updatedAt: fsTimestamp()
+    });
+    try {
+      await deleteDoc(doc(fs, "gameInvites", inviteId));
+    } catch (e) {
+      console.warn("[Invite cleanup]", e);
+    }
+  }
+
+  // ---------- Room (Firestore realtime) ----------
+  async function joinRoomFs(roomId){
+    currentRoomId = roomId;
+    showView("room");
+    $("roomLine").textContent = `Room: ${roomId}`;
+    $("btnRematch").disabled = true;
+    $("matchMsg").textContent = "";
+
+    if (roomUnsub) roomUnsub();
+
+    const roomRef = doc(fs, "gameRooms", roomId);
+
+    roomUnsub = onSnapshot(roomRef, async (snap) => {
+      if (!snap.exists()){
+        $("matchMsg").textContent = "Room ended.";
+        $("btnRematch").disabled = true;
+        return;
+      }
+
+      const room = snap.data();
+      const board = room.board || Array(9).fill("");
+      const turn = room.turn || "X";
+      const winner = room.winner || "";
+      const status = room.status || "playing";
+      const players = room.players || {};
+      const names = room.names || {};
+
+      const mySymbol = (players.X === me.uid) ? "X" : (players.O === me.uid ? "O" : "");
+      const oppUid = (mySymbol === "X") ? players.O : players.X;
+
+      if (status === "ended"){
+        const winLine =
+          winner === "draw" ? "Draw." :
+          winner ? `${winner} wins.` :
+          "Match ended.";
+        $("matchInfo").textContent = `Match ended - ${winLine}`;
+        $("matchInfo").classList.add("endedNotice");
+        $("btnRematch").classList.add("ctaGlow");
+        $("matchMsg").textContent = room.endedReason || "";
+        $("matchMsg").classList.toggle("endedNotice", !!(room.endedReason));
+        if (room.endedReason && /left|disconnected/i.test(room.endedReason)){
+          setStatus(room.endedReason);
+          $("statusLine").classList.add("endedNotice");
+          showView("menu");
+          resetAllInviteButtons();
+        }
+      } else {
+        $("matchInfo").textContent = `Turn: ${turn} - You are ${mySymbol || "?"}`;
+        $("matchInfo").classList.remove("endedNotice");
+        $("btnRematch").classList.remove("ctaGlow");
+        $("matchMsg").textContent = "";
+        $("matchMsg").classList.remove("endedNotice");
+        $("statusLine").classList.remove("endedNotice");
+      }
+
+      [...$("onlineBoard").children].forEach((c, idx) => c.textContent = board[idx] || "");
+
+      $("pX").textContent = `X: ${names[players.X] || players.X || "-"}`;
+      $("pO").textContent = `O: ${names[players.O] || players.O || "-"}`;
+
+      // Presence check (RTDB)
+      if (oppUid){
+        const oppSnap = await get(ref(db, `status/${oppUid}`));
+        const oppOnline = !!(oppSnap.val() && oppSnap.val().state === "online");
+
+        $("pXb").textContent = (players.X === me.uid ? "You" : (oppOnline ? "Online" : "Offline"));
+        $("pOb").textContent = (players.O === me.uid ? "You" : (oppOnline ? "Online" : "Offline"));
+
+        if (!oppOnline && status === "playing"){
+          await updateDoc(roomRef, {
+            status: "ended",
+            winner: "",
+            endedReason: `${names[oppUid] || "Friend"} disconnected`,
+            updatedAt: fsTimestamp()
+          });
+          $("matchMsg").textContent = `${names[oppUid] || "Friend"} disconnected.`;
+        }
+      }
+
+      $("btnRematch").disabled = (status !== "ended");
+    });
+  }
+
+  async function tryMoveFs(i){
+    if (!currentRoomId || !me) return;
+
+    const roomRef = doc(fs, "gameRooms", currentRoomId);
+    const snap = await getDoc(roomRef);
+    if (!snap.exists()) return;
+
+    const room = snap.data();
+    if (room.status !== "playing") return;
+
+    const players = room.players || {};
+    const mySymbol = (players.X === me.uid) ? "X" : (players.O === me.uid ? "O" : "");
+    if (!mySymbol) return;
+    if (room.turn !== mySymbol) return;
+
+    const board = room.board || Array(9).fill("");
+    if (board[i]) return;
+
+    board[i] = mySymbol;
+
+    const w = winnerOf(board);
+    const next = {
+      board,
+      turn: (mySymbol === "X" ? "O" : "X"),
+      updatedAt: fsTimestamp()
+    };
+
+    if (w){
+      next.status = "ended";
+      next.winner = w;
+      next.endedReason = "";
+    }
+
+    await updateDoc(roomRef, next);
+  }
+
+  // Build online board clicks once
+  buildBoard($("onlineBoard"), (i) => tryMoveFs(i));
+
+  // Leave
+  $("btnLeave").addEventListener("click", async () => {
+    if (!currentRoomId) { showView("online"); return; }
+    const roomRef = doc(fs, "gameRooms", currentRoomId);
+    const snap = await getDoc(roomRef);
+    if (snap.exists()){
+      const room = snap.data();
+      const names = room.names || {};
+      await updateDoc(roomRef, {
+        status: "ended",
+        winner: "",
+        endedReason: `${names[me.uid] || "Player"} left`,
+        updatedAt: fsTimestamp()
+      });
+    }
+    if (roomUnsub) roomUnsub(), roomUnsub = null;
+    currentRoomId = null;
+    showView("online");
+    resetAllInviteButtons();
+  });
+
+  // Rematch (two votes)
+  $("btnRematch").addEventListener("click", async () => {
+    if (!currentRoomId || !me) return;
+
+    const roomRef = doc(fs, "gameRooms", currentRoomId);
+    const voteRef = doc(fs, "gameRooms", currentRoomId, "rematchVotes", me.uid);
+
+    await setDoc(voteRef, { vote: true, at: fsTimestamp() });
+
+    const roomSnap = await getDoc(roomRef);
+    if (!roomSnap.exists()) return;
+    const room = roomSnap.data();
+    const a = room.players?.X;
+    const b = room.players?.O;
+
+    const aVote = await getDoc(doc(fs, "gameRooms", currentRoomId, "rematchVotes", a));
+    const bVote = await getDoc(doc(fs, "gameRooms", currentRoomId, "rematchVotes", b));
+
+    const roomUpdatedAt = room.updatedAt?.toMillis ? room.updatedAt.toMillis() : 0;
+    const aAt = aVote.exists() && aVote.data()?.at?.toMillis ? aVote.data().at.toMillis() : 0;
+    const bAt = bVote.exists() && bVote.data()?.at?.toMillis ? bVote.data().at.toMillis() : 0;
+
+    if (aAt > roomUpdatedAt && bAt > roomUpdatedAt){
+      await updateDoc(roomRef, {
+        status: "playing",
+        board: Array(9).fill(""),
+        turn: "X",
+        winner: "",
+        endedReason: "",
+        updatedAt: fsTimestamp()
+      });
+
+      $("matchMsg").textContent = "Rematch started.";
+    } else {
+      $("matchMsg").textContent = "Rematch requested. Waiting for friend...";
+    }
+  });
+
+  // ---------- Navigation ----------
+  $("btnBack").addEventListener("click", () => {
+    if (!views.room.classList.contains("hidden")){
+      $("btnLeave").click();
+      return;
+    }
+    showView("menu");
+  });
+
+  $("startOffline").addEventListener("click", () => {
+    showView("offline");
+    $("offlineReset").click();
+  });
+
+  $("startOnline").addEventListener("click", async () => {
+    if (!firebaseEnabled){
+      alert("Online mode is unavailable. Firebase is not configured.");
+      return;
+    }
+    if (!me){
+      alert("Please sign in first to use Online mode.");
+      return;
+    }
+    showView("online");
+  });
+
+  // ---------- Auth ----------
+  $("btnSignIn").addEventListener("click", async () => {
+    if (!firebaseEnabled) return;
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  });
+
+  window.addEventListener("beforeunload", () => {
+    // Best-effort cleanup of my pending invites when leaving the page
+    clearMyPendingInvites();
+  });
+
+  // ---------- Auth state ----------
+  if (!firebaseEnabled){
+    $("btnSignIn").disabled = true;
+    $("startOnline").disabled = true;
+    $("onlineHint").textContent = "Online mode disabled (Firebase not configured).";
+    setStatus("Offline mode only");
+    showView("menu");
+  } else {
+    onAuthStateChanged(auth, async (user) => {
+      cleanupOnlineSubs();
+      currentRoomId = null;
+
+      if (!user){
+        me = null;
+        setStatus("Not signed in");
+        $("btnSignIn").classList.remove("hidden");
+        $("presenceBadge").textContent = "Offline";
+        $("presenceBadge").className = "badge err";
+        showView("menu");
+        return;
+      }
+
+      me = { uid: user.uid, name: user.displayName || "Player" };
+
+      // Prefer presence stored name (if you used Save)
+      const saved = await loadMyNameFromPresence(me.uid);
+      if (saved) me.name = saved;
+
+      setStatus(`Signed in as ${me.name}`);
+      $("btnSignIn").classList.add("hidden");
+
+      await writePresenceOnline(me.uid, me.name);
+
+      // Online lobby live data
+      await subscribeFriends();
+      subscribeInvites();
+    });
+
+    showView("menu");
+  }
+</script>
+</body>
+</html>

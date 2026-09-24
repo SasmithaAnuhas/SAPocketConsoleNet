@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>Top-Down Racing</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #0b0b0b;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        #menuOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            z-index: 20;
+        }
+        #loadingOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top, rgba(35, 35, 35, 0.95), rgba(5, 5, 5, 0.98));
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            z-index: 30;
+        }
+        #rotateOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            z-index: 40;
+            text-align: center;
+            padding: 24px;
+        }
+        .rotate-panel {
+            width: min(520px, 92vw);
+            background: rgba(12, 12, 12, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 24px;
+        }
+        .rotate-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+        .rotate-text {
+            font-size: 14px;
+            opacity: 0.8;
+            margin: 0;
+        }
+        .loading-panel {
+            width: min(520px, 92vw);
+            background: rgba(12, 12, 12, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 22px;
+        }
+        .loading-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+        }
+        .loading-bar {
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+        }
+        .loading-bar > span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff8c1a, #ffd180);
+            transition: width 0.2s ease;
+        }
+        .loading-text {
+            font-size: 13px;
+            opacity: 0.75;
+            margin-top: 10px;
+            letter-spacing: 0.2px;
+        }
+        .menu-panel {
+            width: min(520px, 92vw);
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .menu-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+        }
+        .menu-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .menu-row label {
+            width: 120px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .menu-row select {
+            flex: 1;
+            padding: 8px 10px;
+            background: #111;
+            color: #fff;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        .menu-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+        .menu-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #222;
+            color: #fff;
+            cursor: pointer;
+        }
+        .menu-btn.primary {
+            background: #ff8c1a;
+            border-color: #ff8c1a;
+            color: #111;
+            font-weight: 600;
+        }
+        .menu-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .hidden {
+            display: none !important;
+        }
+        #resultOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            font-family: system-ui, sans-serif;
+            z-index: 35;
+        }
+        .result-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+        }
+        .result-sub {
+            font-size: 14px;
+            opacity: 0.8;
+            margin: 0 0 14px 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="game"></canvas>
+    <div id="loadingOverlay">
+        <div class="loading-panel">
+            <div class="loading-title">Loading assets…</div>
+            <div class="loading-bar"><span id="loadingBar"></span></div>
+            <div id="loadingText" class="loading-text">Starting up</div>
+        </div>
+    </div>
+    <div id="rotateOverlay" class="hidden">
+        <div class="rotate-panel">
+            <div class="rotate-title">Rotate your device</div>
+            <p class="rotate-text">Please switch to landscape for the best experience.</p>
+        </div>
+    </div>
+    <div id="menuOverlay" class="hidden">
+        <div id="menuMain" class="menu-panel">
+            <div class="menu-title">Top-Down Racing</div>
+            <div class="menu-actions">
+                <button id="btnSingle" class="menu-btn primary">Single Player</button>
+                <button class="menu-btn disabled" disabled>Multiplayer (soon)</button>
+            </div>
+        </div>
+        <div id="menuSingle" class="menu-panel hidden">
+            <div class="menu-title">Single Player</div>
+            <div class="menu-row">
+                <label for="selectCar">Car</label>
+                <select id="selectCar"></select>
+            </div>
+            <div class="menu-row">
+                <label for="selectLaps">Laps</label>
+                <select id="selectLaps"></select>
+            </div>
+            <div class="menu-row">
+                <label for="selectMode">Game Mode</label>
+                <select id="selectMode"></select>
+            </div>
+            <div class="menu-row">
+                <label for="selectMap">Map</label>
+                <select id="selectMap"></select>
+            </div>
+            <div class="menu-actions">
+                <button id="btnBack" class="menu-btn">Back</button>
+                <button id="btnStart" class="menu-btn primary">Start</button>
+            </div>
+        </div>
+    </div>
+        <div id="resultOverlay" class="hidden">
+        <div class="menu-panel">
+            <div id="resultTitle" class="result-title">Race Complete</div>
+            <div id="resultSub" class="result-sub">Great run.</div>
+            <div id="resultPlace" class="result-sub">Place: 1/1</div>
+            <div id="resultTime" class="result-sub">Time: 00:00</div>
+            <div id="resultBest" class="result-sub">Best: 00:00</div>
+            <div class="menu-actions">
+                <button id="btnRestart" class="menu-btn primary">Restart</button>
+                <button id="btnQuit" class="menu-btn">Main Menu</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

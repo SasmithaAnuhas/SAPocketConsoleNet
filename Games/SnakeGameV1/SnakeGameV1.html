@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snake Game Optimized with Centered Cube</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111; color: #fff; font-family: Arial, sans-serif; overflow: hidden; user-select: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  #scoreDisplay { font-size: 20px; margin: 10px 0; z-index: 5; }
+  canvas { background: #000; display: block; width: 100%; height: 100%; }
+  .menu { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10; }
+  button { padding: 12px 30px; margin: 10px; font-size: 18px; cursor: pointer; }
+  input[type=range] { width: 200px; }
+  #difficultyLabel, #difficultyLabelOver { margin-bottom: 10px; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<div id="scoreDisplay">Score: 0 | High Score: 0</div>
+<canvas id="game"></canvas>
+
+<div id="startMenu" class="menu">
+  <h1>Snake</h1>
+  <p>Difficulty</p>
+  <input id="difficultySlider" type="range" min="0" max="2" step="1" value="1">
+  <div id="difficultyLabel">Medium</div>
+  <button id="startBtn">Start Game</button>
+</div>
+
+<div id="pauseMenu" class="menu" style="display:none">
+  <h1>Paused</h1>
+  <button onclick="resumeGame()">Resume</button>
+  <button onclick="startGame()">Restart</button>
+</div>
+
+<div id="gameOverMenu" class="menu" style="display:none">
+  <h1>Game Over</h1>
+  <p id="finalScore"></p>
+  <p>Difficulty</p>
+  <input id="difficultySliderOver" type="range" min="0" max="2" step="1" value="1">
+  <div id="difficultyLabelOver">Medium</div>
+  <button id="playAgainBtn">Play Again</button>
+</div>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreDisplay = document.getElementById('scoreDisplay');
+let tileSize = 18, tilesX, tilesY, offsetX, offsetY;
+let snake, food, powerCube, dir, nextDir;
+let score = 0, highScore = localStorage.getItem('snakeHigh') || 0;
+let gameInterval = null;
+const difficultySpeed = { easy: 200, medium: 150, hard: 90 };
+const difficultyMap = ['easy','medium','hard'];
+let difficulty = 'medium';
+let snakeSpeed = difficultySpeed[difficulty];
+let gameState = 'MENU';
+let lastPowerTime = 0, powerDuration = 5000, powerInterval = 20000;
+
+function applyDifficulty(value){
+    difficulty = difficultyMap[value];
+    snakeSpeed = difficultySpeed[difficulty];
+    const label = difficulty.charAt(0).toUpperCase()+difficulty.slice(1);
+    document.getElementById('difficultyLabel').innerText = label;
+    document.getElementById('difficultyLabelOver').innerText = label;
+}
+
+function hideMenus(){
+    document.getElementById('startMenu').style.display='none';
+    document.getElementById('pauseMenu').style.display='none';
+    document.getElementById('gameOverMenu').style.display='none';
+}
+
+function setFullScreen(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - scoreDisplay.offsetHeight;
+    // Only apply 15x15 grid for actual gameplay, not start menu
+    if(gameState==='PLAYING'){ tilesX = 15; tilesY = 15; offsetX = (canvas.width - tilesX*tileSize)/2; offsetY = (canvas.height - tilesY*tileSize)/2; }
+}
+window.addEventListener('resize', setFullScreen);
+
+function startGame(){
+    requestFullScreen();
+    gameState='PLAYING';
+    setFullScreen();
+    snakeSpeed = difficultySpeed[difficulty];
+
+    const startX=Math.floor(15/2), startY=Math.floor(15/2);
+    snake=[{x:startX,y:startY},{x:startX-1,y:startY},{x:startX-2,y:startY}];
+    dir=nextDir='RIGHT'; score=0; powerCube=null; lastPowerTime=Date.now();
+    spawnFood(); updateScore(); hideMenus();
+    clearInterval(gameInterval); gameInterval=setInterval(gameLoop,snakeSpeed);
+}
+
+function pauseGame(){ if(gameState!=='PLAYING')return; gameState='PAUSED'; clearInterval(gameInterval); document.getElementById('pauseMenu').style.display='flex'; }
+function resumeGame(){ hideMenus(); gameState='PLAYING'; clearInterval(gameInterval); gameInterval=setInterval(gameLoop,snakeSpeed); }
+function gameOver(){ gameState='GAME_OVER'; clearInterval(gameInterval); document.getElementById('finalScore').innerText='Score: '+score; document.getElementById('gameOverMenu').style.display='flex'; }
+
+function gameLoop(){
+    dir=nextDir; let head={...snake[0]};
+    if(dir==='UP')head.y--; if(dir==='DOWN')head.y++; if(dir==='LEFT')head.x--; if(dir==='RIGHT')head.x++;
+    if(head.x<0||head.y<0||head.x>=tilesX||head.y>=tilesY)return gameOver();
+    for(let s of snake)if(s.x===head.x&&s.y===head.y)return gameOver();
+    snake.unshift(head);
+    if(head.x===food.x&&head.y===food.y){score+=10;spawnFood();}else snake.pop();
+
+    let now=Date.now();
+    if(!powerCube && now-lastPowerTime>=powerInterval) powerCube={x:Math.floor(Math.random()*tilesX),y:Math.floor(Math.random()*tilesY),value:50,startTime:now,blink:1};
+    if(powerCube){
+        if(now-powerCube.startTime>=powerDuration){powerCube=null; lastPowerTime=now;}
+        else powerCube.blink=Math.floor((now-powerCube.startTime)/200)%2?1:0.7;
+        if(head.x===powerCube.x&&head.y===powerCube.y){score+=powerCube.value;snake.push({...snake[snake.length-1]});powerCube=null;lastPowerTime=now;}
+    }
+
+    if(score>highScore){highScore=score; localStorage.setItem('snakeHigh',highScore);}
+    updateScore(); draw();
+}
+
+function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(gameState==='PLAYING'){
+        ctx.strokeStyle='#555'; ctx.lineWidth=2;
+        ctx.strokeRect(offsetX,offsetY,tilesX*tileSize,tilesY*tileSize);
+
+        ctx.fillStyle='#0f0'; snake.forEach((s,i)=>{
+            ctx.fillRect(offsetX+s.x*tileSize,offsetY+s.y*tileSize,tileSize,tileSize);
+            if(i===0){ctx.fillStyle='#000'; ctx.fillRect(offsetX+s.x*tileSize+4,offsetY+s.y*tileSize+4,4,4); ctx.fillRect(offsetX+s.x*tileSize+tileSize-8,offsetY+s.y*tileSize+4,4,4); ctx.fillStyle='#0f0';}
+        });
+        ctx.fillStyle='red'; ctx.fillRect(offsetX+food.x*tileSize,offsetY+food.y*tileSize,tileSize,tileSize);
+        if(powerCube){ ctx.fillStyle='gold'; let size=tileSize*powerCube.blink; let offset=(tileSize-size)/2; ctx.fillRect(offsetX+powerCube.x*tileSize+offset,offsetY+powerCube.y*tileSize+offset,size,size); }
+    }
+}
+
+function spawnFood(){food={x:Math.floor(Math.random()*tilesX),y:Math.floor(Math.random()*tilesY)}; for(let s of snake)if(s.x===food.x&&s.y===food.y)spawnFood();}
+function updateScore(){scoreDisplay.innerText=`Score: ${score} | High Score: ${highScore}`;}
+
+// Keyboard and touch controls
+document.addEventListener('keydown',e=>{
+    if(e.key===' ')pauseGame();
+    if(dir==='UP'||dir==='DOWN'){if(e.key==='ArrowLeft')nextDir='LEFT'; if(e.key==='ArrowRight')nextDir='RIGHT';}
+    if(dir==='LEFT'||dir==='RIGHT'){if(e.key==='ArrowUp')nextDir='UP'; if(e.key==='ArrowDown')nextDir='DOWN';}
+});
+let startX,startY;
+canvas.addEventListener('touchstart',e=>{const t=e.touches[0];startX=t.clientX; startY=t.clientY;});
+canvas.addEventListener('touchend',e=>{
+    const t=e.changedTouches[0]; const dx=t.clientX-startX, dy=t.clientY-startY;
+    if(Math.abs(dx)>Math.abs(dy)){if(dx>0&&dir!=='LEFT')nextDir='RIGHT'; if(dx<0&&dir!=='RIGHT')nextDir='LEFT';}
+    else{if(dy>0&&dir!=='UP')nextDir='DOWN'; if(dy<0&&dir!=='DOWN')nextDir='UP';}
+});
+
+// Initialize sliders
+window.addEventListener('DOMContentLoaded',()=>{
+    const s1=document.getElementById('difficultySlider');
+    const s2=document.getElementById('difficultySliderOver');
+    const startBtn=document.getElementById('startBtn');
+    const playAgainBtn=document.getElementById('playAgainBtn');
+    if(s1)s1.addEventListener('input',e=>applyDifficulty(e.target.value));
+    if(s2)s2.addEventListener('input',e=>applyDifficulty(e.target.value));
+    if(startBtn)startBtn.addEventListener('click',()=>startGame());
+    if(playAgainBtn)playAgainBtn.addEventListener('click',()=>startGame());
+    applyDifficulty(1);
+});
+
+function requestFullScreen(){
+    if(!document.fullscreenElement){
+        if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();
+        else if(document.documentElement.webkitRequestFullscreen)document.documentElement.webkitRequestFullscreen();
+        else if(document.documentElement.msRequestFullscreen)document.documentElement.msRequestFullscreen();
+    }
+}
+</script>
+</body>
+</html>

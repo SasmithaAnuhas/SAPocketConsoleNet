@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Lane Rush (Kenney)</title>
+  <style>
+    
+     /* Disable selection (deterrent only) */
+html, body {
+  -webkit-user-select: none; /* Safari/Chrome */
+  -ms-user-select: none;     /* old Edge */
+  user-select: none;         /* standard */
+}
+
+    
+    :root { color-scheme: dark; }
+    html, body { height: 100%; margin: 0; background:#0b0f14; font-family: Arial, sans-serif; overflow: hidden; }
+
+    #wrap { position: fixed; inset: 0; display: grid; place-items: center; }
+    canvas {
+      display: block;
+      background:#111;
+      border: 1px solid #2a3442;
+      border-radius: 12px;
+      touch-action: none;
+    }
+
+    .hud {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: none;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 12px;
+      border: 1px solid #2a3442;
+      border-radius: 999px;
+      background: rgba(10,14,20,.75);
+      backdrop-filter: blur(6px);
+      user-select: none;
+      z-index: 20;
+    }
+    .hud b { font-weight: 700; }
+    .hud .btn {
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid #2a3442;
+      background: #121a25;
+      color: #e6eefc;
+      cursor: pointer;
+    }
+
+    .touch {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(92vw, 560px);
+      display: none;
+      justify-content: space-between;
+      gap: 12px;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .touch button {
+      pointer-events: auto;
+      width: 46%;
+      padding: 16px 0;
+      border-radius: 14px;
+      border: 1px solid #2a3442;
+      background: rgba(18,26,37,.7);
+      color: #e6eefc;
+      font-size: 16px;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.55);
+      z-index: 30;
+      padding: 16px;
+    }
+    .panel {
+      width: min(92vw, 520px);
+      border: 1px solid #2a3442;
+      background: rgba(10,14,20,.85);
+      backdrop-filter: blur(8px);
+      border-radius: 18px;
+      padding: 18px;
+      color: #e6eefc;
+      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      text-align: center;
+    }
+    .panel h1 {
+      margin: 6px 0 10px 0;
+      font-size: 34px;
+      letter-spacing: 0.5px;
+    }
+    .panel p { margin: 8px 0; opacity: 0.9; }
+
+    .select {
+      width: 100%;
+      display: grid;
+      gap: 8px;
+      text-align: left;
+      margin-top: 14px;
+    }
+    .select label { font-size: 14px; opacity: 0.9; }
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #2a3442;
+      background: #0f1620;
+      color: #e6eefc;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .primary {
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #2a3442;
+      background: #121a25;
+      color: #e6eefc;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .secondary {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid #2a3442;
+      background: transparent;
+      color: #e6eefc;
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.9;
+    }
+
+    .small {
+      margin-top: 10px;
+      font-size: 13px;
+      opacity: 0.8;
+      line-height: 1.35;
+    }
+  </style>
+</head>
+<body> <br><br><br><br><br><br><br><br>
+  <div class="hud" id="hud">
+    <div>Score: <b id="score">0</b></div>
+    <div>Best: <b id="best">0</b></div>
+    <button class="btn" id="restart">Restart</button>
+  </div>
+
+  <div id="wrap"> <canvas id="c"></canvas> </div>
+
+  <div class="touch" id="touch">
+    <button id="left">◀ Left</button>
+    <button id="right">Right ▶</button>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="panel">
+      <h1 id="overlayTitle">CAR DODGE</h1>
+      <p id="overlaySubtitle">Avoid obstacles. Survive as long as possible.</p>
+
+      <div class="select" id="difficultyBlock">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+
+      <button class="primary" id="startBtn">Start Game</button>
+      <button class="secondary" id="fsBtn">Full Screen (optional)</button>
+
+      <div class="small" id="hint">
+        Controls: Arrow keys / A-D on PC, or touch buttons on mobile.
+        Press R to restart during gameplay.
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+
+  const hud = document.getElementById("hud");
+  const touch = document.getElementById("touch");
+
+  const scoreEl = document.getElementById("score");
+  const bestEl = document.getElementById("best");
+  const restartBtn = document.getElementById("restart");
+
+  const overlay = document.getElementById("overlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlaySubtitle = document.getElementById("overlaySubtitle");
+  const difficultySel = document.getElementById("difficulty");
+  const difficultyBlock = document.getElementById("difficultyBlock");
+  const startBtn = document.getElementById("startBtn");
+  const fsBtn = document.getElementById("fsBtn");
+
+  const ASSETS = {
+    road: "Assets/Road/Track1/ModedRoadAsphalt1.png",
+    roadEdge: "Assets/Road/Grass/ModedLandGrass1.png",
+    player: "Assets/Cars/ModedYellow Car1.png",
+    car2: "Assets/Cars/ModedRedCar1.png",
+    car3: "Assets/Cars/ModedBlackCar1.png",
+  };
+
+  function loadImage(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Failed to load: " + src));
+      img.src = src;
+    });
+  }
+
+  function aabb(a, b) {
+    return (a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
+  }
+
+  // Virtual resolution
+  const V_W = 540;
+  const V_H = 960;
+
+  // ===== 3 LANE SYSTEM =====
+  const LANES = 3;
+  const roadWidth = Math.floor(V_W * 0.64);
+  const laneW = Math.floor(roadWidth / LANES);
+  const road = {
+    x: Math.floor((V_W - (laneW * LANES)) / 2),
+    y: 0,
+    w: laneW * LANES,
+    h: V_H,
+  };
+
+  function computeLaneCenters() {
+    return Array.from({ length: LANES }, (_, i) =>
+      road.x + (laneW * (i + 0.5))
+    );
+  }
+  function computeLaneDividers() {
+    return Array.from({ length: LANES - 1 }, (_, i) =>
+      road.x + (laneW * (i + 1))
+    );
+  }
+  let laneCenters = computeLaneCenters();
+  let laneDividers = computeLaneDividers();
+
+
+  const state = {
+    mode: "menu", // "menu" | "play" | "over"
+    tPrev: performance.now(),
+    score: 0,
+    best: Number(localStorage.getItem("car_best") || 0),
+    speed: 380,
+    spawnTimer: 0,
+    spawnEvery: 0.85,
+    scrollY: 0,
+    steer: 0,
+    difficulty: "medium",
+  };
+  bestEl.textContent = state.best;
+
+  const keys = { left:false, right:false };
+
+  function isTouchDevice() {
+    return (navigator.maxTouchPoints || 0) > 0;
+  }
+
+  function setUIForMode() {
+    if (state.mode === "play") {
+      overlay.style.display = "none";
+      hud.style.display = "flex";
+      touch.style.display = isTouchDevice() ? "flex" : "none";
+    } else {
+      overlay.style.display = "grid";
+      hud.style.display = "none";
+      touch.style.display = "none";
+    }
+  }
+
+  function applyDifficulty(diff) {
+    if (diff === "easy") {
+      state.speed = 320;
+      state.spawnEvery = 1.05;
+    } else if (diff === "hard") {
+      state.speed = 460;
+      state.spawnEvery = 0.62;
+    } else {
+      state.speed = 380;
+      state.spawnEvery = 0.85;
+    }
+    state.difficulty = diff;
+  }
+
+  function resetRun(diff) {
+    applyDifficulty(diff);
+
+    state.score = 0;
+    state.spawnTimer = 0;
+    state.scrollY = 0;
+    state.steer = 0;
+
+    obstacles.length = 0;
+
+    player.x = road.x + road.w/2;
+    player.vx = 0;
+
+    scoreEl.textContent = "0";
+  }
+
+  function showMenu() {
+    state.mode = "menu";
+    overlayTitle.textContent = "CAR DODGE";
+    overlaySubtitle.textContent = "Avoid obstacles. Survive as long as possible.";
+    startBtn.textContent = "Start Game";
+    difficultyBlock.style.display = "grid";
+    setUIForMode();
+  }
+
+  function showGameOver() {
+    state.mode = "over";
+    overlayTitle.textContent = "GAME OVER";
+    overlaySubtitle.textContent = "Try again with a different difficulty if you want.";
+    startBtn.textContent = "Play Again";
+    difficultyBlock.style.display = "grid";
+    setUIForMode();
+  }
+
+  async function requestFullScreen() {
+    const el = document.documentElement;
+    try {
+      if (document.fullscreenElement) return true;
+      if (el.requestFullscreen) { await el.requestFullscreen(); return true; }
+      if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); return true; }
+    } catch (e) {}
+    return false;
+  }
+
+  function resizeCanvas() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const targetAspect = V_W / V_H;
+    let drawW = vw;
+    let drawH = vw / targetAspect;
+
+    if (drawH > vh) {
+      drawH = vh;
+      drawW = vh * targetAspect;
+    }
+
+    canvas.style.width = Math.floor(drawW) + "px";
+    canvas.style.height = Math.floor(drawH) + "px";
+
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = Math.floor(drawW * dpr);
+    canvas.height = Math.floor(drawH * dpr);
+
+    ctx.setTransform(canvas.width / V_W, 0, 0, canvas.height / V_H, 0, 0);
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("orientationchange", resizeCanvas);
+
+  const leftBtn = document.getElementById("left");
+  const rightBtn = document.getElementById("right");
+  function bindHold(btn, onDown, onUp) {
+    const down = (e) => { e.preventDefault(); onDown(); };
+    const up = (e) => { e.preventDefault(); onUp(); };
+    btn.addEventListener("pointerdown", down);
+    btn.addEventListener("pointerup", up);
+    btn.addEventListener("pointercancel", up);
+    btn.addEventListener("pointerleave", up);
+  }
+  bindHold(leftBtn, () => keys.left = true, () => keys.left = false);
+  bindHold(rightBtn, () => keys.right = true, () => keys.right = false);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = true;
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = true;
+    if (e.key.toLowerCase() === "r") {
+      if (state.mode === "play") resetRun(state.difficulty);
+      else showMenu();
+    }
+  });
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = false;
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = false;
+  });
+
+  fsBtn.addEventListener("click", async () => {
+    await requestFullScreen();
+    resizeCanvas();
+  });
+
+  startBtn.addEventListener("click", async () => {
+    await requestFullScreen();
+    resizeCanvas();
+    resetRun(difficultySel.value);
+    state.mode = "play";
+    setUIForMode();
+  });
+
+  restartBtn.addEventListener("click", () => resetRun(state.difficulty));
+
+  // Entities
+  let imgs = {};
+  const player = { x: road.x + road.w/2, y: Math.floor(V_H * 0.78), w: 80, h: 150, vx: 0 };
+  const obstacles = [];
+
+  function spawnObstacle() {
+  const choices = [
+    { img: imgs.car2, w: 80, h: 150, type: "car" }, //Obstacles Size
+    { img: imgs.car3, w: 80, h: 150, type: "car" },
+  ];
+  const pick = choices[(Math.random() * choices.length) | 0];
+
+  const maxTries = 12;
+
+  for (let attempt = 0; attempt < maxTries; attempt++) {
+    const laneIndex = (Math.random() * LANES) | 0;
+    const x = laneCenters[laneIndex];
+    const y = -140;
+
+    // ❌ Prevent obstacle–obstacle overlap in the SAME lane
+    const minGap = pick.h + 90;
+    let blocked = false;
+
+    for (const o of obstacles) {
+      const sameLane = Math.abs(o.x - x) < 5;
+      if (!sameLane) continue;
+
+      const oy = (typeof o.baseY === "number") ? o.baseY : o.y;
+      if (oy < 220 || Math.abs(oy - y) < minGap) {
+        blocked = true;
+        break;
+      }
+    }
+
+    if (blocked) continue;
+
+    // Movement variation (already used in your update())
+    const speedMul = 0.85 + Math.random() * 0.30;
+    const bobOffset = Math.random() * Math.PI * 2;
+    const bobSpeed = 2 + Math.random() * 1.5;
+    const bobAmount = pick.type === "car" ? 3 : 2;
+
+    obstacles.push({
+      x,
+      y,
+      baseY: y,
+      w: pick.w,
+      h: pick.h,
+      img: pick.img,
+      speedMul,
+      bobOffset,
+      bobSpeed,
+      bobAmount,
+    });
+
+    return; // ✅ spawned successfully
+  }
+}
+
+
+  function drawTiled(img, x, y, w, h, offsetY) {
+    const tileW = img.width;
+    const tileH = img.height;
+    const startY = y - (offsetY % tileH) - tileH;
+    for (let yy = startY; yy < y + h + tileH; yy += tileH) {
+      for (let xx = x; xx < x + w; xx += tileW) {
+        ctx.drawImage(img, xx, yy, tileW, tileH);
+      }
+    }
+  }
+
+  function drawTiledYScaled(img, x, y, w, h, offsetY) {
+    const scale = w / img.width;
+    const tileH = img.height * scale;
+    const startY = y - (offsetY % tileH) - tileH;
+    for (let yy = startY; yy < y + h + tileH; yy += tileH) {
+      ctx.drawImage(img, x, yy, w, tileH);
+    }
+  }
+  function drawRoadInLanes(img, offsetY) {
+    for (let i = 0; i < LANES; i++) {
+      const x = road.x + (laneW * i);
+      drawTiledYScaled(img, x, 0, laneW, V_H, offsetY);
+    }
+  }
+
+  function drawCentered(img, x, y, w, h, rotationRad = 0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rotationRad);
+    ctx.drawImage(img, -w/2, -h/2, w, h);
+    ctx.restore();
+  }
+
+  function update(dt) {
+    if (state.mode !== "play") return;
+
+    const targetSteer = (keys.left ? -1 : 0) + (keys.right ? 1 : 0);
+    state.steer += (targetSteer - state.steer) * Math.min(1, dt * 12);
+
+    const maxSpeedX = 520;
+    player.vx = state.steer * maxSpeedX;
+    player.x += player.vx * dt;
+
+    const halfW = player.w * 0.5;
+    const leftBound = road.x + halfW;
+    const rightBound = road.x + road.w - halfW;
+    player.x = Math.max(leftBound, Math.min(rightBound, player.x));
+
+    // World scroll
+    state.scrollY += state.speed * dt;
+
+    // Difficulty ramp
+    state.speed += 8 * dt;
+    state.spawnEvery = Math.max(
+      state.difficulty === "easy" ? 0.65 : (state.difficulty === "hard" ? 0.42 : 0.52),
+      state.spawnEvery - (0.012 * dt)
+    );
+
+    // Spawn
+    state.spawnTimer += dt;
+    if (state.spawnTimer >= state.spawnEvery) {
+      state.spawnTimer = 0;
+      spawnObstacle();
+    }
+
+    // NEW: obstacle movement variation (speedMul + bobbing)
+    for (const o of obstacles) {
+      o.baseY += state.speed * o.speedMul * dt; // different speed per obstacle
+      const bob = Math.sin((state.scrollY * 0.02 * o.bobSpeed) + o.bobOffset) * o.bobAmount;
+      o.y = o.baseY + bob;
+    }
+
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      if (obstacles[i].y > V_H + 200) obstacles.splice(i, 1);
+    }
+
+    state.score += Math.floor(dt * 120);
+    scoreEl.textContent = state.score;
+
+    const pBox = {
+      x: player.x - player.w/2 + 10,
+      y: player.y - player.h/2 + 18,
+      w: player.w - 20,
+      h: player.h - 28,
+    };
+
+    for (const o of obstacles) {
+      const oBox = { x: o.x - o.w/2, y: o.y - o.h/2, w: o.w, h: o.h };
+      if (aabb(pBox, oBox)) {
+        if (state.score > state.best) {
+          state.best = state.score;
+          localStorage.setItem("car_best", String(state.best));
+          bestEl.textContent = state.best;
+        }
+        showGameOver();
+        break;
+      }
+    }
+  }
+
+  function render() {
+    drawTiled(imgs.roadEdge, 0, 0, road.x, V_H, -state.scrollY * 0.6);
+    drawTiled(imgs.roadEdge, road.x + road.w, 0, V_W - (road.x + road.w), V_H, -state.scrollY * 0.6);
+    drawRoadInLanes(imgs.road, -state.scrollY);
+
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([28, 26]);
+    ctx.lineDashOffset = -(state.scrollY * 0.6);
+    for (const x of laneDividers) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, V_H);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(road.x - 4, 0, 2, V_H);
+    ctx.fillRect(road.x + road.w + 2, 0, 2, V_H);
+    ctx.globalAlpha = 1;
+
+    for (const o of obstacles) drawCentered(o.img, o.x, o.y, o.w, o.h, 0);
+
+    const tilt = state.steer * 0.18;
+    drawCentered(imgs.player, player.x, player.y, player.w, player.h, tilt);
+  }
+
+  function loop(tNow) {
+    const dt = Math.min(0.033, (tNow - state.tPrev) / 1000);
+    state.tPrev = tNow;
+
+    ctx.clearRect(0, 0, V_W, V_H);
+    update(dt);
+    render();
+
+    requestAnimationFrame(loop);
+  }
+
+  // Boot
+  resizeCanvas();
+  showMenu();
+  setUIForMode();
+
+  Promise.all([
+    loadImage(ASSETS.road),
+    loadImage(ASSETS.roadEdge),
+    loadImage(ASSETS.player),
+    loadImage(ASSETS.car2),
+    loadImage(ASSETS.car3),
+  ]).then(([roadImg, edgeImg, playerImg, car2Img, car3Img]) => {
+    imgs = { road: roadImg, roadEdge: edgeImg, player: playerImg, car2: car2Img, car3: car3Img };
+    laneCenters = computeLaneCenters();
+    laneDividers = computeLaneDividers();
+    requestAnimationFrame((t) => { state.tPrev = t; requestAnimationFrame(loop); });
+  }).catch(err => {
+    overlayTitle.textContent = "ASSET LOAD ERROR";
+    overlaySubtitle.textContent = String(err.message || err);
+    difficultyBlock.style.display = "none";
+    startBtn.style.display = "none";
+    fsBtn.style.display = "none";
+    console.error(err);
+  });
+})();
+</script>
+</body>
+</html>
