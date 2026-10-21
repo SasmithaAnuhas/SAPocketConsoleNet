@@ -180,8 +180,35 @@ class TypeWriterAuthLeaderboard {
       this.recalculatePlayerRank();
       this.notifyLeaderboardChange();
     }, (error) => {
-      console.error('[TypeWriterLeaderboard] Error fetching scores:', error);
+      console.warn('[TypeWriterLeaderboard] Error fetching online scores (check database.rules.json):', error);
+      if (this.leaderboardEntries.length === 0) {
+        this.buildLocalFallbackLeaderboard();
+      }
     });
+  }
+
+  // Gracefully fallback to showing local player's best record if online rules are restricted
+  buildLocalFallbackLeaderboard() {
+    try {
+      const stats = JSON.parse(localStorage.getItem('typewriter_stats') || '{}');
+      if (stats.highWpm && stats.highWpm > 0) {
+        const user = this.currentUser;
+        const entry = {
+          uid: user ? user.uid : 'local_device',
+          displayName: (user ? user.displayName : 'You') + ' (Local Device)',
+          photoURL: user ? user.photoURL : null,
+          wpm: stats.highWpm,
+          accuracy: 96,
+          rankTitle: 'Java Byte Coder',
+          rankBadge: '🌱☕',
+          testsCompleted: stats.testsCompleted || 1,
+          updatedAt: Date.now()
+        };
+        this.leaderboardEntries = [entry];
+        this.recalculatePlayerRank();
+        this.notifyLeaderboardChange();
+      }
+    } catch (_) {}
   }
 
   // Calculate current signed-in player rank

@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "typewriterLeaderboard": {
+      ".read": true,
+      ".indexOn": ["wpm", "accuracy"],
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "snakeLeaderboard": {
+      ".read": true,
+      ".indexOn": ["score"],
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "status": {
+      ".read": true,
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}

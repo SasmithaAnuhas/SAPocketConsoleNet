@@ -902,6 +902,10 @@
 
       // Start presence on this page (THIS is what makes you online here)
       enablePresenceForThisPage(user.uid);
+
+      // Re-query leaderboards now that user is authenticated
+      initTypeWriterQuery();
+      initSnakeQuery();
     }, (error) => {
       console.error("[Home leaderboard] Authentication state failed.", error);
       if (homePlayerState) {
@@ -1000,78 +1004,93 @@
       });
     });
 
-    // 1. Listen to typewriterLeaderboard
-    const typewriterQuery = query(
-      ref(rtdb, "typewriterLeaderboard"),
-      orderByChild("wpm"),
-      limitToLast(10)
-    );
-    onValue(typewriterQuery, (snapshot) => {
-      const scores = [];
-      snapshot.forEach((child) => {
-        const value = child.val();
-        const wpm = Number(value?.wpm);
-        if (Number.isSafeInteger(wpm) && wpm > 0) {
-          scores.push({
-            name: value.displayName || "Java Typist",
-            score: wpm,
-            accuracy: value.accuracy || 100
-          });
+    // 1. Listen to typewriterLeaderboard (Robust direct ref, memory sort + local fallback)
+    function initTypeWriterQuery() {
+      const typewriterRef = ref(rtdb, "typewriterLeaderboard");
+      onValue(typewriterRef, (snapshot) => {
+        const scores = [];
+        snapshot.forEach((child) => {
+          const value = child.val();
+          const wpm = Number(value?.wpm);
+          if (Number.isSafeInteger(wpm) && wpm > 0) {
+            scores.push({
+              name: value.displayName || "Java Typist",
+              score: wpm,
+              accuracy: value.accuracy || 100
+            });
+          }
+        });
+        scores.sort((a, b) => b.score - a.score || b.accuracy - a.accuracy);
+        typewriterScores = scores;
+        typewriterLoaded = true;
+
+        if (selectedGame === "typewriter") {
+          renderCurrentScores();
+        }
+      }, (error) => {
+        console.warn("[Home leaderboard] TypeWriter global scores not accessible (check database.rules.json):", error);
+        typewriterLoaded = true;
+
+        // If global query failed (e.g. locked rules), show local player's best as fallback
+        try {
+          const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
+          if (stats.highWpm && stats.highWpm > 0 && typewriterScores.length === 0) {
+            typewriterScores = [{
+              name: (auth.currentUser?.displayName || "You") + " (Local)",
+              score: stats.highWpm,
+              accuracy: 96
+            }];
+          }
+        } catch (_) {}
+
+        if (selectedGame === "typewriter") {
+          renderCurrentScores();
         }
       });
-      // Sort descending by WPM then accuracy
-      scores.sort((a, b) => b.score - a.score || b.accuracy - a.accuracy);
-      typewriterScores = scores;
-      typewriterLoaded = true;
+    }
 
-      if (selectedGame === "typewriter") {
-        renderCurrentScores();
-      }
-    }, (error) => {
-      console.error("[Home leaderboard] Failed to load TypeWriter scores.", error);
-      typewriterLoaded = true;
-      if (selectedGame === "typewriter") {
-        homeScoresList.replaceChildren();
-        const errorItem = document.createElement("li");
-        errorItem.className = "homeScoresEmpty";
-        errorItem.textContent = "Could not load TypeWriter scores.";
-        homeScoresList.append(errorItem);
-      }
-    });
+    // 2. Listen to snakeLeaderboard (Robust direct ref, memory sort + local fallback)
+    function initSnakeQuery() {
+      const snakeRef = ref(rtdb, "snakeLeaderboard");
+      onValue(snakeRef, (snapshot) => {
+        const scores = [];
+        snapshot.forEach((child) => {
+          const value = child.val();
+          const score = Number(value?.score);
+          if (Number.isSafeInteger(score) && score >= 0) {
+            scores.push({ name: value.displayName || "Player", score });
+          }
+        });
+        scores.sort((a, b) => b.score - a.score);
+        snakeScores = scores;
+        snakeLoaded = true;
 
-    // 2. Listen to snakeLeaderboard
-    const snakeQuery = query(
-      ref(rtdb, "snakeLeaderboard"),
-      orderByChild("score"),
-      limitToLast(10)
-    );
-    onValue(snakeQuery, (snapshot) => {
-      const scores = [];
-      snapshot.forEach((child) => {
-        const value = child.val();
-        const score = Number(value?.score);
-        if (Number.isSafeInteger(score) && score >= 0) {
-          scores.push({ name: value.displayName || "Player", score });
+        if (selectedGame === "snake") {
+          renderCurrentScores();
+        }
+      }, (error) => {
+        console.warn("[Home leaderboard] Snake global scores not accessible (check database.rules.json):", error);
+        snakeLoaded = true;
+
+        // If global query failed (e.g. locked rules), show local player's best as fallback
+        try {
+          const savedScore = Number(localStorage.getItem("snakeHigh"));
+          if (Number.isSafeInteger(savedScore) && savedScore > 0 && snakeScores.length === 0) {
+            snakeScores = [{
+              name: (auth.currentUser?.displayName || "You") + " (Local)",
+              score: savedScore
+            }];
+          }
+        } catch (_) {}
+
+        if (selectedGame === "snake") {
+          renderCurrentScores();
         }
       });
-      scores.sort((a, b) => b.score - a.score);
-      snakeScores = scores;
-      snakeLoaded = true;
+    }
 
-      if (selectedGame === "snake") {
-        renderCurrentScores();
-      }
-    }, (error) => {
-      console.error("[Home leaderboard] Failed to load Snake scores.", error);
-      snakeLoaded = true;
-      if (selectedGame === "snake") {
-        homeScoresList.replaceChildren();
-        const errorItem = document.createElement("li");
-        errorItem.className = "homeScoresEmpty";
-        errorItem.textContent = "Could not load Snake scores.";
-        homeScoresList.append(errorItem);
-      }
-    });
+    initTypeWriterQuery();
+    initSnakeQuery();
 
     // Time update
     function updateTime() {

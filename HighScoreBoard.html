@@ -344,28 +344,44 @@
 
     onAuthStateChanged(auth, (user) => {
       leaderboardStatus.textContent = user ? "Live" : "Live • sign in to submit scores";
+      if (user) {
+        initSnakeBoard();
+        initTypeWriterBoard();
+      }
     }, (error) => {
       console.error("[HighScoreBoard] Authentication state failed.", error);
       leaderboardStatus.textContent = "Sign-in status unavailable";
     });
 
-    const leaderboardQuery = query(
-      ref(database, "snakeLeaderboard"),
-      orderByChild("score"),
-      limitToLast(50)
-    );
-    onValue(leaderboardQuery, renderLeaderboard, (error) => {
-      console.error("[HighScoreBoard] Failed to load global scores.", error);
-      leaderboardStatus.textContent = "Could not load";
-      leaderboardRows.replaceChildren();
-      const row = document.createElement("tr");
-      row.className = "empty-row";
-      const cell = document.createElement("td");
-      cell.colSpan = 3;
-      cell.textContent = "Could not load scores. Check your connection and Firebase database rules.";
-      row.append(cell);
-      leaderboardRows.append(row);
-    });
+    function initSnakeBoard() {
+      const snakeRef = ref(database, "snakeLeaderboard");
+      onValue(snakeRef, renderLeaderboard, (error) => {
+        console.warn("[HighScoreBoard] Snake online scores restricted (check database.rules.json):", error);
+        leaderboardStatus.textContent = "Local mode";
+        leaderboardRows.replaceChildren();
+
+        const savedScore = Number(localStorage.getItem("snakeHigh"));
+        if (Number.isSafeInteger(savedScore) && savedScore > 0) {
+          const row = document.createElement("tr");
+          const rankCell = document.createElement("td");
+          const nameCell = document.createElement("td");
+          const scoreCell = document.createElement("td");
+          rankCell.textContent = "#1";
+          nameCell.textContent = (auth.currentUser?.displayName || "You") + " (Local Device)";
+          scoreCell.textContent = savedScore.toLocaleString();
+          row.append(rankCell, nameCell, scoreCell);
+          leaderboardRows.append(row);
+        } else {
+          const row = document.createElement("tr");
+          row.className = "empty-row";
+          const cell = document.createElement("td");
+          cell.colSpan = 3;
+          cell.textContent = "Could not load online scores. Update Firebase database rules with database.rules.json.";
+          row.append(cell);
+          leaderboardRows.append(row);
+        }
+      });
+    }
 
     // TypeWriter personal best on this device
     const twPersonalBest = document.getElementById("twPersonalBest");
@@ -386,65 +402,101 @@
     const twLeaderboardStatus = document.getElementById("twLeaderboardStatus");
     const twLeaderboardRows = document.getElementById("twLeaderboardRows");
 
-    const twQuery = query(ref(database, "typewriterLeaderboard"), limitToLast(50));
-    onValue(twQuery, (snapshot) => {
-      const entries = [];
-      snapshot.forEach((child) => {
-        const val = child.val();
-        if (val && typeof val.wpm === "number") {
-          entries.push({
-            displayName: val.displayName || "Java Typist",
-            wpm: val.wpm,
-            accuracy: val.accuracy || 100,
-            rankBadge: val.rankBadge || "☕",
-            rankTitle: val.rankTitle || "Java Typist"
-          });
+    function initTypeWriterBoard() {
+      const twRef = ref(database, "typewriterLeaderboard");
+      onValue(twRef, (snapshot) => {
+        const entries = [];
+        snapshot.forEach((child) => {
+          const val = child.val();
+          if (val && typeof val.wpm === "number") {
+            entries.push({
+              displayName: val.displayName || "Java Typist",
+              wpm: val.wpm,
+              accuracy: val.accuracy || 100,
+              rankBadge: val.rankBadge || "☕",
+              rankTitle: val.rankTitle || "Java Typist"
+            });
+          }
+        });
+        entries.sort((a, b) => (b.wpm !== a.wpm ? b.wpm - a.wpm : b.accuracy - a.accuracy));
+
+        twLeaderboardRows.replaceChildren();
+        if (entries.length === 0) {
+          const row = document.createElement("tr");
+          row.className = "empty-row";
+          const cell = document.createElement("td");
+          cell.colSpan = 5;
+          cell.textContent = "No Java typists on the board yet. Complete a test in TypeWriter to claim Rank #1!";
+          row.append(cell);
+          twLeaderboardRows.append(row);
+          twLeaderboardStatus.textContent = "Live";
+          return;
+        }
+
+        entries.forEach((entry, idx) => {
+          const row = document.createElement("tr");
+          const rankCell = document.createElement("td");
+          const nameCell = document.createElement("td");
+          const wpmCell = document.createElement("td");
+          const accCell = document.createElement("td");
+          const titleCell = document.createElement("td");
+
+          const rankNum = idx + 1;
+          rankCell.textContent = rankNum === 1 ? "🥇 #1" : rankNum === 2 ? "🥈 #2" : rankNum === 3 ? "🥉 #3" : `#${rankNum}`;
+          if (rankNum === 1) rankCell.style.color = "#ffd700";
+          if (rankNum === 2) rankCell.style.color = "#d0d7de";
+          if (rankNum === 3) rankCell.style.color = "#cd7f32";
+
+          nameCell.textContent = entry.displayName;
+          wpmCell.textContent = `${entry.wpm} WPM`;
+          wpmCell.style.fontWeight = "700";
+          wpmCell.style.color = "#ffc66d";
+          accCell.textContent = `${entry.accuracy}%`;
+          titleCell.textContent = `${entry.rankBadge} ${entry.rankTitle}`;
+
+          row.append(rankCell, nameCell, wpmCell, accCell, titleCell);
+          twLeaderboardRows.append(row);
+        });
+        twLeaderboardStatus.textContent = "Live";
+      }, (error) => {
+        console.warn("[HighScoreBoard] TypeWriter online scores restricted (check database.rules.json):", error);
+        twLeaderboardStatus.textContent = "Local mode";
+        twLeaderboardRows.replaceChildren();
+
+        const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
+        if (stats.highWpm && stats.highWpm > 0) {
+          const row = document.createElement("tr");
+          const rankCell = document.createElement("td");
+          const nameCell = document.createElement("td");
+          const wpmCell = document.createElement("td");
+          const accCell = document.createElement("td");
+          const titleCell = document.createElement("td");
+
+          rankCell.textContent = "🥇 #1";
+          rankCell.style.color = "#ffd700";
+          nameCell.textContent = (auth.currentUser?.displayName || "You") + " (Local Device)";
+          wpmCell.textContent = `${stats.highWpm} WPM`;
+          wpmCell.style.fontWeight = "700";
+          wpmCell.style.color = "#ffc66d";
+          accCell.textContent = "96%";
+          titleCell.textContent = "☕ Java Byte Coder";
+
+          row.append(rankCell, nameCell, wpmCell, accCell, titleCell);
+          twLeaderboardRows.append(row);
+        } else {
+          const row = document.createElement("tr");
+          row.className = "empty-row";
+          const cell = document.createElement("td");
+          cell.colSpan = 5;
+          cell.textContent = "Could not load online scores. Update Firebase database rules with database.rules.json.";
+          row.append(cell);
+          twLeaderboardRows.append(row);
         }
       });
-      entries.sort((a, b) => (b.wpm !== a.wpm ? b.wpm - a.wpm : b.accuracy - a.accuracy));
+    }
 
-      twLeaderboardRows.replaceChildren();
-      if (entries.length === 0) {
-        const row = document.createElement("tr");
-        row.className = "empty-row";
-        const cell = document.createElement("td");
-        cell.colSpan = 5;
-        cell.textContent = "No Java typists on the board yet. Complete a test in TypeWriter to claim Rank #1!";
-        row.append(cell);
-        twLeaderboardRows.append(row);
-        twLeaderboardStatus.textContent = "Live";
-        return;
-      }
-
-      entries.forEach((entry, idx) => {
-        const row = document.createElement("tr");
-        const rankCell = document.createElement("td");
-        const nameCell = document.createElement("td");
-        const wpmCell = document.createElement("td");
-        const accCell = document.createElement("td");
-        const titleCell = document.createElement("td");
-
-        const rankNum = idx + 1;
-        rankCell.textContent = rankNum === 1 ? "🥇 #1" : rankNum === 2 ? "🥈 #2" : rankNum === 3 ? "🥉 #3" : `#${rankNum}`;
-        if (rankNum === 1) rankCell.style.color = "#ffd700";
-        if (rankNum === 2) rankCell.style.color = "#d0d7de";
-        if (rankNum === 3) rankCell.style.color = "#cd7f32";
-
-        nameCell.textContent = entry.displayName;
-        wpmCell.textContent = `${entry.wpm} WPM`;
-        wpmCell.style.fontWeight = "700";
-        wpmCell.style.color = "#ffc66d";
-        accCell.textContent = `${entry.accuracy}%`;
-        titleCell.textContent = `${entry.rankBadge} ${entry.rankTitle}`;
-
-        row.append(rankCell, nameCell, wpmCell, accCell, titleCell);
-        twLeaderboardRows.append(row);
-      });
-      twLeaderboardStatus.textContent = "Live";
-    }, (error) => {
-      console.error("[HighScoreBoard] Failed to load typewriter scores.", error);
-      twLeaderboardStatus.textContent = "Could not load";
-    });
+    initSnakeBoard();
+    initTypeWriterBoard();
   </script>
 </body>
 </html>
