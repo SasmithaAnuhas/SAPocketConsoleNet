@@ -153,12 +153,17 @@
     <div class="snippet-meta-banner" id="snippetMetaBanner">
       <div class="snippet-info">
         <span class="snippet-title" id="snippetTitle">Hello World Entry Point</span>
-        <span class="difficulty-tag beginner" id="snippetDifficulty">Beginner</span>
+        <span class="difficulty-tag easy" id="snippetDifficulty">Easy</span>
         <span class="snippet-explanation-preview" id="snippetExplanation">Every standalone Java program requires a main method...</span>
       </div>
-      <button type="button" class="nav-btn" id="nextSnippetBtn" title="Switch to another snippet">
-        <span>Next Snippet</span> <span aria-hidden="true">➔</span>
-      </button>
+      <div class="snippet-banner-actions">
+        <button type="button" class="nav-btn banner-btn js-restart-btn" id="bannerRestartBtn" title="Restart this code (Tab or Esc)">
+          <span aria-hidden="true">↻</span> <span>Restart</span>
+        </button>
+        <button type="button" class="nav-btn banner-btn primary js-next-btn" id="bannerNextBtn" title="Switch to another code (Ctrl+Enter or Alt+➔)">
+          <span>Next Code</span> <span aria-hidden="true">➔</span>
+        </button>
+      </div>
     </div>
 
     <!-- Main Typing Arena -->
@@ -190,23 +195,16 @@
       <!-- Hidden Input for capturing keystrokes and IME safely -->
       <input type="text" class="hidden-typing-input" id="hiddenInput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-hidden="true" />
 
-      <!-- Click to Focus Warning Overlay -->
-      <div class="focus-warning-overlay" id="focusOverlay">
-        <div class="focus-warning-box">
-          <span aria-hidden="true">⌨️</span> Click or press any key to focus and resume typing
-        </div>
-      </div>
-
       <!-- Bottom Action & Restart Bar -->
       <div class="bottom-actions-bar">
-        <button type="button" class="restart-btn" id="restartBtn" title="Retry Same Code (Tab)" aria-label="Retry same code">
+        <button type="button" class="restart-btn js-restart-btn" id="restartBtn" title="Restart this code (Tab or Esc)" aria-label="Restart this code">
           <span aria-hidden="true">↻</span>
         </button>
-        <button type="button" class="restart-btn" id="nextSnippetBtn" title="Next Code Snippet (➔)" aria-label="Next code snippet">
+        <button type="button" class="restart-btn next-action-btn js-next-btn" id="nextSnippetBtn" title="Switch to another code (Ctrl+Enter or Alt+➔)" aria-label="Switch to another code">
           <span aria-hidden="true">➔</span>
         </button>
         <div class="shortcut-hint">
-          <kbd class="kbd-badge">Tab</kbd> retry code • <kbd class="kbd-badge">➔</kbd> next code
+          <kbd class="kbd-badge">Tab</kbd> restart • <kbd class="kbd-badge">Ctrl</kbd>+<kbd class="kbd-badge">Enter</kbd> next code
         </div>
       </div>
 

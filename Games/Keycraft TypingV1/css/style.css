@@ -369,6 +369,44 @@ html, body {
   flex-wrap: wrap;
 }
 
+.snippet-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.banner-btn:hover {
+  color: var(--text-main);
+  border-color: var(--accent);
+}
+
+.banner-btn.primary {
+  background: var(--accent);
+  color: #121316;
+  font-weight: 600;
+  border-color: var(--accent);
+}
+
+.banner-btn.primary:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
 .snippet-title {
   font-weight: 600;
   font-size: 0.95rem;
@@ -511,18 +549,19 @@ html, body {
 /* Smooth Caret */
 .smooth-caret {
   position: absolute;
-  width: 2px;
-  height: 1.3em;
-  background-color: var(--caret-color);
-  border-radius: 1px;
+  width: 2.5px;
+  height: 1.35em;
+  background-color: var(--caret-color, #e8a838);
+  border-radius: 2px;
   pointer-events: none;
   z-index: 10;
-  transition: left 0.08s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.08s cubic-bezier(0.1, 0.9, 0.2, 1);
-  box-shadow: 0 0 8px var(--caret-color);
+  transition: left 0.06s cubic-bezier(0.1, 0.9, 0.2, 1), top 0.06s cubic-bezier(0.1, 0.9, 0.2, 1);
+  box-shadow: 0 0 10px var(--caret-color, #e8a838), 0 0 3px var(--caret-color, #e8a838);
+  display: block;
 }
 
 .smooth-caret.blink {
-  animation: caretBlink 1s infinite;
+  animation: caretBlink 0.9s ease-in-out infinite;
 }
 
 @keyframes caretBlink {
@@ -589,49 +628,6 @@ html, body {
   z-index: -1;
 }
 
-/* Focus Blur Overlay */
-.focus-warning-overlay {
-  position: absolute;
-  inset: 0;
-  backdrop-filter: blur(5px);
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  border-radius: var(--radius-md);
-  z-index: 20;
-  cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-}
-
-.focus-warning-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.focus-warning-box {
-  background: var(--bg-card);
-  border: 1px solid var(--accent);
-  padding: 1rem 1.75rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 600;
-  color: var(--text-main);
-  animation: pulseBox 2s infinite ease-in-out;
-}
-
-@keyframes pulseBox {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-
 /* Bottom Action / Restart Bar */
 .bottom-actions-bar {
   display: flex;
@@ -661,6 +657,12 @@ html, body {
   color: var(--text-main);
   border-color: var(--accent);
   transform: rotate(180deg);
+  background: var(--bg-card);
+}
+
+.restart-btn.next-action-btn:hover {
+  transform: translateX(3px) scale(1.05);
+  border-color: var(--accent);
   background: var(--bg-card);
 }
 

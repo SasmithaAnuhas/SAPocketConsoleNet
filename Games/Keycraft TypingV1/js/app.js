@@ -58,7 +58,6 @@ class TypeWriterApp {
     this.wordsContainer = document.getElementById('wordsContainer');
     this.hiddenInput = document.getElementById('hiddenInput');
     this.caret = document.getElementById('smoothCaret');
-    this.focusOverlay = document.getElementById('focusOverlay');
     this.liveStatsBar = document.getElementById('liveStatsBar');
     this.liveTimerEl = document.getElementById('liveTimer');
     this.liveWpmEl = document.getElementById('liveWpm');
@@ -118,21 +117,39 @@ class TypeWriterApp {
    * Setup & Event Listeners
    * ----------------------------------------------------------- */
   setupEventListeners() {
-    // Focus handling
-    this.wordsContainer.addEventListener('click', () => this.focusInput());
-    this.focusOverlay.addEventListener('click', () => this.focusInput());
-    
-    this.hiddenInput.addEventListener('focus', () => {
-      this.focusOverlay.classList.remove('show');
-      this.caret.style.display = 'block';
-    });
+    // Focus handling: ensure typing box is focused on click
+    if (this.wordsContainer) {
+      this.wordsContainer.addEventListener('click', () => this.focusInput());
+    }
+    const typingArena = document.querySelector('.typing-arena-wrapper');
+    if (typingArena) {
+      typingArena.addEventListener('click', (e) => {
+        if (!e.target.closest('button, select, input, textarea, a, dialog')) {
+          this.focusInput();
+        }
+      });
+    }
 
-    this.hiddenInput.addEventListener('blur', () => {
-      if (!this.isFinished) {
-        this.focusOverlay.classList.add('show');
-        this.caret.style.display = 'none';
-      }
-    });
+    if (this.hiddenInput) {
+      this.hiddenInput.addEventListener('keydown', (e) => {
+        // Prevent tab from navigating away from typing input
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          this.retrySameSnippet();
+        }
+      });
+
+      this.hiddenInput.addEventListener('focus', () => {
+        this.ensureCaret();
+        if (this.caret) this.caret.style.display = 'block';
+      });
+
+      this.hiddenInput.addEventListener('blur', () => {
+        // Keep caret visible and blinking in the typing box area
+        this.ensureCaret();
+        if (this.caret) this.caret.style.display = 'block';
+      });
+    }
 
     // Keystroke typing listener
     window.addEventListener('keydown', (e) => this.handleKeyDown(e));
@@ -185,18 +202,21 @@ class TypeWriterApp {
       });
     });
 
-    // Restart button (Retries the exact same code)
-    document.getElementById('restartBtn').addEventListener('click', () => {
-      this.retrySameSnippet();
+    // Restart buttons (Retries the exact same code mid-session or anytime)
+    document.querySelectorAll('.js-restart-btn, #restartBtn, #bannerRestartBtn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.retrySameSnippet();
+      });
     });
 
-    // Next snippet button (Advances to the next code)
-    const nextSnippetBtn = document.getElementById('nextSnippetBtn');
-    if (nextSnippetBtn) {
-      nextSnippetBtn.addEventListener('click', () => {
+    // Next snippet buttons (Advances to the next code snippet mid-session or anytime)
+    document.querySelectorAll('.js-next-btn, #nextSnippetBtn, #bannerNextBtn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
         this.nextSnippet();
       });
-    }
+    });
 
     // Modal buttons
     document.getElementById('openSettingsBtn').addEventListener('click', () => {
@@ -415,6 +435,7 @@ class TypeWriterApp {
 
     this.focusInput();
     this.updateCaretPosition();
+    requestAnimationFrame(() => this.updateCaretPosition());
   }
 
   // Retry the exact same code snippet without changing it
@@ -426,6 +447,7 @@ class TypeWriterApp {
       this.updateSnippetBanner(this.currentSnippet);
       this.focusInput();
       this.updateCaretPosition();
+      requestAnimationFrame(() => this.updateCaretPosition());
     } else {
       this.loadSnippetOrMode(false);
     }
@@ -514,6 +536,7 @@ class TypeWriterApp {
     });
 
     this.wordsContainer.appendChild(wrapper);
+    this.ensureCaret();
     this.updateLiveStats();
     
     // Auto-skip leading indent on first line if any
@@ -567,6 +590,7 @@ class TypeWriterApp {
       this.wordsContainer.appendChild(wordSpan);
     });
 
+    this.ensureCaret();
     this.updateLiveStats();
   }
 
@@ -626,17 +650,19 @@ class TypeWriterApp {
       return;
     }
 
-    // Shortcut: Tab -> Instant Retry of same code
-    if (e.key === 'Tab') {
+    // Shortcut: Tab or Escape -> Instant Restart/Retry of same code (works anytime, including mid-session!)
+    if (e.key === 'Tab' || e.key === 'Escape') {
       e.preventDefault();
       this.retrySameSnippet();
       return;
     }
 
-    // Escape -> Refocus or Retry same code
-    if (e.key === 'Escape') {
+    // Shortcut: Ctrl+Enter, Alt+Enter, or Alt+ArrowRight -> Switch to next code (works anytime, including mid-session!)
+    if ((e.key === 'Enter' && (e.ctrlKey || e.metaKey || e.altKey)) ||
+        (e.key === 'ArrowRight' && (e.altKey || e.ctrlKey)) ||
+        (e.key === 'Tab' && e.shiftKey)) {
       e.preventDefault();
-      this.retrySameSnippet();
+      this.nextSnippet();
       return;
     }
 
@@ -656,6 +682,8 @@ class TypeWriterApp {
     if (!this.isActive) {
       this.startTest();
     }
+
+    this.resetCaretBlink();
 
     // Handle Backspace
     if (e.key === 'Backspace') {
@@ -751,7 +779,33 @@ class TypeWriterApp {
   /* -------------------------------------------------------------
    * Caret Positioning & Auto-Scroll
    * ----------------------------------------------------------- */
+  ensureCaret() {
+    if (!this.caret || !this.wordsContainer.contains(this.caret)) {
+      let caretEl = document.getElementById('smoothCaret');
+      if (!caretEl) {
+        caretEl = document.createElement('div');
+        caretEl.className = 'smooth-caret blink';
+        caretEl.id = 'smoothCaret';
+      }
+      this.wordsContainer.appendChild(caretEl);
+      this.caret = caretEl;
+    }
+    this.caret.style.display = 'block';
+  }
+
+  resetCaretBlink() {
+    if (!this.caret) return;
+    this.caret.classList.remove('blink');
+    if (this._blinkTimeout) clearTimeout(this._blinkTimeout);
+    this._blinkTimeout = setTimeout(() => {
+      if (this.caret) {
+        this.caret.classList.add('blink');
+      }
+    }, 450);
+  }
+
   updateCaretPosition() {
+    this.ensureCaret();
     if (!this.caret) return;
 
     const cur = this.charsData[this.currentIndex];
@@ -761,9 +815,10 @@ class TypeWriterApp {
       if (last && last.element) {
         const rect = last.element.getBoundingClientRect();
         const containerRect = this.wordsContainer.getBoundingClientRect();
-        this.caret.style.left = `${rect.right - containerRect.left + this.wordsContainer.scrollLeft}px`;
-        this.caret.style.top = `${rect.top - containerRect.top + this.wordsContainer.scrollTop}px`;
-        this.caret.style.height = `${rect.height}px`;
+        this.caret.style.left = `${Math.round(rect.right - containerRect.left + this.wordsContainer.scrollLeft)}px`;
+        this.caret.style.top = `${Math.round(rect.top - containerRect.top + this.wordsContainer.scrollTop)}px`;
+        this.caret.style.height = `${Math.round(rect.height || 26)}px`;
+        this.caret.style.display = 'block';
       }
       return;
     }
@@ -777,6 +832,7 @@ class TypeWriterApp {
     this.caret.style.left = `${Math.round(targetLeft)}px`;
     this.caret.style.top = `${Math.round(targetTop)}px`;
     this.caret.style.height = `${Math.round(rect.height || 26)}px`;
+    this.caret.style.display = 'block';
 
     // Smooth auto-scroll if caret moves below viewing window
     const relativeY = rect.top - containerRect.top;
@@ -788,9 +844,13 @@ class TypeWriterApp {
   }
 
   focusInput() {
-    this.hiddenInput.focus();
-    this.focusOverlay.classList.remove('show');
-    this.caret.style.display = 'block';
+    if (this.hiddenInput) {
+      this.hiddenInput.focus();
+    }
+    this.ensureCaret();
+    if (this.caret) {
+      this.caret.style.display = 'block';
+    }
   }
 
   /* -------------------------------------------------------------
@@ -862,6 +922,10 @@ class TypeWriterApp {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
     }
+    if (this._blinkTimeout) {
+      clearTimeout(this._blinkTimeout);
+      this._blinkTimeout = null;
+    }
     this.isActive = false;
     this.isFinished = false;
     this.startTime = null;
@@ -873,6 +937,10 @@ class TypeWriterApp {
     this.errorCount = 0;
     this.statsHistory = [];
     this.errorsPerSecond = 0;
+
+    if (this.hiddenInput) {
+      this.hiddenInput.value = '';
+    }
 
     if (this.mode === 'time') {
       this.liveTimerEl.textContent = `${this.timeLimit}s`;
