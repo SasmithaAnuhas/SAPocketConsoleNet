@@ -4,20 +4,23 @@
       ".read": true,
       ".indexOn": ["wpm", "accuracy"],
       "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['wpm', 'accuracy', 'displayName']) && newData.child('wpm').isNumber() && newData.child('wpm').val() > 0 && newData.child('wpm').val() <= 250 && newData.child('accuracy').isNumber() && newData.child('accuracy').val() >= 0 && newData.child('accuracy').val() <= 100 && newData.child('displayName').isString() && newData.child('displayName').val().length <= 30"
       }
     },
     "snakeLeaderboard": {
       ".read": true,
       ".indexOn": ["score"],
       "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['score', 'displayName']) && newData.child('score').isNumber() && newData.child('score').val() >= 0 && newData.child('score').val() <= 5000 && newData.child('displayName').isString() && newData.child('displayName').val().length <= 30"
       }
     },
     "status": {
       ".read": true,
       "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChild('state') && (newData.child('state').val() == 'online' || newData.child('state').val() == 'offline')"
       }
     }
   }

@@ -1,0 +1,241 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+
+    function chatIdFor(a, b) {
+      return (a < b) ? (a + "_" + b) : (b + "_" + a);
+    }
+
+    function isFriend(a, b) {
+      return exists(/databases/$(database)/documents/users/$(a)/friends/$(b));
+    }
+
+    // -----------------------------
+    // USERS
+    // -----------------------------
+    match /users/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && me() == uid;
+
+      // Friends subcollection
+      match /friends/{friendUid} {
+        allow read: if signedIn() && me() == uid;
+
+        // Create friend doc either by:
+        // - owner (uid) creating it
+        // - or the other side (friendUid) creating it ONLY when a friendRequest exists
+        allow create: if signedIn()
+          && (
+            me() == uid
+            || (
+              me() == friendUid
+              && exists(/databases/$(database)/documents/friendRequests/$(uid + "_" + friendUid))
+            )
+          )
+          && request.resource.data.uid == friendUid;
+
+        allow delete: if signedIn() && (me() == uid || me() == friendUid);
+        allow update: if false;
+      }
+
+      // Inbox items (per-user chat list)
+      match /inbox/{chatId} {
+        allow read: if signedIn() && me() == uid;
+
+        // Owner can manage their inbox document
+        allow create, update, delete: if signedIn() && me() == uid;
+
+        // Friend creates an inbox item (unreadCount starts at 1)
+        allow create: if signedIn()
+          && me() != uid
+          && isFriend(uid, me())
+          && isFriend(me(), uid)
+          && chatId == chatIdFor(uid, me())
+          && request.resource.data.chatId == chatId
+          && request.resource.data.friendUid == me()
+          && request.resource.data.unreadCount == 1;
+
+        // Friend increments unreadCount by +1
+        allow update: if signedIn()
+          && me() != uid
+          && isFriend(uid, me())
+          && isFriend(me(), uid)
+          && chatId == chatIdFor(uid, me())
+          && request.resource.data.chatId == chatId
+          && request.resource.data.friendUid == me()
+          && (resource.data.unreadCount is int)
+          && (request.resource.data.unreadCount is int)
+          && request.resource.data.unreadCount == resource.data.unreadCount + 1;
+      }
+    }
+
+    match /publicUsers/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && me() == uid;
+    }
+
+    // -----------------------------
+    // FRIEND REQUESTS (UPDATED)
+    // -----------------------------
+    match /friendRequests/{rid} {
+      allow read: if signedIn()
+        && (resource == null
+            || resource.data.fromUid == me()
+            || resource.data.toUid == me());
+
+      allow create: if signedIn()
+        && request.resource.data.fromUid == me();
+
+      allow delete: if signedIn()
+        && (resource.data.fromUid == me() || resource.data.toUid == me());
+
+      allow update: if false;
+    }
+
+    // -----------------------------
+    // CHATS
+    // -----------------------------
+    match /chats/{chatId} {
+      allow read: if signedIn()
+        && resource.data.members is list
+        && resource.data.members.hasAny([me()]);
+
+      allow create: if signedIn()
+        && request.resource.data.members is list
+        && request.resource.data.members.size() == 2
+        && request.resource.data.members.hasAny([me()])
+        && chatId == chatIdFor(request.resource.data.members[0], request.resource.data.members[1])
+        && isFriend(request.resource.data.members[0], request.resource.data.members[1])
+        && isFriend(request.resource.data.members[1], request.resource.data.members[0]);
+
+      allow update: if signedIn()
+        && resource.data.members is list
+        && resource.data.members.hasAny([me()]);
+
+      allow delete: if false;
+
+      match /messages/{msgId} {
+        allow read: if signedIn()
+          && get(/databases/$(database)/documents/chats/$(chatId)).data.members.hasAny([me()]);
+
+        allow create: if signedIn()
+          && get(/databases/$(database)/documents/chats/$(chatId)).data.members.hasAny([me()])
+          && request.resource.data.fromUid == me()
+          && request.resource.data.toUid is string
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 1000;
+
+        allow update: if signedIn()
+          && get(/databases/$(database)/documents/chats/$(chatId)).data.members.hasAny([me()])
+          && resource.data.fromUid == me()
+          && request.resource.data.fromUid == resource.data.fromUid
+          && request.resource.data.toUid == resource.data.toUid
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 1000
+          && request.resource.data.diff(resource.data).changedKeys()
+              .hasOnly(['text', 'editedAt']);
+
+        allow delete: if signedIn()
+          && get(/databases/$(database)/documents/chats/$(chatId)).data.members.hasAny([me()])
+          && resource.data.fromUid == me();
+      }
+    }
+
+    // -----------------------------
+    // XO GAME
+    // -----------------------------
+
+    match /gameInvites/{inviteId} {
+      allow create: if signedIn()
+        && request.resource.data.fromUid == me()
+        && request.resource.data.toUid is string
+        && request.resource.data.status == "pending"
+        && isFriend(me(), request.resource.data.toUid)
+        && isFriend(request.resource.data.toUid, me());
+
+      allow read: if signedIn()
+        && (resource.data.fromUid == me() || resource.data.toUid == me());
+
+      allow update: if signedIn()
+        && (
+          // Receiver accepts/rejects pending
+          (me() == resource.data.toUid
+            && resource.data.status == "pending"
+            && request.resource.data.status in ["accepted", "rejected"]
+            && request.resource.data.fromUid == resource.data.fromUid
+            && request.resource.data.toUid == resource.data.toUid
+          )
+          ||
+          // Sender cancels pending
+          (me() == resource.data.fromUid
+            && resource.data.status == "pending"
+            && request.resource.data.status == "cancelled"
+            && request.resource.data.fromUid == resource.data.fromUid
+            && request.resource.data.toUid == resource.data.toUid
+          )
+        );
+
+      // Per your recent preference: sender can delete
+      allow delete: if signedIn() && resource.data.fromUid == me();
+    }
+
+    match /gameRooms/{roomId} {
+      allow read: if signedIn()
+        && resource.data.members is list
+        && resource.data.members.hasAny([me()]);
+
+      allow create: if signedIn()
+        && request.resource.data.members is list
+        && request.resource.data.members.size() == 2
+        && request.resource.data.members.hasAny([me()])
+        && request.resource.data.players.X is string
+        && request.resource.data.players.O is string
+        && isFriend(request.resource.data.members[0], request.resource.data.members[1])
+        && isFriend(request.resource.data.members[1], request.resource.data.members[0])
+        && request.resource.data.members.hasAll([
+          request.resource.data.players.X,
+          request.resource.data.players.O
+        ])
+        && request.resource.data.board is list
+        && request.resource.data.board.size() == 9
+        && request.resource.data.turn in ["X", "O"]
+        && request.resource.data.status in ["playing", "ended"]
+        && request.resource.data.winner in ["", "X", "O", "draw"];
+
+      allow update: if signedIn()
+        && resource.data.members is list
+        && resource.data.members.hasAny([me()])
+        // lock members/players
+        && request.resource.data.members == resource.data.members
+        && request.resource.data.players.X == resource.data.players.X
+        && request.resource.data.players.O == resource.data.players.O
+        // validate state
+        && request.resource.data.board is list
+        && request.resource.data.board.size() == 9
+        && request.resource.data.turn in ["X", "O"]
+        && request.resource.data.status in ["playing", "ended"]
+        && request.resource.data.winner in ["", "X", "O", "draw"];
+
+      allow delete: if false;
+
+      match /rematchVotes/{uid} {
+        allow read: if signedIn()
+          && get(/databases/$(database)/documents/gameRooms/$(roomId)).data.members.hasAny([me()]);
+
+        allow create, update: if signedIn()
+          && me() == uid
+          && get(/databases/$(database)/documents/gameRooms/$(roomId)).data.members.hasAny([me()])
+          && request.resource.data.vote == true;
+
+        allow delete: if false;
+      }
+    }
+
+  }
+}

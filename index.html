@@ -204,8 +204,9 @@
 
     <div id="bottomTime" class="bottomTime">00:00</div>
 
-    <a href="FriendManagementPage.html" class="iconButton" aria-label="Friends">
-      <span class="iconBubble" aria-hidden="true">👥</span>
+    <a href="FriendManagementPage.html" class="friendButton" aria-label="Open friends">
+      <span class="friendIcon" aria-hidden="true">👥</span>
+      <span class="friendLabel">Friends</span>
     </a>
 
     <a href="AccSettings.html" class="avatarWrap" aria-label="Account">
@@ -672,31 +673,37 @@
       border-color: rgba(0,255,204,0.45);
       box-shadow: 0 14px 28px rgba(0,0,0,0.48);
     }
-    .iconButton{
+    .friendButton{
       display:flex;
       align-items:center;
       justify-content:center;
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.14);
-      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 15px 0 10px;
+      border: 1px solid rgba(0,255,204,0.38);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(0,255,204,0.2), rgba(140,110,255,0.2));
+      color: #fff;
+      box-shadow: 0 0 18px rgba(0,255,204,0.12), inset 0 1px rgba(255,255,255,0.1);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
     }
-    .iconButton:hover{
-      transform: translateY(-1px);
-      border-color: rgba(0,255,204,0.45);
-      background: rgba(255,255,255,0.10);
+    .friendButton:hover{
+      transform: translateY(-2px);
+      border-color: rgba(0,255,204,0.72);
+      background: linear-gradient(135deg, rgba(0,255,204,0.3), rgba(140,110,255,0.28));
+      box-shadow: 0 6px 24px rgba(0,255,204,0.2);
     }
-    .iconBubble{
-      width: 30px; height: 30px;
+    .friendButton:focus-visible{ outline: 2px solid #00ffcc; outline-offset: 3px; }
+    .friendIcon{
+      display:grid;
+      place-items:center;
+      width: 28px; height: 28px;
       border-radius: 50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: rgba(0,0,0,0.35);
-      font-size: 16px;
+      background: rgba(0,0,0,0.24);
+      font-size: 15px;
       line-height: 1;
     }
+    .friendLabel{ font-size: 12px; font-weight: 700; letter-spacing: .15px; }
     .userAvatar{
       width: 36px; height: 36px;
       border-radius: 50%;
@@ -761,7 +768,7 @@
     /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce){
       .bg-orb, .brandDot, .onlineDot, .tile, .gameCard { animation: none !important; }
-      .tile, .gameCard, .pill, .navLink, .userAvatar { transition: none !important; }
+      .tile, .gameCard, .pill, .navLink, .friendButton, .userAvatar { transition: none !important; }
     }
 
     /* Mobile tweaks */
@@ -777,6 +784,9 @@
       }
       .navLinks{ gap: 10px; }
       .navLink{ padding: 8px 8px; }
+      .friendButton{ gap: 5px; min-height: 38px; padding: 0 9px 0 7px; }
+      .friendIcon{ width: 24px; height: 24px; font-size: 13px; }
+      .friendLabel{ font-size: 11px; }
     }
     
     

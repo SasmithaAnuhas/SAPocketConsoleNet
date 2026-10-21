@@ -179,7 +179,7 @@ function requestFullScreen(){
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getDatabase, ref, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+  import { getDatabase, ref, runTransaction, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
@@ -203,19 +203,28 @@ function requestFullScreen(){
     const scoreRef = ref(database, `snakeLeaderboard/${user.uid}`);
     const displayName = user.displayName || "Player";
     const updatedAt = serverTimestamp();
+    const payload = { displayName, score, updatedAt };
 
     try {
       await runTransaction(scoreRef, (current) => {
         if (current && Number(current.score) >= score) return;
-        return { displayName, score, updatedAt };
+        return payload;
       });
       if (leaderboardStatus) {
         leaderboardStatus.textContent = "Your best score is saved to the global leaderboard.";
       }
     } catch (error) {
-      console.error("[Snake leaderboard] Failed to save the high score.", error);
-      if (leaderboardStatus) {
-        leaderboardStatus.textContent = "Could not save your score. Check your connection and Firebase database rules.";
+      console.warn("[Snake leaderboard] Transaction failed, attempting direct set fallback:", error);
+      try {
+        await set(scoreRef, payload);
+        if (leaderboardStatus) {
+          leaderboardStatus.textContent = "Your best score is saved to the global leaderboard.";
+        }
+      } catch (setErr) {
+        console.error("[Snake leaderboard] Failed to save score (check Firebase database rules):", setErr);
+        if (leaderboardStatus) {
+          leaderboardStatus.textContent = "Could not save your score. Check your connection and Firebase database rules.";
+        }
       }
     }
   }

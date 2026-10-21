@@ -15,6 +15,7 @@ import {
   getDatabase,
   ref,
   runTransaction,
+  set,
   onValue,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
@@ -256,6 +257,18 @@ class TypeWriterAuthLeaderboard {
       testsCompleted = stats.testsCompleted || 1;
     } catch (_) {}
 
+    const payload = {
+      uid: user.uid,
+      displayName,
+      photoURL,
+      wpm: Math.round(wpm),
+      accuracy: Math.round(accuracy),
+      rankTitle,
+      rankBadge,
+      testsCompleted,
+      updatedAt: serverTimestamp()
+    };
+
     try {
       await runTransaction(scoreRef, (current) => {
         // Only update if new WPM is higher, or if same WPM and higher accuracy
@@ -263,24 +276,20 @@ class TypeWriterAuthLeaderboard {
           if (current.wpm > wpm) return;
           if (current.wpm === wpm && (current.accuracy || 0) >= accuracy) return;
         }
-
-        return {
-          uid: user.uid,
-          displayName,
-          photoURL,
-          wpm: Math.round(wpm),
-          accuracy: Math.round(accuracy),
-          rankTitle,
-          rankBadge,
-          testsCompleted,
-          updatedAt: serverTimestamp()
-        };
+        return payload;
       });
-
+      console.info('[TypeWriterLeaderboard] Score committed to Firebase successfully:', payload);
       return true;
-    } catch (err) {
-      console.error('[TypeWriterLeaderboard] Failed to submit score:', err);
-      return false;
+    } catch (txErr) {
+      console.warn('[TypeWriterLeaderboard] Transaction failed, trying direct set fallback:', txErr);
+      try {
+        await set(scoreRef, payload);
+        console.info('[TypeWriterLeaderboard] Score uploaded to Firebase via set fallback:', payload);
+        return true;
+      } catch (setErr) {
+        console.error('[TypeWriterLeaderboard] Failed to upload score to Firebase (permission denied):', setErr);
+        return false;
+      }
     }
   }
 
