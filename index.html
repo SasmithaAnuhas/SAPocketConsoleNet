@@ -1125,7 +1125,7 @@
           renderCurrentScores();
         }
       }, (error) => {
-        console.warn("[Home leaderboard] Keycraft Typing global scores not accessible (check database.rules.json):", error);
+        console.warn("[Home leaderboard] Keycraft Typing global scores not accessible (check Data/Index/database.rules.json):", error);
         typewriterLoaded = true;
 
         // If global query failed (e.g. locked rules), show local player's best as fallback
@@ -1166,7 +1166,7 @@
           renderCurrentScores();
         }
       }, (error) => {
-        console.warn("[Home leaderboard] Snake global scores not accessible (check database.rules.json):", error);
+        console.warn("[Home leaderboard] Snake global scores not accessible (check Data/Index/database.rules.json):", error);
         snakeLoaded = true;
 
         // If global query failed (e.g. locked rules), show local player's best as fallback

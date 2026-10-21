@@ -181,7 +181,7 @@ class TypeWriterAuthLeaderboard {
       this.recalculatePlayerRank();
       this.notifyLeaderboardChange();
     }, (error) => {
-      console.warn('[TypeWriterLeaderboard] Error fetching online scores (check database.rules.json):', error);
+      console.warn('[TypeWriterLeaderboard] Error fetching online scores (check Data/Index/database.rules.json):', error);
       if (this.leaderboardEntries.length === 0) {
         this.buildLocalFallbackLeaderboard();
       }

@@ -356,7 +356,7 @@
     function initSnakeBoard() {
       const snakeRef = ref(database, "snakeLeaderboard");
       onValue(snakeRef, renderLeaderboard, (error) => {
-        console.warn("[HighScoreBoard] Snake online scores restricted (check database.rules.json):", error);
+        console.warn("[HighScoreBoard] Snake online scores restricted (check Data/Index/database.rules.json):", error);
         leaderboardStatus.textContent = "Local mode";
         leaderboardRows.replaceChildren();
 
@@ -376,7 +376,7 @@
           row.className = "empty-row";
           const cell = document.createElement("td");
           cell.colSpan = 3;
-          cell.textContent = "Could not load online scores. Update Firebase database rules with database.rules.json.";
+          cell.textContent = "Could not load online scores. Update Firebase database rules with Data/Index/database.rules.json.";
           row.append(cell);
           leaderboardRows.append(row);
         }
@@ -459,7 +459,7 @@
         });
         twLeaderboardStatus.textContent = "Live";
       }, (error) => {
-        console.warn("[HighScoreBoard] TypeWriter online scores restricted (check database.rules.json):", error);
+        console.warn("[HighScoreBoard] TypeWriter online scores restricted (check Data/Index/database.rules.json):", error);
         twLeaderboardStatus.textContent = "Local mode";
         twLeaderboardRows.replaceChildren();
 
@@ -488,7 +488,7 @@
           row.className = "empty-row";
           const cell = document.createElement("td");
           cell.colSpan = 5;
-          cell.textContent = "Could not load online scores. Update Firebase database rules with database.rules.json.";
+          cell.textContent = "Could not load online scores. Update Firebase database rules with Data/Index/database.rules.json.";
           row.append(cell);
           twLeaderboardRows.append(row);
         }
