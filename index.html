@@ -55,7 +55,6 @@
 
       <a class="tile" href="Games/LaneRushV1/LaneRushV1.html" aria-label="Play Lane Rush">
         <div class="tileMedia">
-          <!-- NOTE: your original URL had a line break; fixed into one line -->
           <img
             src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp"
             alt="LaneRushV banner"
@@ -70,15 +69,17 @@
         <div class="shine" aria-hidden="true"></div>
       </a>
 
-      <a class="tile tileEmpty" href="#" aria-label="Coming soon">
+      <a class="tile" href="Games/Keycraft TypingV1/KeycraftTypingV1.html" aria-label="Elevate your speed">
         <div class="tileMedia">
-          <div class="emptyState">
-            <div class="emptyIcon" aria-hidden="true">+</div>
-            <div class="emptyText">Add next banner</div>
-          </div>
+          <img
+            src="Games/Keycraft TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg"
+            alt="Keycraft Typing banner"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
         <div class="tileMeta">
-          <div class="tileTitle">Coming soon</div>
+          <div class="tileTitle">Keycraft Typing</div>
           <div class="tileTag">New drop</div>
         </div>
         <div class="shine" aria-hidden="true"></div>
@@ -91,7 +92,7 @@
       <div class="homeScoresHeader">
         <div>
           <div class="homeScoresEyebrow">Live leaderboard</div>
-          <h2 id="leaderboardSectionTitle">☕ TypeWriter high scores</h2>
+          <h2 id="leaderboardSectionTitle">☕ Keycraft Typing high scores</h2>
         </div>
         <a class="homeScoresFullLink" href="HighScoreBoard.html">View all</a>
       </div>
@@ -99,7 +100,7 @@
       <!-- Game switcher box -->
       <div class="homeGameSwitcher" role="tablist" aria-label="Select Game Leaderboard">
         <button type="button" class="homeGameSwitchBtn active" data-game="typewriter" role="tab" aria-selected="true">
-          <span>☕</span> TypeWriter
+          <span>☕</span> Keycraft Typing
         </button>
         <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
           <span>🐍</span> Snake
@@ -108,7 +109,7 @@
 
       <div class="homePlayerState" id="homePlayerState" data-state="loading" aria-live="polite">Checking player state…</div>
       <div class="homeSignInPrompt" id="homeSignInPrompt" hidden>
-        <span id="homePromptText">Sign in to save your TypeWriter scores and appear on the global leaderboard.</span>
+        <span id="homePromptText">Sign in to save your Keycraft Typing scores and appear on the global leaderboard.</span>
         <a href="AccSettings.html">Sign in</a>
       </div>
       <ol class="homeScoresList" id="homeScoresList" aria-label="Top scores">
@@ -155,16 +156,17 @@
         </div>
       </a>
 
-      <a class="gameCard gameEmpty" href="Games/KennyDash/HTML5/KennyDash-HTML5-Shipping.html" aria-label="Game 3">
+      <a class="gameCard gameEmpty" href="Games/Keycraft TypingV1/KeycraftTypingV1.html" aria-label="Game 3">
         <div class="gameMedia">
-          <div class="emptyState">
-            <div class="emptyIcon" aria-hidden="true">+</div>
-            <div class="emptyText">Banner</div>
-          </div>
-        </div>
+          <img
+            src="Games/Keycraft TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg"
+            alt="Keycraft Typing banner"
+            loading="lazy"
+            decoding="async"
+          />
         <div class="gameMeta">
-          <div class="gameTitle">Kenny Dash</div>
-          <div class="gameSub">Add link</div>
+          <div class="gameTitle">Key Craft Typing</div>
+          <div class="gameSub">New drop</div>
         </div>
       </a>
 
@@ -182,15 +184,7 @@
         </div>
       </a>
 
-      <a class="gameCard" href="Games/TypeWriter/index.html" aria-label="TypeWriter Java Practice">
-        <div class="gameMedia" style="background: radial-gradient(circle at 35% 35%, #383a3f, #18191c); display: flex; align-items: center; justify-content: center; font-size: 3.5rem;">
-          ☕
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">TypeWriter</div>
-          <div class="gameSub">Java Typing Practice</div>
-        </div>
-      </a>
+      
     </div>
   </section>
 
@@ -944,7 +938,7 @@
       if (!isLoaded) {
         const loadingItem = document.createElement("li");
         loadingItem.className = "homeScoresEmpty";
-        loadingItem.textContent = isTW ? "Loading TypeWriter scores…" : "Loading Snake scores…";
+        loadingItem.textContent = isTW ? "Loading Keycraft Typing scores…" : "Loading Snake scores…";
         homeScoresList.append(loadingItem);
         return;
       }
@@ -953,7 +947,7 @@
         const empty = document.createElement("li");
         empty.className = "homeScoresEmpty";
         empty.textContent = isTW
-          ? "No TypeWriter scores yet. Sign in and set a record in TypeWriter to claim Rank #1!"
+          ? "No Keycraft Typing scores yet. Sign in and set a record in Keycraft Typing to claim Rank #1!"
           : "No scores yet. Sign in and set a new Snake personal best to be first!";
         homeScoresList.append(empty);
         return;
@@ -999,9 +993,9 @@
         });
 
         if (game === "typewriter") {
-          if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "☕ TypeWriter high scores";
+          if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "☕ Keycraft Typing high scores";
           if (homePromptText) {
-            homePromptText.textContent = "Sign in to save your TypeWriter scores and appear on the global leaderboard.";
+            homePromptText.textContent = "Sign in to save your Keycraft Typing scores and appear on the global leaderboard.";
           }
         } else {
           if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "🐍 Snake high scores";
@@ -1038,7 +1032,7 @@
           renderCurrentScores();
         }
       }, (error) => {
-        console.warn("[Home leaderboard] TypeWriter global scores not accessible (check database.rules.json):", error);
+        console.warn("[Home leaderboard] Keycraft Typing global scores not accessible (check database.rules.json):", error);
         typewriterLoaded = true;
 
         // If global query failed (e.g. locked rules), show local player's best as fallback

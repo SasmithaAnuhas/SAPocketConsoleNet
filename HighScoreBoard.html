@@ -223,11 +223,11 @@
           <div class="game-title-group">
             <div class="game-icon" aria-hidden="true" style="border-color: rgba(255,198,109,0.3); background: rgba(255,198,109,0.1); color: #ffc66d;">☕</div>
             <div>
-              <h2 id="typewriterTitle">TypeWriter (Java Edition)</h2>
+              <h2 id="typewriterTitle">Keycraft Typing (Java Edition)</h2>
               <div class="game-label">Syntax Practice • Velocity & Accuracy</div>
             </div>
           </div>
-          <a class="play-link" href="Games/TypeWriter/index.html" style="background: #ffc66d; color: #111;">Play TypeWriter</a>
+          <a class="play-link" href="Games/Keycraft%20TypingV1/KeycraftTypingV1.html" style="background: #ffc66d; color: #111;">Play Keycraft Typing</a>
         </header>
 
         <div class="score-summary" aria-live="polite" style="border-color: rgba(255,198,109,0.2); background: rgba(255,198,109,0.06);">
@@ -392,13 +392,13 @@
         twPersonalBest.textContent = `${stats.highWpm} WPM`;
         twPersonalBestNote.textContent = `${stats.testsCompleted || 1} tests completed`;
       } else {
-        twPersonalBestNote.textContent = "Play TypeWriter to set your first score.";
+        twPersonalBestNote.textContent = "Play Keycraft Typing to set your first score.";
       }
     } catch (_) {
       twPersonalBest.textContent = "—";
     }
 
-    // TypeWriter Global Leaderboard listener
+    // Keycraft Typing Global Leaderboard listener
     const twLeaderboardStatus = document.getElementById("twLeaderboardStatus");
     const twLeaderboardRows = document.getElementById("twLeaderboardRows");
 
@@ -426,7 +426,7 @@
           row.className = "empty-row";
           const cell = document.createElement("td");
           cell.colSpan = 5;
-          cell.textContent = "No Java typists on the board yet. Complete a test in TypeWriter to claim Rank #1!";
+          cell.textContent = "No Java typists on the board yet. Complete a test in Keycraft Typing to claim Rank #1!";
           row.append(cell);
           twLeaderboardRows.append(row);
           twLeaderboardStatus.textContent = "Live";
