@@ -201,12 +201,12 @@
 
     <div id="bottomTime" class="bottomTime">00:00</div>
 
-    <a href="FriendManagementPage.html" class="friendButton" aria-label="Open friends">
+    <a href="FriendManagementPage.html" class="friendButton" aria-label="Open friends" title="Friends">
       <span class="friendIcon" aria-hidden="true">👥</span>
       <span class="friendLabel">Friends</span>
     </a>
 
-    <a href="AccSettings.html" class="avatarWrap" aria-label="Account">
+    <a href="AccSettings.html" class="avatarWrap" aria-label="Account" title="Account">
       <div id="userAvatar" class="userAvatar"></div>
       <span class="onlineDot" aria-hidden="true"></span>
     </a>
@@ -789,8 +789,18 @@
 
     /* Mobile tweaks */
     @media (max-width: 720px){
-      .topbar{ flex-wrap: wrap; }
-      .topActions{ width: 100%; justify-content: flex-end; }
+      .topbar{
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding: 12px 12px 10px;
+      }
+      .brand{ gap: 8px; }
+      .topActions{
+        width: auto;
+        flex: 0 0 auto;
+        gap: 5px;
+      }
+      .topActions .pill{ padding: 7px 9px; }
     }
 
     @media (max-width: 380px){
@@ -798,11 +808,47 @@
         --game-card-width: 150px;
         --game-card-media-height: 150px;
       }
-      .navLinks{ gap: 10px; }
-      .navLink{ padding: 8px 8px; }
-      .friendButton{ gap: 5px; min-height: 38px; padding: 0 9px 0 7px; }
-      .friendIcon{ width: 24px; height: 24px; font-size: 13px; }
-      .friendLabel{ font-size: 11px; }
+      .brandSub{ display:none; }
+      .brandTitle{ font-size:14px; }
+      .topActions .pill{ padding: 6px 7px; }
+      .leaderboardLink{ font-size:11px; white-space:nowrap; }
+    }
+
+    @media (max-width: 600px){
+      .bottomBar{
+        display:grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 4px;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      }
+      .navLinks{ display:contents; }
+      .navLink{
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        min-width:0;
+        min-height:44px;
+        padding:8px 2px;
+        font-size:12px;
+        white-space:nowrap;
+      }
+      .bottomTime{
+        justify-self:center;
+        font-size:12px;
+        white-space:nowrap;
+      }
+      .friendButton{
+        justify-self:center;
+        width:44px;
+        min-height:44px;
+        padding:0;
+      }
+      .friendLabel{ display:none; }
+      .avatarWrap{
+        justify-self:center;
+        width:44px;
+        height:44px;
+      }
     }
     
     
@@ -897,8 +943,16 @@
     }
     // --- END PRESENCE ---
 
-    onAuthStateChanged(auth, (user) => {
+    let displayedAuthUid;
+
+    function updateAuthState(user) {
+      const uid = user?.uid || null;
+      const authStateChanged = uid !== displayedAuthUid;
+      displayedAuthUid = uid;
+
       if (!user) {
+        if (!authStateChanged) return;
+
         // Signed out
         setAvatar(null);
         setOnlineDotVisible(false);
@@ -926,18 +980,35 @@
       }
       if (homeSignInPrompt) homeSignInPrompt.hidden = true;
 
+      if (!authStateChanged) return;
+
       // Start presence on this page (THIS is what makes you online here)
       enablePresenceForThisPage(user.uid);
 
       // Re-query leaderboards now that user is authenticated
       initTypeWriterQuery();
       initSnakeQuery();
-    }, (error) => {
+    }
+
+    onAuthStateChanged(auth, updateAuthState, (error) => {
       console.error("[Home leaderboard] Authentication state failed.", error);
       if (homePlayerState) {
         homePlayerState.dataset.state = "error";
         homePlayerState.textContent = "Could not check player state.";
       }
+    });
+
+    function refreshAuthState() {
+      auth.authStateReady()
+        .then(() => updateAuthState(auth.currentUser))
+        .catch((error) => {
+          console.error("[Home leaderboard] Could not refresh authentication state.", error);
+        });
+    }
+
+    window.addEventListener("pageshow", refreshAuthState);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") refreshAuthState();
     });
 
     let selectedGame = "typewriter"; // Default to TypeWriter
