@@ -23,6 +23,7 @@
     </div>
 
     <div class="topActions">
+      <a class="pill leaderboardLink" href="HighScoreBoard.html">🏆 High Scores</a>
       <button class="pill" id="scrollLeft" type="button" aria-label="Scroll featured left">‹</button>
       <button class="pill" id="scrollRight" type="button" aria-label="Scroll featured right">›</button>
     </div>
@@ -85,6 +86,37 @@
     </div>
   </section>
 
+  <section class="section" aria-labelledby="leaderboardSectionTitle">
+    <div class="homeScores">
+      <div class="homeScoresHeader">
+        <div>
+          <div class="homeScoresEyebrow">Live leaderboard</div>
+          <h2 id="leaderboardSectionTitle">☕ TypeWriter high scores</h2>
+        </div>
+        <a class="homeScoresFullLink" href="HighScoreBoard.html">View all</a>
+      </div>
+
+      <!-- Game switcher box -->
+      <div class="homeGameSwitcher" role="tablist" aria-label="Select Game Leaderboard">
+        <button type="button" class="homeGameSwitchBtn active" data-game="typewriter" role="tab" aria-selected="true">
+          <span>☕</span> TypeWriter
+        </button>
+        <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
+          <span>🐍</span> Snake
+        </button>
+      </div>
+
+      <div class="homePlayerState" id="homePlayerState" data-state="loading" aria-live="polite">Checking player state…</div>
+      <div class="homeSignInPrompt" id="homeSignInPrompt" hidden>
+        <span id="homePromptText">Sign in to save your TypeWriter scores and appear on the global leaderboard.</span>
+        <a href="AccSettings.html">Sign in</a>
+      </div>
+      <ol class="homeScoresList" id="homeScoresList" aria-label="Top scores">
+        <li class="homeScoresEmpty">Loading scores…</li>
+      </ol>
+    </div>
+  </section>
+
   <!-- Library grid -->
   <section class="section" style="padding-bottom: 140px;">
     <div class="sectionTitleRow">
@@ -136,29 +168,27 @@
         </div>
       </a>
 
-      <a class="gameCard gameEmpty" href="#" aria-label="Game 4">
+      <a class="gameCard" href="Games/KennyAdventureV1/KennyAdventure.html" aria-label="Kenny Adventure">
         <div class="gameMedia">
-          <div class="emptyState">
-            <div class="emptyIcon" aria-hidden="true">+</div>
-            <div class="emptyText">Banner</div>
-          </div>
+          <img 
+            src="Games/KennyAdventureV1/Assets/kenney_new-platformer-pack-1.1/Preview (Characters).png" 
+            alt="Kenny Adventure characters"
+            loading="lazy"
+          />
         </div>
         <div class="gameMeta">
-          <div class="gameTitle">Game 4</div>
-          <div class="gameSub">Add link</div>
+          <div class="gameTitle">Kenny Adventure</div>
+          <div class="gameSub">Platformer • Single Player</div>
         </div>
       </a>
 
-      <a class="gameCard gameEmpty" href="#" aria-label="Game 5">
-        <div class="gameMedia">
-          <div class="emptyState">
-            <div class="emptyIcon" aria-hidden="true">+</div>
-            <div class="emptyText">Banner</div>
-          </div>
+      <a class="gameCard" href="Games/TypeWriter/index.html" aria-label="TypeWriter Java Practice">
+        <div class="gameMedia" style="background: radial-gradient(circle at 35% 35%, #383a3f, #18191c); display: flex; align-items: center; justify-content: center; font-size: 3.5rem;">
+          ☕
         </div>
         <div class="gameMeta">
-          <div class="gameTitle">Game 5</div>
-          <div class="gameSub">Add link</div>
+          <div class="gameTitle">TypeWriter</div>
+          <div class="gameSub">Java Typing Practice</div>
         </div>
       </a>
     </div>
@@ -185,6 +215,16 @@
   </nav>
 
   <a href="ChatPage.html" class="floatingChat" aria-label="Open chat">💬</a>
+
+  <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
+    <div class="loginReminderIcon" aria-hidden="true">👋</div>
+    <h2 id="loginReminderTitle">Make it yours</h2>
+    <p id="loginReminderMessage">You’re playing as a guest. Log in to connect with friends and access your account features.</p>
+    <div class="loginReminderActions">
+      <a class="loginReminderSignIn" href="AccSettings.html">Log in</a>
+      <button class="loginReminderDismiss" id="dismissLoginReminder" type="button">Continue as guest</button>
+    </div>
+  </dialog>
   
   
   <style>
@@ -296,6 +336,100 @@
     }
     .sectionTitle{ margin:0; font-size: 15px; font-weight: 700; letter-spacing: .2px; }
     .sectionHint{ font-size: 12px; color: rgba(255,255,255,0.55); }
+
+    .homeScores{
+      max-width: 580px;
+      padding: 18px;
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(0,255,204,0.07), rgba(140,110,255,0.06));
+      box-shadow: 0 14px 38px rgba(0,0,0,0.24);
+    }
+    .homeScoresHeader{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .homeScoresEyebrow{ margin-bottom:4px; color:#00ffcc; font-size:10px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .homeScoresHeader h2{ margin:0; font-size:16px; }
+    .homeScoresFullLink{ color:#00ffcc; font-size:12px; font-weight:700; white-space:nowrap; }
+    .homeGameSwitcher{
+      display: inline-flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 4px;
+      margin-top: 12px;
+    }
+    .homeGameSwitchBtn{
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.65);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background .18s ease, color .18s ease, transform .15s ease;
+      user-select: none;
+    }
+    .homeGameSwitchBtn:hover{
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .homeGameSwitchBtn.active{
+      background: #ffc66d;
+      color: #120e06;
+      box-shadow: 0 2px 8px rgba(255, 198, 109, 0.35);
+    }
+    .homeGameSwitchBtn.active[data-game="snake"]{
+      background: #00ffcc;
+      color: #071310;
+      box-shadow: 0 2px 8px rgba(0, 255, 204, 0.35);
+    }
+    .homePlayerState{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:13px;
+      color:rgba(255,255,255,0.75);
+      font-size:12px;
+    }
+    .homePlayerState::before{ content:""; width:8px; height:8px; border-radius:50%; background:#999; }
+    .homePlayerState[data-state="signed-in"]::before{ background:#00ffcc; box-shadow:0 0 10px rgba(0,255,204,.6); }
+    .homePlayerState[data-state="guest"]::before{ background:#ffcc66; }
+    .homeSignInPrompt{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-top:12px;
+      padding:11px 12px;
+      border:1px solid rgba(255,204,102,0.45);
+      border-radius:13px;
+      background:rgba(255,204,102,0.12);
+      color:#ffe2a8;
+      font-size:12px;
+      line-height:1.45;
+    }
+    .homeSignInPrompt[hidden]{ display:none; }
+    .homeSignInPrompt a{
+      flex:0 0 auto;
+      padding:7px 11px;
+      border-radius:999px;
+      background:#ffcc66;
+      color:#201607;
+      font-weight:800;
+      white-space:nowrap;
+    }
+    .homeScoresList{ display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
+    .homeScoresRow{ display:grid; grid-template-columns:30px minmax(0,1fr) auto; align-items:center; gap:10px; padding:8px 10px; border:1px solid rgba(255,255,255,0.07); border-radius:11px; background:rgba(0,0,0,0.18); font-size:12px; }
+    .homeScoresRank{ color:rgba(255,255,255,0.5); font-variant-numeric:tabular-nums; }
+    .homeScoresName{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .homeScoresScore{ color:#00ffcc; font-weight:800; font-variant-numeric:tabular-nums; }
+    .homeScoresEmpty{ padding:11px 4px 2px; color:rgba(255,255,255,0.57); font-size:12px; line-height:1.45; }
 
     /* Carousel */
     .carousel{
@@ -587,6 +721,43 @@
       animation: pulse 2.2s ease-in-out infinite;
     }
 
+    .loginReminder{
+      width: min(420px, calc(100% - 32px));
+      padding: 28px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 24px;
+      background: #171a20;
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+    }
+    .loginReminder::backdrop{ background: rgba(0,0,0,0.72); backdrop-filter: blur(5px); }
+    .loginReminderIcon{ font-size: 32px; }
+    .loginReminder h2{ margin: 12px 0 8px; font-size: 22px; }
+    .loginReminder p{ margin: 0; color: rgba(255,255,255,0.72); line-height: 1.5; }
+    .loginReminderActions{ display: grid; gap: 10px; margin-top: 22px; }
+    .loginReminderSignIn,
+    .loginReminderDismiss{
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 14px;
+      color: #fff;
+      font: inherit;
+      text-align: center;
+      cursor: pointer;
+    }
+    .loginReminderSignIn{
+      border-color: transparent;
+      background: #00c9a1;
+      color: #071310;
+      font-weight: 700;
+    }
+    .loginReminderDismiss{ background: rgba(255,255,255,0.06); }
+    .loginReminderSignIn:hover{ background: #00e0b4; }
+    .loginReminderDismiss:hover{ background: rgba(255,255,255,0.12); }
+
     /* Respect reduced motion */
     @media (prefers-reduced-motion: reduce){
       .bg-orb, .brandDot, .onlineDot, .tile, .gameCard { animation: none !important; }
@@ -614,7 +785,7 @@
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue, onDisconnect, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
   window.addEventListener("DOMContentLoaded", () => {
     const firebaseConfig = {
@@ -634,6 +805,11 @@
 
     const avatarEl = document.getElementById("userAvatar");
     const onlineDotEl = document.querySelector(".onlineDot");
+    const loginReminder = document.getElementById("loginReminder");
+    const dismissLoginReminder = document.getElementById("dismissLoginReminder");
+    const homePlayerState = document.getElementById("homePlayerState");
+    const homeSignInPrompt = document.getElementById("homeSignInPrompt");
+    const homeScoresList = document.getElementById("homeScoresList");
 
     // Change this to control behavior:
     // false = Home works for guests (recommended for instant games)
@@ -642,6 +818,8 @@
 
     // Where to send users if login is required
     const AUTH_REDIRECT_URL = "https://sapocketconsole.blogspot.com/p/accountsettings.html";
+
+    dismissLoginReminder?.addEventListener("click", () => loginReminder?.close());
 
     const placeholder =
       "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==";
@@ -698,19 +876,201 @@
         // Signed out
         setAvatar(null);
         setOnlineDotVisible(false);
+        if (homePlayerState) {
+          homePlayerState.dataset.state = "guest";
+          homePlayerState.textContent = "Guest player · scores are read-only";
+        }
+        if (homeSignInPrompt) homeSignInPrompt.hidden = false;
 
         if (REQUIRE_AUTH_FOR_HOME) {
           window.location.href = AUTH_REDIRECT_URL;
+          return;
         }
+        if (loginReminder && !loginReminder.open) loginReminder.showModal();
         return;
       }
 
       // Signed in
+      if (loginReminder?.open) loginReminder.close();
       setAvatar(user.photoURL);
       setOnlineDotVisible(true);
+      if (homePlayerState) {
+        homePlayerState.dataset.state = "signed-in";
+        homePlayerState.textContent = `Signed in as ${user.displayName || "Player"}`;
+      }
+      if (homeSignInPrompt) homeSignInPrompt.hidden = true;
 
       // Start presence on this page (THIS is what makes you online here)
       enablePresenceForThisPage(user.uid);
+    }, (error) => {
+      console.error("[Home leaderboard] Authentication state failed.", error);
+      if (homePlayerState) {
+        homePlayerState.dataset.state = "error";
+        homePlayerState.textContent = "Could not check player state.";
+      }
+    });
+
+    let selectedGame = "typewriter"; // Default to TypeWriter
+    let typewriterScores = [];
+    let snakeScores = [];
+    let typewriterLoaded = false;
+    let snakeLoaded = false;
+
+    const leaderboardSectionTitle = document.getElementById("leaderboardSectionTitle");
+    const homePromptText = document.getElementById("homePromptText");
+    const switchButtons = document.querySelectorAll(".homeGameSwitchBtn");
+
+    function renderCurrentScores() {
+      homeScoresList.replaceChildren();
+
+      const isTW = (selectedGame === "typewriter");
+      const scores = isTW ? typewriterScores : snakeScores;
+      const isLoaded = isTW ? typewriterLoaded : snakeLoaded;
+
+      if (!isLoaded) {
+        const loadingItem = document.createElement("li");
+        loadingItem.className = "homeScoresEmpty";
+        loadingItem.textContent = isTW ? "Loading TypeWriter scores…" : "Loading Snake scores…";
+        homeScoresList.append(loadingItem);
+        return;
+      }
+
+      if (!scores.length) {
+        const empty = document.createElement("li");
+        empty.className = "homeScoresEmpty";
+        empty.textContent = isTW
+          ? "No TypeWriter scores yet. Sign in and set a record in TypeWriter to claim Rank #1!"
+          : "No scores yet. Sign in and set a new Snake personal best to be first!";
+        homeScoresList.append(empty);
+        return;
+      }
+
+      scores.slice(0, 5).forEach((entry, index) => {
+        const row = document.createElement("li");
+        row.className = "homeScoresRow";
+        const rank = document.createElement("span");
+        const name = document.createElement("span");
+        const score = document.createElement("span");
+
+        rank.className = "homeScoresRank";
+        name.className = "homeScoresName";
+        score.className = "homeScoresScore";
+
+        rank.textContent = `#${index + 1}`;
+        name.textContent = entry.name;
+        if (isTW) {
+          score.style.color = "#ffc66d";
+          score.textContent = `${entry.score} WPM`;
+        } else {
+          score.style.color = "#00ffcc";
+          score.textContent = `${entry.score.toLocaleString()} pts`;
+        }
+
+        row.append(rank, name, score);
+        homeScoresList.append(row);
+      });
+    }
+
+    // Switcher click handlers
+    switchButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const game = btn.dataset.game;
+        if (game === selectedGame) return;
+
+        selectedGame = game;
+        switchButtons.forEach((b) => {
+          const isActive = (b.dataset.game === game);
+          b.classList.toggle("active", isActive);
+          b.setAttribute("aria-selected", isActive ? "true" : "false");
+        });
+
+        if (game === "typewriter") {
+          if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "☕ TypeWriter high scores";
+          if (homePromptText) {
+            homePromptText.textContent = "Sign in to save your TypeWriter scores and appear on the global leaderboard.";
+          }
+        } else {
+          if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "🐍 Snake high scores";
+          if (homePromptText) {
+            homePromptText.textContent = "Sign in to save your Snake high scores and appear on the global leaderboard.";
+          }
+        }
+
+        renderCurrentScores();
+      });
+    });
+
+    // 1. Listen to typewriterLeaderboard
+    const typewriterQuery = query(
+      ref(rtdb, "typewriterLeaderboard"),
+      orderByChild("wpm"),
+      limitToLast(10)
+    );
+    onValue(typewriterQuery, (snapshot) => {
+      const scores = [];
+      snapshot.forEach((child) => {
+        const value = child.val();
+        const wpm = Number(value?.wpm);
+        if (Number.isSafeInteger(wpm) && wpm > 0) {
+          scores.push({
+            name: value.displayName || "Java Typist",
+            score: wpm,
+            accuracy: value.accuracy || 100
+          });
+        }
+      });
+      // Sort descending by WPM then accuracy
+      scores.sort((a, b) => b.score - a.score || b.accuracy - a.accuracy);
+      typewriterScores = scores;
+      typewriterLoaded = true;
+
+      if (selectedGame === "typewriter") {
+        renderCurrentScores();
+      }
+    }, (error) => {
+      console.error("[Home leaderboard] Failed to load TypeWriter scores.", error);
+      typewriterLoaded = true;
+      if (selectedGame === "typewriter") {
+        homeScoresList.replaceChildren();
+        const errorItem = document.createElement("li");
+        errorItem.className = "homeScoresEmpty";
+        errorItem.textContent = "Could not load TypeWriter scores.";
+        homeScoresList.append(errorItem);
+      }
+    });
+
+    // 2. Listen to snakeLeaderboard
+    const snakeQuery = query(
+      ref(rtdb, "snakeLeaderboard"),
+      orderByChild("score"),
+      limitToLast(10)
+    );
+    onValue(snakeQuery, (snapshot) => {
+      const scores = [];
+      snapshot.forEach((child) => {
+        const value = child.val();
+        const score = Number(value?.score);
+        if (Number.isSafeInteger(score) && score >= 0) {
+          scores.push({ name: value.displayName || "Player", score });
+        }
+      });
+      scores.sort((a, b) => b.score - a.score);
+      snakeScores = scores;
+      snakeLoaded = true;
+
+      if (selectedGame === "snake") {
+        renderCurrentScores();
+      }
+    }, (error) => {
+      console.error("[Home leaderboard] Failed to load Snake scores.", error);
+      snakeLoaded = true;
+      if (selectedGame === "snake") {
+        homeScoresList.replaceChildren();
+        const errorItem = document.createElement("li");
+        errorItem.className = "homeScoresEmpty";
+        errorItem.textContent = "Could not load Snake scores.";
+        homeScoresList.append(errorItem);
+      }
     });
 
     // Time update

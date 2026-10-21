@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0e0f12" />
+  <title>High Scores | Pocket Console</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+      background: #0e0f12;
+      color: #fff;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --muted: rgba(255,255,255,0.64);
+      --border: rgba(255,255,255,0.1);
+      --panel: rgba(255,255,255,0.045);
+      --accent: #00ffcc;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(0,255,204,0.1), transparent 60%),
+        radial-gradient(800px 500px at 100% 25%, rgba(140,110,255,0.12), transparent 60%),
+        #0e0f12;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .page { width: min(980px, 100%); margin: 0 auto; padding: 24px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand-mark {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(0,255,204,0.6);
+    }
+    .brand-name { font-weight: 700; }
+    .brand-caption { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .home-link {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--panel);
+      font-size: 13px;
+      transition: border-color .18s ease, background .18s ease;
+    }
+    .home-link:hover { border-color: rgba(0,255,204,0.4); background: rgba(255,255,255,0.08); }
+    main { padding: 44px 0 64px; }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: clamp(30px, 6vw, 46px); letter-spacing: -.04em; }
+    .intro { max-width: 580px; margin: 12px 0 30px; color: var(--muted); line-height: 1.6; }
+    .game-panel {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.025));
+      box-shadow: 0 22px 60px rgba(0,0,0,0.28);
+    }
+    .game-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .game-title-group { display: flex; align-items: center; gap: 14px; }
+    .game-icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      place-items: center;
+      border: 1px solid rgba(0,255,204,0.2);
+      border-radius: 16px;
+      background: rgba(0,255,204,0.08);
+      font-size: 24px;
+    }
+    h2 { margin: 0; font-size: 20px; }
+    .game-label { margin-top: 4px; color: var(--muted); font-size: 13px; }
+    .play-link {
+      flex: 0 0 auto;
+      padding: 10px 15px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #071310;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .score-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 20px 24px;
+      padding: 18px 20px;
+      border: 1px solid rgba(0,255,204,0.16);
+      border-radius: 18px;
+      background: rgba(0,255,204,0.055);
+    }
+    .score-label { color: var(--muted); font-size: 13px; }
+    .score-note { margin-top: 5px; color: rgba(255,255,255,0.45); font-size: 12px; }
+    .score-value { color: var(--accent); font-size: clamp(26px, 5vw, 36px); font-weight: 750; font-variant-numeric: tabular-nums; }
+    .leaderboard { padding: 8px 24px 24px; }
+    .leaderboard-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 8px 0 14px; }
+    .leaderboard-heading h3 { margin: 0; font-size: 16px; }
+    .status-badge {
+      padding: 5px 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 14px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 14px 16px; }
+    th { color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+    td { border-top: 1px solid var(--border); font-size: 13px; }
+    th:last-child, td:last-child { text-align: right; }
+    .empty-row td { padding: 25px 16px; color: var(--muted); text-align: center; }
+    footer { margin-top: 18px; color: rgba(255,255,255,0.45); font-size: 12px; line-height: 1.5; }
+
+    @media (max-width: 560px) {
+      .page { padding: 18px 16px; }
+      main { padding-top: 34px; }
+      .game-heading { align-items: flex-start; padding: 18px; }
+      .game-title-group { gap: 10px; }
+      .game-icon { width: 42px; height: 42px; }
+      .play-link { padding: 9px 11px; font-size: 12px; }
+      .score-summary { margin: 16px; padding: 15px; }
+      .leaderboard { padding: 4px 16px 16px; }
+      th, td { padding: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Pocket Console home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>
+          <span class="brand-name">Pocket Console</span>
+          <span class="brand-caption" style="display:block">High scores</span>
+        </span>
+      </a>
+      <a class="home-link" href="index.html">← Home</a>
+    </header>
+
+    <main>
+      <p class="eyebrow">The leaderboard</p>
+      <h1>High Scores</h1>
+      <p class="intro">See how your best runs stack up. Snake is the first game on the board; more games can be added here later.</p>
+
+      <section class="game-panel" aria-labelledby="snakeTitle">
+        <header class="game-heading">
+          <div class="game-title-group">
+            <div class="game-icon" aria-hidden="true">🐍</div>
+            <div>
+              <h2 id="snakeTitle">Snake</h2>
+              <div class="game-label">Classic • Survival</div>
+            </div>
+          </div>
+          <a class="play-link" href="Games/SnakeGameV1/SnakeGameV1.html">Play Snake</a>
+        </header>
+
+        <div class="score-summary" aria-live="polite">
+          <div>
+            <div class="score-label">Your best on this device</div>
+            <div class="score-note" id="personalBestNote">Saved in this browser</div>
+          </div>
+          <div class="score-value" id="personalBest">—</div>
+        </div>
+
+        <div class="leaderboard">
+          <div class="leaderboard-heading">
+            <h3>Global leaderboard</h3>
+            <span class="status-badge" id="leaderboardStatus">Connecting…</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Player</th>
+                  <th scope="col">Best score</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardRows">
+                <tr class="empty-row"><td colspan="3">Loading scores…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <footer>Global scores are saved for signed-in players. Your personal score is also kept in this browser.</footer>
+        </div>
+      </section>
+
+      <!-- TypeWriter Leaderboard Panel -->
+      <section class="game-panel" aria-labelledby="typewriterTitle" style="margin-top: 32px;">
+        <header class="game-heading">
+          <div class="game-title-group">
+            <div class="game-icon" aria-hidden="true" style="border-color: rgba(255,198,109,0.3); background: rgba(255,198,109,0.1); color: #ffc66d;">☕</div>
+            <div>
+              <h2 id="typewriterTitle">TypeWriter (Java Edition)</h2>
+              <div class="game-label">Syntax Practice • Velocity & Accuracy</div>
+            </div>
+          </div>
+          <a class="play-link" href="Games/TypeWriter/index.html" style="background: #ffc66d; color: #111;">Play TypeWriter</a>
+        </header>
+
+        <div class="score-summary" aria-live="polite" style="border-color: rgba(255,198,109,0.2); background: rgba(255,198,109,0.06);">
+          <div>
+            <div class="score-label">Your best on this device</div>
+            <div class="score-note" id="twPersonalBestNote">Saved in this browser</div>
+          </div>
+          <div class="score-value" id="twPersonalBest" style="color: #ffc66d;">—</div>
+        </div>
+
+        <div class="leaderboard">
+          <div class="leaderboard-heading">
+            <h3>Global Java Typist Leaderboard</h3>
+            <span class="status-badge" id="twLeaderboardStatus">Connecting…</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Rank</th>
+                  <th scope="col">Player</th>
+                  <th scope="col">Best WPM</th>
+                  <th scope="col">Accuracy</th>
+                  <th scope="col">Title</th>
+                </tr>
+              </thead>
+              <tbody id="twLeaderboardRows">
+                <tr class="empty-row"><td colspan="5">Loading Java typist scores…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <footer>Rankings calculated by Peak WPM and Accuracy from Google authenticated players.</footer>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getDatabase, onValue, query, ref, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
+      authDomain: "pocketconsole-cde70.firebaseapp.com",
+      projectId: "pocketconsole-cde70",
+      storageBucket: "pocketconsole-cde70.firebasestorage.app",
+      messagingSenderId: "85026527206",
+      appId: "1:85026527206:web:67bffb25c7f7e059fc2827",
+      databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+    const personalBest = document.getElementById("personalBest");
+    const personalBestNote = document.getElementById("personalBestNote");
+    const leaderboardStatus = document.getElementById("leaderboardStatus");
+    const leaderboardRows = document.getElementById("leaderboardRows");
+
+    try {
+      const savedScore = localStorage.getItem("snakeHigh");
+      const score = Number(savedScore);
+
+      if (savedScore !== null && Number.isFinite(score) && score >= 0) {
+        personalBest.textContent = score.toLocaleString();
+      } else if (savedScore !== null) {
+        personalBest.textContent = "Unavailable";
+        personalBestNote.textContent = "The saved score is invalid.";
+      } else {
+        personalBestNote.textContent = "Play Snake to set your first record.";
+      }
+    } catch (error) {
+      personalBest.textContent = "Unavailable";
+      personalBestNote.textContent = "Could not read the score saved in this browser.";
+      console.error("[HighScoreBoard] Unable to read Snake's saved high score.", error);
+    }
+
+    function renderLeaderboard(snapshot) {
+      const entries = [];
+      snapshot.forEach((child) => {
+        const value = child.val();
+        const score = Number(value?.score);
+        if (Number.isSafeInteger(score) && score >= 0) {
+          entries.push({ displayName: value.displayName || "Player", score });
+        }
+      });
+      entries.sort((a, b) => b.score - a.score);
+
+      leaderboardRows.replaceChildren();
+      if (entries.length === 0) {
+        const row = document.createElement("tr");
+        row.className = "empty-row";
+        const cell = document.createElement("td");
+        cell.colSpan = 3;
+        cell.textContent = "No scores yet. Sign in and set a new personal best in Snake to be first!";
+        row.append(cell);
+        leaderboardRows.append(row);
+        return;
+      }
+
+      entries.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        const rankCell = document.createElement("td");
+        const nameCell = document.createElement("td");
+        const scoreCell = document.createElement("td");
+        rankCell.textContent = `#${index + 1}`;
+        nameCell.textContent = entry.displayName;
+        scoreCell.textContent = entry.score.toLocaleString();
+        row.append(rankCell, nameCell, scoreCell);
+        leaderboardRows.append(row);
+      });
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      leaderboardStatus.textContent = user ? "Live" : "Live • sign in to submit scores";
+    }, (error) => {
+      console.error("[HighScoreBoard] Authentication state failed.", error);
+      leaderboardStatus.textContent = "Sign-in status unavailable";
+    });
+
+    const leaderboardQuery = query(
+      ref(database, "snakeLeaderboard"),
+      orderByChild("score"),
+      limitToLast(50)
+    );
+    onValue(leaderboardQuery, renderLeaderboard, (error) => {
+      console.error("[HighScoreBoard] Failed to load global scores.", error);
+      leaderboardStatus.textContent = "Could not load";
+      leaderboardRows.replaceChildren();
+      const row = document.createElement("tr");
+      row.className = "empty-row";
+      const cell = document.createElement("td");
+      cell.colSpan = 3;
+      cell.textContent = "Could not load scores. Check your connection and Firebase database rules.";
+      row.append(cell);
+      leaderboardRows.append(row);
+    });
+
+    // TypeWriter personal best on this device
+    const twPersonalBest = document.getElementById("twPersonalBest");
+    const twPersonalBestNote = document.getElementById("twPersonalBestNote");
+    try {
+      const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
+      if (stats.highWpm && stats.highWpm > 0) {
+        twPersonalBest.textContent = `${stats.highWpm} WPM`;
+        twPersonalBestNote.textContent = `${stats.testsCompleted || 1} tests completed`;
+      } else {
+        twPersonalBestNote.textContent = "Play TypeWriter to set your first score.";
+      }
+    } catch (_) {
+      twPersonalBest.textContent = "—";
+    }
+
+    // TypeWriter Global Leaderboard listener
+    const twLeaderboardStatus = document.getElementById("twLeaderboardStatus");
+    const twLeaderboardRows = document.getElementById("twLeaderboardRows");
+
+    const twQuery = query(ref(database, "typewriterLeaderboard"), limitToLast(50));
+    onValue(twQuery, (snapshot) => {
+      const entries = [];
+      snapshot.forEach((child) => {
+        const val = child.val();
+        if (val && typeof val.wpm === "number") {
+          entries.push({
+            displayName: val.displayName || "Java Typist",
+            wpm: val.wpm,
+            accuracy: val.accuracy || 100,
+            rankBadge: val.rankBadge || "☕",
+            rankTitle: val.rankTitle || "Java Typist"
+          });
+        }
+      });
+      entries.sort((a, b) => (b.wpm !== a.wpm ? b.wpm - a.wpm : b.accuracy - a.accuracy));
+
+      twLeaderboardRows.replaceChildren();
+      if (entries.length === 0) {
+        const row = document.createElement("tr");
+        row.className = "empty-row";
+        const cell = document.createElement("td");
+        cell.colSpan = 5;
+        cell.textContent = "No Java typists on the board yet. Complete a test in TypeWriter to claim Rank #1!";
+        row.append(cell);
+        twLeaderboardRows.append(row);
+        twLeaderboardStatus.textContent = "Live";
+        return;
+      }
+
+      entries.forEach((entry, idx) => {
+        const row = document.createElement("tr");
+        const rankCell = document.createElement("td");
+        const nameCell = document.createElement("td");
+        const wpmCell = document.createElement("td");
+        const accCell = document.createElement("td");
+        const titleCell = document.createElement("td");
+
+        const rankNum = idx + 1;
+        rankCell.textContent = rankNum === 1 ? "🥇 #1" : rankNum === 2 ? "🥈 #2" : rankNum === 3 ? "🥉 #3" : `#${rankNum}`;
+        if (rankNum === 1) rankCell.style.color = "#ffd700";
+        if (rankNum === 2) rankCell.style.color = "#d0d7de";
+        if (rankNum === 3) rankCell.style.color = "#cd7f32";
+
+        nameCell.textContent = entry.displayName;
+        wpmCell.textContent = `${entry.wpm} WPM`;
+        wpmCell.style.fontWeight = "700";
+        wpmCell.style.color = "#ffc66d";
+        accCell.textContent = `${entry.accuracy}%`;
+        titleCell.textContent = `${entry.rankBadge} ${entry.rankTitle}`;
+
+        row.append(rankCell, nameCell, wpmCell, accCell, titleCell);
+        twLeaderboardRows.append(row);
+      });
+      twLeaderboardStatus.textContent = "Live";
+    }, (error) => {
+      console.error("[HighScoreBoard] Failed to load typewriter scores.", error);
+      twLeaderboardStatus.textContent = "Could not load";
+    });
+  </script>
+</body>
+</html>

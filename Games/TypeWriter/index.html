@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en" data-theme="darcula">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TypeWriter | Java Typing Practice for Students</title>
+  <meta name="description" content="A Monkeytype-inspired typing practice application designed for Java students to master syntax, keywords, OOP, and data structures." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <a href="#" class="brand-section" aria-label="TypeWriter Java Practice">
+        <div class="brand-logo-cup" aria-hidden="true">☕</div>
+        <div class="brand-text">
+          <h1>TypeWriter <span class="java-badge">Java Edition</span></h1>
+          <p>Master Java syntax, brackets, and typing velocity</p>
+        </div>
+      </a>
+
+      <div class="top-nav-actions">
+        <!-- Back to Pocket Console -->
+        <a href="../../index.html" class="nav-btn console-back-btn" title="Return to Pocket Console Games">
+          <span aria-hidden="true">🎮</span> Console
+        </a>
+
+        <!-- Global Leaderboard Button -->
+        <button type="button" class="nav-btn" id="openLeaderboardBtn" title="View Global Leaderboard & Player Rank">
+          <span aria-hidden="true">🏆</span> Leaderboard
+        </button>
+
+        <!-- Custom Snippet Button -->
+        <button type="button" class="nav-btn" id="openCustomBtn" title="Paste your own Java code">
+          <span aria-hidden="true">📋</span> Custom Code
+        </button>
+
+        <!-- Stats Modal Button -->
+        <button type="button" class="icon-btn" id="openStatsBtn" title="View Statistics" aria-label="Statistics">
+          <span aria-hidden="true">📊</span>
+        </button>
+
+        <!-- Settings Modal Button -->
+        <button type="button" class="icon-btn" id="openSettingsBtn" title="Preferences & Themes" aria-label="Settings">
+          <span aria-hidden="true">⚙️</span>
+        </button>
+
+        <!-- Google OAuth Container -->
+        <div id="authContainer" class="auth-container">
+          <!-- Signed out button -->
+          <button type="button" id="loginGoogleBtn" class="google-login-btn" title="Sign in with Google to rank on Global Leaderboard">
+            <svg class="google-g-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Sign in</span>
+          </button>
+          
+          <!-- Signed in profile pill -->
+          <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+            <img id="userAvatarImg" class="user-avatar-mini" src="" alt="User Avatar" />
+            <span id="userDisplayName" class="user-display-name">Player</span>
+            <span id="userRankPill" class="player-rank-pill" title="Your Global Rank">Rank #--</span>
+            <button type="button" id="logoutBtn" class="logout-icon-btn" title="Sign out" aria-label="Sign out">✕</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Config / Control Bar (Monkeytype Header) -->
+    <section class="config-panel" aria-label="Typing Configuration">
+      <div class="config-bar">
+        <!-- Mode Toggles -->
+        <div class="config-group" role="group" aria-label="Practice Mode">
+          <span class="config-group-label">Mode</span>
+          <button type="button" class="pill-btn mode-btn active" data-mode="code">
+            <span aria-hidden="true">☕</span> Code Snippets
+          </button>
+          <button type="button" class="pill-btn mode-btn" data-mode="symbols">
+            <span aria-hidden="true">🔣</span> Symbols Drill
+          </button>
+          <button type="button" class="pill-btn mode-btn" data-mode="time">
+            <span aria-hidden="true">⏱️</span> Time
+          </button>
+          <button type="button" class="pill-btn mode-btn" data-mode="words">
+            <span aria-hidden="true">🔤</span> Words
+          </button>
+        </div>
+
+        <div class="config-divider" aria-hidden="true"></div>
+
+        <!-- Sub-bar for Code Mode: Topic & Difficulty -->
+        <div class="sub-config-bar" id="codeSubBar">
+          <div class="config-group">
+            <label for="categorySelect" class="config-group-label">Topic</label>
+            <select id="categorySelect" class="dropdown-select" aria-label="Java Category">
+              <option value="all">All Java Topics</option>
+              <option value="basics">🌱 Basics & Flow</option>
+              <option value="oop">🏛️ OOP & Classes</option>
+              <option value="collections">📦 Collections & Generics</option>
+              <option value="methods_dsa">⚡ Methods & DSA</option>
+              <option value="exceptions">🛡️ Exceptions & I/O</option>
+              <option value="streams">🌊 Streams & Lambdas</option>
+              <option value="keywords">🔑 Keywords Drill</option>
+              <option value="symbols">🔣 Symbols & Operators</option>
+            </select>
+          </div>
+
+          <div class="config-group">
+            <label for="difficultySelect" class="config-group-label">Level</label>
+            <select id="difficultySelect" class="dropdown-select" aria-label="Difficulty Level">
+              <option value="all">All Difficulties</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Sub-bar for Timed Mode -->
+        <div class="sub-config-bar" id="timeSubBar" style="display: none;">
+          <div class="config-group" role="group" aria-label="Time Duration">
+            <button type="button" class="pill-btn time-pill" data-time="15">15s</button>
+            <button type="button" class="pill-btn time-pill active" data-time="30">30s</button>
+            <button type="button" class="pill-btn time-pill" data-time="60">60s</button>
+            <button type="button" class="pill-btn time-pill" data-time="120">120s</button>
+          </div>
+        </div>
+
+        <!-- Sub-bar for Words Mode -->
+        <div class="sub-config-bar" id="wordsSubBar" style="display: none;">
+          <div class="config-group" role="group" aria-label="Word Count">
+            <button type="button" class="pill-btn words-pill" data-words="10">10</button>
+            <button type="button" class="pill-btn words-pill active" data-words="25">25</button>
+            <button type="button" class="pill-btn words-pill" data-words="50">50</button>
+            <button type="button" class="pill-btn words-pill" data-words="100">100</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Snippet Details Banner -->
+    <div class="snippet-meta-banner" id="snippetMetaBanner">
+      <div class="snippet-info">
+        <span class="snippet-title" id="snippetTitle">Hello World Entry Point</span>
+        <span class="difficulty-tag beginner" id="snippetDifficulty">Beginner</span>
+        <span class="snippet-explanation-preview" id="snippetExplanation">Every standalone Java program requires a main method...</span>
+      </div>
+      <button type="button" class="nav-btn" id="nextSnippetBtn" title="Switch to another snippet">
+        <span>Next Snippet</span> <span aria-hidden="true">➔</span>
+      </button>
+    </div>
+
+    <!-- Main Typing Arena -->
+    <main class="typing-arena-wrapper">
+      
+      <!-- Live HUD (WPM, Accuracy, Timer) -->
+      <div class="live-stats-bar" id="liveStatsBar">
+        <div class="live-stat-item">
+          <span class="live-stat-label">WPM</span>
+          <span class="live-stat-value" id="liveWpm">0</span>
+        </div>
+        <div class="live-stat-item">
+          <span class="live-stat-label">Acc</span>
+          <span class="live-stat-value" id="liveAcc">100%</span>
+        </div>
+        <div class="live-stat-item">
+          <span class="live-stat-label">Time</span>
+          <span class="live-stat-value" id="liveTimer">0s</span>
+        </div>
+      </div>
+
+      <!-- Typing Display Box -->
+      <div class="words-container" id="wordsContainer" tabindex="0" role="textbox" aria-label="Java Code Typing Arena" aria-multiline="true">
+        <!-- Smooth Caret Element -->
+        <div class="smooth-caret blink" id="smoothCaret"></div>
+        <!-- Words/Code lines rendered dynamically here -->
+      </div>
+
+      <!-- Hidden Input for capturing keystrokes and IME safely -->
+      <input type="text" class="hidden-typing-input" id="hiddenInput" autocomplete="off" autocapitalize="off" spellcheck="false" aria-hidden="true" />
+
+      <!-- Click to Focus Warning Overlay -->
+      <div class="focus-warning-overlay" id="focusOverlay">
+        <div class="focus-warning-box">
+          <span aria-hidden="true">⌨️</span> Click or press any key to focus and resume typing
+        </div>
+      </div>
+
+      <!-- Bottom Action & Restart Bar -->
+      <div class="bottom-actions-bar">
+        <button type="button" class="restart-btn" id="restartBtn" title="Restart Test (Tab)" aria-label="Restart typing test">
+          <span aria-hidden="true">↻</span>
+        </button>
+        <div class="shortcut-hint">
+          <kbd class="kbd-badge">Tab</kbd> or <kbd class="kbd-badge">Esc</kbd> to restart test
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-info">
+        <span>TypeWriter • Built for Java Learning Students</span>
+      </div>
+      <div class="footer-links">
+        <span>Smart Indent: Auto-skips line indentation</span>
+        <a href="../../index.html">Pocket Console Home</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ======================================================================
+       MODALS (Using native <dialog closedby="any"> with light-dismiss)
+       ====================================================================== -->
+
+  <!-- 1. Post-Test Results Modal -->
+  <dialog class="results-modal" id="resultsModal" closedby="any" aria-labelledby="resultsTitle">
+    <div class="results-header">
+      <div class="results-title-group">
+        <h2 id="resultsTitle">Test Complete!</h2>
+        <span class="badge-pill" id="resBadge">💎 Java Byte Coder</span>
+      </div>
+      <form method="dialog">
+        <button type="submit" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </form>
+    </div>
+
+    <!-- Hero Stats Grid -->
+    <div class="results-hero-grid">
+      <div class="hero-stat">
+        <span class="hero-stat-label">WPM</span>
+        <span class="hero-stat-value" id="resWpm">0</span>
+        <span class="hero-stat-sub">net velocity</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Accuracy</span>
+        <span class="hero-stat-value" id="resAcc">0%</span>
+        <span class="hero-stat-sub">precision</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Raw WPM</span>
+        <span class="hero-stat-value" id="resRaw">0</span>
+        <span class="hero-stat-sub">unadjusted</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Time</span>
+        <span class="hero-stat-value" id="resTime">0s</span>
+        <span class="hero-stat-sub">duration</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Consistency</span>
+        <span class="hero-stat-value" id="resConsistency">100%</span>
+        <span class="hero-stat-sub">rhythm stability</span>
+      </div>
+    </div>
+
+    <!-- Canvas Performance Graph -->
+    <div class="chart-container">
+      <div class="chart-header">
+        <span>Speed Curve (WPM over time)</span>
+        <span style="color: #ff5252;">● Red dots: Syntax error keystrokes</span>
+      </div>
+      <canvas class="chart-canvas" id="resultsChartCanvas"></canvas>
+    </div>
+
+    <!-- Educational Concept Card -->
+    <div class="edu-concept-card" id="resEduCard">
+      <h4 id="resEduTitle">☕ Java Concept Insight</h4>
+      <p id="resEduBody">Understanding Java mechanics helps build clean muscle memory and syntactical fluency.</p>
+    </div>
+
+    <!-- Character Details Row -->
+    <div class="details-row">
+      <span>Characters: <strong id="resChars">0/0/0</strong> (correct / incorrect / errors)</span>
+      <span>Shortcut: Press <kbd class="kbd-badge">Tab</kbd> to retry immediately</span>
+    </div>
+
+    <!-- Global Leaderboard Rank Status in Results -->
+    <div class="results-leaderboard-banner" id="resLeaderboardBanner">
+      <div class="results-rank-notice" id="resRankNotice">
+        <span aria-hidden="true">🏆</span>
+        <span id="resRankText">Sign in with Google to submit this score to the Global Leaderboard!</span>
+      </div>
+      <button type="button" class="google-login-btn" id="resLoginGoogleBtn">
+        <svg class="google-g-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Sign in to Rank</span>
+      </button>
+    </div>
+
+    <!-- Modal Actions -->
+    <div class="results-actions">
+      <button type="button" class="nav-btn" id="resultsRestartBtn">
+        <span aria-hidden="true">↻</span> Retry This Snippet
+      </button>
+      <button type="button" class="results-btn-primary" id="resultsNextBtn">
+        <span>Next Snippet</span> <span aria-hidden="true">➔</span>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- 2. Global Leaderboard Modal (Responsive Table) -->
+  <dialog class="leaderboard-modal" id="leaderboardModal" closedby="any" aria-labelledby="leaderboardModalTitle">
+    <div class="modal-header">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <h3 id="leaderboardModalTitle">🏆 Global Java Leaderboard</h3>
+        <span class="status-badge" id="leaderboardLiveBadge" style="font-size: 0.72rem; color: #40d17a; border: 1px solid rgba(64, 209, 122, 0.4); padding: 0.15rem 0.5rem; border-radius: 999px;">● Live Connected</span>
+      </div>
+      <form method="dialog">
+        <button type="submit" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </form>
+    </div>
+
+    <!-- Current Player Rank Spotlight Card -->
+    <div class="rank-spotlight-card" id="playerRankSpotlight">
+      <div class="spotlight-left">
+        <img class="spotlight-avatar" id="spotlightAvatar" src="" alt="Player Avatar" />
+        <div class="spotlight-details">
+          <h3 id="spotlightPlayerName">Your Global Standing</h3>
+          <div class="spotlight-sub" id="spotlightSubText">Sign in with Google to claim your spot on the live ranking board.</div>
+        </div>
+      </div>
+      <div class="spotlight-stats">
+        <div class="spotlight-stat-item">
+          <span class="spotlight-stat-label">Your Rank</span>
+          <span class="spotlight-stat-val" id="spotlightRankVal">Unranked</span>
+        </div>
+        <div class="spotlight-stat-item">
+          <span class="spotlight-stat-label">Best WPM</span>
+          <span class="spotlight-stat-val" id="spotlightWpmVal">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Responsive Table Wrapper (modern-web-guidance compliant) -->
+    <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="leaderboardModalTitle">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th scope="col">Rank</th>
+            <th scope="col">Player</th>
+            <th scope="col">Best WPM</th>
+            <th scope="col">Accuracy</th>
+            <th scope="col">Title</th>
+            <th scope="col">Tests</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardTbody">
+          <tr class="empty-row">
+            <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              Connecting to Firebase live scores...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; font-size: 0.78rem; color: var(--text-muted); flex-wrap: wrap; gap: 0.75rem;">
+      <span>Scores updated in real-time across all students via Google authentication.</span>
+      <form method="dialog">
+        <button type="submit" class="nav-btn">Close</button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 3. Settings Modal -->
+  <dialog class="settings-modal" id="settingsModal" closedby="any" aria-labelledby="settingsTitle">
+    <div class="modal-header">
+      <h3 id="settingsTitle">Settings & Customization</h3>
+      <form method="dialog">
+        <button type="submit" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </form>
+    </div>
+
+    <!-- Theme selection -->
+    <div class="settings-group">
+      <label class="settings-label">Color Theme</label>
+      <div class="settings-desc">Choose from favorite IDE & terminal themes:</div>
+      <div class="theme-options-grid">
+        <button type="button" class="theme-card-btn active" data-theme="darcula">IntelliJ</button>
+        <button type="button" class="theme-card-btn" data-theme="carbon">Carbon</button>
+        <button type="button" class="theme-card-btn" data-theme="dracula">Dracula</button>
+        <button type="button" class="theme-card-btn" data-theme="matrix">Matrix</button>
+        <button type="button" class="theme-card-btn" data-theme="nord">Nord</button>
+        <button type="button" class="theme-card-btn" data-theme="eclipse">Eclipse Light</button>
+      </div>
+    </div>
+
+    <!-- Sound switch selection -->
+    <div class="settings-group">
+      <label for="soundSelect" class="settings-label">Keyboard Sound Effect</label>
+      <div class="settings-desc">Synthesized mechanical switches powered by Web Audio API:</div>
+      <select id="soundSelect" class="dropdown-select" style="width: 100%;">
+        <option value="cherry-blue">Cherry MX Blue (Crisp Clicky)</option>
+        <option value="thock">Mechanical Thock (Deep Tactile)</option>
+        <option value="typewriter">Vintage Typewriter (Clank & Bell)</option>
+        <option value="bubble">Soft Bubble Pop</option>
+        <option value="off">Mute / Off</option>
+      </select>
+    </div>
+
+    <!-- Font Size selection -->
+    <div class="settings-group">
+      <label for="fontSizeSelect" class="settings-label">Font Size</label>
+      <select id="fontSizeSelect" class="dropdown-select" style="width: 100%;">
+        <option value="small">Small (1.1rem)</option>
+        <option value="medium" selected>Medium (1.35rem - Default)</option>
+        <option value="large">Large (1.65rem)</option>
+        <option value="xlarge">Extra Large (2.0rem)</option>
+      </select>
+    </div>
+  </dialog>
+
+  <!-- 3. Custom Code Modal -->
+  <dialog class="custom-code-modal" id="customCodeModal" closedby="any" aria-labelledby="customCodeTitle">
+    <div class="modal-header">
+      <h3 id="customCodeTitle">Practice Your Own Java Code</h3>
+      <form method="dialog">
+        <button type="submit" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </form>
+    </div>
+    <div class="settings-desc">
+      Paste Java code from your homework, university lab, or project to practice typing it:
+    </div>
+    <textarea id="customCodeTextarea" class="custom-textarea" placeholder="public class MyHomework {&#10;    public static void main(String[] args) {&#10;        System.out.println(&quot;Hello Practice!&quot;);&#10;    }&#10;}"></textarea>
+    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+      <form method="dialog">
+        <button type="submit" class="nav-btn">Cancel</button>
+      </form>
+      <button type="button" class="results-btn-primary" id="applyCustomCodeBtn">
+        Load & Practice Code
+      </button>
+    </div>
+  </dialog>
+
+  <!-- 4. User Statistics Modal -->
+  <dialog class="settings-modal" id="statsModal" closedby="any" aria-labelledby="statsTitle">
+    <div class="modal-header">
+      <h3 id="statsTitle">Your Typing Statistics</h3>
+      <form method="dialog">
+        <button type="submit" class="modal-close-btn" aria-label="Close dialog">&times;</button>
+      </form>
+    </div>
+    <div class="results-hero-grid" style="margin-bottom: 1rem;">
+      <div class="hero-stat">
+        <span class="hero-stat-label">Tests Completed</span>
+        <span class="hero-stat-value" id="statTotalTests">0</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Personal Best</span>
+        <span class="hero-stat-value" id="statHighWpm">0</span>
+        <span class="hero-stat-sub">peak WPM</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Practice Time</span>
+        <span class="hero-stat-value" id="statTotalTime">0m</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-label">Words Typed</span>
+        <span class="hero-stat-value" id="statTotalWords">0</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Scripts -->
+  <script src="js/sound.js"></script>
+  <script src="js/java-data.js"></script>
+  <script type="module" src="js/auth-leaderboard.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
