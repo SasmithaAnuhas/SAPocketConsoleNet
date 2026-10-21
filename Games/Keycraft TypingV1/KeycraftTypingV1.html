@@ -119,10 +119,10 @@
           <div class="config-group">
             <label for="difficultySelect" class="config-group-label">Level</label>
             <select id="difficultySelect" class="dropdown-select" aria-label="Difficulty Level">
-              <option value="all">All Difficulties</option>
-              <option value="beginner">Beginner</option>
+              <option value="easy" selected>Easy</option>
               <option value="intermediate">Intermediate</option>
               <option value="advanced">Advanced</option>
+              <option value="all">All Difficulties</option>
             </select>
           </div>
         </div>
@@ -199,11 +199,14 @@
 
       <!-- Bottom Action & Restart Bar -->
       <div class="bottom-actions-bar">
-        <button type="button" class="restart-btn" id="restartBtn" title="Restart Test (Tab)" aria-label="Restart typing test">
+        <button type="button" class="restart-btn" id="restartBtn" title="Retry Same Code (Tab)" aria-label="Retry same code">
           <span aria-hidden="true">↻</span>
         </button>
+        <button type="button" class="restart-btn" id="nextSnippetBtn" title="Next Code Snippet (➔)" aria-label="Next code snippet">
+          <span aria-hidden="true">➔</span>
+        </button>
         <div class="shortcut-hint">
-          <kbd class="kbd-badge">Tab</kbd> or <kbd class="kbd-badge">Esc</kbd> to restart test
+          <kbd class="kbd-badge">Tab</kbd> retry code • <kbd class="kbd-badge">➔</kbd> next code
         </div>
       </div>
 

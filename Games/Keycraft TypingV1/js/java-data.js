@@ -53,6 +53,19 @@ const JAVA_SYMBOLS_DRILLS = [
 const JAVA_SNIPPETS = [
   // BASICS & FLOW
   {
+    id: 'example-hello-java',
+    title: 'Example - Hello Java',
+    category: 'basics',
+    difficulty: 'Easy',
+    code: `class Example {
+    public static void main(String args[]){
+        System.out.println("Hello java");
+    }
+}`,
+    explanation: 'A classic beginner Java class demonstrating the entry point method `main(String args[])` and printing output to the console.',
+    tags: ['class', 'main', 'println', 'easy', 'basics']
+  },
+  {
     id: 'hello-world',
     title: 'Hello World Entry Point',
     category: 'basics',
@@ -477,9 +490,14 @@ function getSnippetById(id) {
 }
 
 function filterSnippets(categoryId = 'all', difficulty = 'all') {
+  const normDiff = (difficulty || 'all').toLowerCase();
   return JAVA_SNIPPETS.filter(s => {
     const matchCat = categoryId === 'all' || s.category === categoryId;
-    const matchDiff = difficulty === 'all' || s.difficulty.toLowerCase() === difficulty.toLowerCase();
+    if (normDiff === 'all') return matchCat;
+    const sDiff = (s.difficulty || '').toLowerCase();
+    const matchDiff = sDiff === normDiff ||
+      (normDiff === 'easy' && (sDiff === 'easy' || sDiff === 'beginner')) ||
+      (normDiff === 'beginner' && (sDiff === 'easy' || sDiff === 'beginner'));
     return matchCat && matchDiff;
   });
 }

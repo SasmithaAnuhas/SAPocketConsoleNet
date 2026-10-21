@@ -8,7 +8,8 @@ class TypeWriterApp {
     // Application State
     this.mode = 'code'; // 'code', 'time', 'words', 'symbols', 'custom'
     this.category = 'all';
-    this.difficulty = 'all';
+    this.difficulty = 'easy';
+    this.snippetIndex = 0;
     this.timeLimit = 30; // seconds
     this.wordCount = 25; // count
     this.customCode = '';
@@ -102,10 +103,15 @@ class TypeWriterApp {
       window.soundEffects.setProfile(this.soundProfile);
     }
 
+    const diffEl = document.getElementById('difficultySelect');
+    if (diffEl) {
+      diffEl.value = 'easy';
+    }
+
     this.setupEventListeners();
     this.setupLightDismissFallbacks();
     this.setupAuthAndLeaderboard();
-    this.loadSnippetOrMode();
+    this.loadSnippetOrMode(false);
   }
 
   /* -------------------------------------------------------------
@@ -144,7 +150,8 @@ class TypeWriterApp {
     if (categorySelect) {
       categorySelect.addEventListener('change', (e) => {
         this.category = e.target.value;
-        this.loadSnippetOrMode();
+        this.snippetIndex = 0;
+        this.loadSnippetOrMode(false);
       });
     }
 
@@ -153,7 +160,8 @@ class TypeWriterApp {
     if (difficultySelect) {
       difficultySelect.addEventListener('change', (e) => {
         this.difficulty = e.target.value;
-        this.loadSnippetOrMode();
+        this.snippetIndex = 0;
+        this.loadSnippetOrMode(false);
       });
     }
 
@@ -177,16 +185,16 @@ class TypeWriterApp {
       });
     });
 
-    // Restart button
+    // Restart button (Retries the exact same code)
     document.getElementById('restartBtn').addEventListener('click', () => {
-      this.resetTest();
+      this.retrySameSnippet();
     });
 
-    // Next snippet button
+    // Next snippet button (Advances to the next code)
     const nextSnippetBtn = document.getElementById('nextSnippetBtn');
     if (nextSnippetBtn) {
       nextSnippetBtn.addEventListener('click', () => {
-        this.loadSnippetOrMode(true);
+        this.nextSnippet();
       });
     }
 
@@ -262,12 +270,12 @@ class TypeWriterApp {
     // Results modal buttons
     document.getElementById('resultsRestartBtn').addEventListener('click', () => {
       this.resultsModal.close();
-      this.resetTest();
+      this.retrySameSnippet();
     });
 
     document.getElementById('resultsNextBtn').addEventListener('click', () => {
       this.resultsModal.close();
-      this.loadSnippetOrMode(true);
+      this.nextSnippet();
     });
 
     // Theme selector cards
@@ -354,24 +362,32 @@ class TypeWriterApp {
     this.loadSnippetOrMode();
   }
 
-  loadSnippetOrMode(forceNext = false) {
+  loadSnippetOrMode(advanceNext = false) {
     this.resetTestState();
 
     if (this.mode === 'code') {
       const candidates = filterSnippets(this.category, this.difficulty);
-      let list = candidates.length > 0 ? candidates : JAVA_SNIPPETS;
-      if (forceNext && list.length > 1 && this.currentSnippet) {
-        list = list.filter(s => s.id !== this.currentSnippet.id);
+      const list = candidates.length > 0 ? candidates : JAVA_SNIPPETS;
+
+      if (advanceNext) {
+        this.snippetIndex = (this.snippetIndex + 1) % list.length;
+      } else if (typeof this.snippetIndex !== 'number' || this.snippetIndex < 0 || this.snippetIndex >= list.length) {
+        this.snippetIndex = 0;
       }
-      const randomIdx = Math.floor(Math.random() * list.length);
-      this.currentSnippet = list[randomIdx];
+
+      this.currentSnippet = list[this.snippetIndex];
       this.renderSnippet(this.currentSnippet);
       this.snippetBanner.style.display = 'flex';
       this.updateSnippetBanner(this.currentSnippet);
     } else if (this.mode === 'symbols') {
       const symbolsSnippets = JAVA_SNIPPETS.filter(s => s.category === 'symbols');
-      const randomIdx = Math.floor(Math.random() * symbolsSnippets.length);
-      this.currentSnippet = symbolsSnippets[randomIdx] || JAVA_SNIPPETS[0];
+      const list = symbolsSnippets.length > 0 ? symbolsSnippets : JAVA_SNIPPETS;
+      if (advanceNext) {
+        this.snippetIndex = (this.snippetIndex + 1) % list.length;
+      } else if (typeof this.snippetIndex !== 'number' || this.snippetIndex < 0 || this.snippetIndex >= list.length) {
+        this.snippetIndex = 0;
+      }
+      this.currentSnippet = list[this.snippetIndex] || JAVA_SNIPPETS[0];
       this.renderSnippet(this.currentSnippet);
       this.snippetBanner.style.display = 'flex';
       this.updateSnippetBanner(this.currentSnippet);
@@ -399,6 +415,25 @@ class TypeWriterApp {
 
     this.focusInput();
     this.updateCaretPosition();
+  }
+
+  // Retry the exact same code snippet without changing it
+  retrySameSnippet() {
+    this.resetTestState();
+    if (this.currentSnippet && (this.mode === 'code' || this.mode === 'symbols' || this.mode === 'custom')) {
+      this.renderSnippet(this.currentSnippet);
+      this.snippetBanner.style.display = 'flex';
+      this.updateSnippetBanner(this.currentSnippet);
+      this.focusInput();
+      this.updateCaretPosition();
+    } else {
+      this.loadSnippetOrMode(false);
+    }
+  }
+
+  // Advance to the next code snippet in sequence
+  nextSnippet() {
+    this.loadSnippetOrMode(true);
   }
 
   updateSnippetBanner(snippet) {
@@ -569,22 +604,39 @@ class TypeWriterApp {
       return;
     }
 
-    // Check if a modal is open
-    if (this.resultsModal.open || this.settingsModal.open || this.customModal.open || this.statsModal.open) {
+    // Check if results modal is open -> allow Tab/r to retry same code, Enter to advance to next
+    if (this.resultsModal.open) {
+      if (e.key === 'Tab' || e.key === 'r' || e.key === 'R') {
+        e.preventDefault();
+        this.resultsModal.close();
+        this.retrySameSnippet();
+        return;
+      }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.resultsModal.close();
+        this.nextSnippet();
+        return;
+      }
       return;
     }
 
-    // Shortcut: Tab + Enter -> Instant Restart
+    // Check if other modals are open
+    if (this.settingsModal.open || this.customModal.open || this.statsModal.open || this.leaderboardModal?.open) {
+      return;
+    }
+
+    // Shortcut: Tab -> Instant Retry of same code
     if (e.key === 'Tab') {
       e.preventDefault();
-      this.resetTest();
+      this.retrySameSnippet();
       return;
     }
 
-    // Escape -> Refocus or Reset
+    // Escape -> Refocus or Retry same code
     if (e.key === 'Escape') {
       e.preventDefault();
-      this.resetTest();
+      this.retrySameSnippet();
       return;
     }
 
@@ -836,8 +888,7 @@ class TypeWriterApp {
   }
 
   resetTest() {
-    this.resetTestState();
-    this.loadSnippetOrMode();
+    this.retrySameSnippet();
   }
 
   /* -------------------------------------------------------------
