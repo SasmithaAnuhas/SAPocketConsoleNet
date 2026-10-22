@@ -105,7 +105,7 @@
           <span>☕</span> Keycraft Typing
         </button>
         <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
-          <span>🐍</span> Snake
+          <span>🐍</span> Snake game
         </button>
       </div>
 
@@ -124,7 +124,7 @@
   <section class="section" style="padding-bottom: 140px;">
     <div class="sectionTitleRow">
       <h2 class="sectionTitle">Library</h2>
-      <div class="sectionHint">Tap a card</div>
+      <div class="sectionHint">Tap to play</div>
     </div>
 
     <div class="library">
@@ -206,13 +206,18 @@
       <span class="friendLabel">Friends</span>
     </a>
 
+    <a href="ChatPage.html" class="friendButton chatNavButton" aria-label="Open chat" title="Chat">
+      <span class="friendIcon" aria-hidden="true">💬</span>
+      <span class="friendLabel">Chat</span>
+    </a>
+
     <a href="AccSettings.html" class="avatarWrap" aria-label="Account" title="Account">
       <div id="userAvatar" class="userAvatar"></div>
       <span class="onlineDot" aria-hidden="true"></span>
     </a>
   </nav>
 
-  <a href="ChatPage.html" class="floatingChat" aria-label="Open chat">💬</a>
+  <a href="ChatPage.html" class="floatingChat" aria-label="Chat" title="Chat"><span aria-hidden="true">💬</span><span class="floatingChatLabel">Chat</span></a>
 
   <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
     <div class="loginReminderIcon" aria-hidden="true">👋</div>
@@ -442,7 +447,19 @@
       white-space:nowrap;
     }
     .homeScoresList{ display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
-    .homeScoresRow{ display:grid; grid-template-columns:30px minmax(0,1fr) auto; align-items:center; gap:10px; padding:8px 10px; border:1px solid rgba(255,255,255,0.07); border-radius:11px; background:rgba(0,0,0,0.18); font-size:12px; }
+    .homeScoresRow{ display:grid; grid-template-columns:36px minmax(0,1fr) auto; align-items:center; gap:10px; padding:8px 10px; border:1px solid rgba(255,255,255,0.07); border-radius:11px; background:rgba(0,0,0,0.18); font-size:12px; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
+    .homeScoresRow.rank-1{ border-color: rgba(245, 158, 11, 0.4); background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(0,0,0,0.2)); }
+    .homeScoresRow.rank-1 .homeScoresRank{ color: #fbbf24; font-weight: 800; }
+    .homeScoresRow.rank-2{ border-color: rgba(148, 163, 184, 0.35); background: linear-gradient(90deg, rgba(148, 163, 184, 0.1), rgba(0,0,0,0.2)); }
+    .homeScoresRow.rank-2 .homeScoresRank{ color: #e2e8f0; font-weight: 800; }
+    .homeScoresRow.rank-3{ border-color: rgba(217, 119, 6, 0.3); background: linear-gradient(90deg, rgba(217, 119, 6, 0.08), rgba(0,0,0,0.2)); }
+    .homeScoresRow.rank-3 .homeScoresRank{ color: #f97316; font-weight: 800; }
+    .homeScoresRow.isPlayer{ border-color: rgba(0,255,204,0.5); box-shadow: 0 0 14px rgba(0,255,204,0.15); }
+    .homeScoresPlayerRow{ margin-top: 4px; border-color: rgba(0,255,204,0.38); background: linear-gradient(90deg, rgba(0,255,204,0.12), rgba(140,110,255,0.1)); box-shadow: 0 0 16px rgba(0,255,204,0.1); }
+    .homeScoresPlayerRow .homeScoresRank{ color: #00ffcc; font-weight: 800; }
+    .homeScoresYouBadge{ display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; background: rgba(0,255,204,0.2); color: #00ffcc; border: 1px solid rgba(0,255,204,0.4); vertical-align: middle; }
+    .homeScoresDivider{ display: flex; align-items: center; gap: 8px; font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px; margin: 3px 0 1px; }
+    .homeScoresDivider::before, .homeScoresDivider::after{ content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
     .homeScoresRank{ color:rgba(255,255,255,0.5); font-variant-numeric:tabular-nums; }
     .homeScoresName{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .homeScoresScore{ color:#00ffcc; font-weight:800; font-variant-numeric:tabular-nums; }
@@ -671,7 +688,7 @@
       position: fixed;
       right: 16px;
       bottom: calc(12px + env(safe-area-inset-bottom) + 52px);
-      width: 40px; height: 40px;
+      min-width: 44px; height: 44px; padding: 0 14px 0 11px;
       border-radius: 50%;
       display:flex;
       align-items:center;
@@ -688,6 +705,10 @@
       transform: translateY(-1px);
       border-color: rgba(0,255,204,0.45);
       box-shadow: 0 14px 28px rgba(0,0,0,0.48);
+    }
+    .chatNavButton{
+      border-color: rgba(0,255,204,0.38);
+      background: linear-gradient(135deg, rgba(0,255,204,0.22), rgba(140,110,255,0.22));
     }
     .friendButton{
       display:flex;
@@ -1016,6 +1037,8 @@
     let snakeScores = [];
     let typewriterLoaded = false;
     let snakeLoaded = false;
+    let autoSwitchTimer = null;
+    const AUTO_SWITCH_INTERVAL = 5000; // Switch every 5 seconds
 
     const leaderboardSectionTitle = document.getElementById("leaderboardSectionTitle");
     const homePromptText = document.getElementById("homePromptText");
@@ -1046,9 +1069,48 @@
         return;
       }
 
-      scores.slice(0, 5).forEach((entry, index) => {
+      const currentUid = auth.currentUser?.uid;
+      const currentName = auth.currentUser?.displayName || "You";
+
+      // Find player position in the full list
+      let playerRank = -1;
+      let playerEntry = null;
+
+      if (currentUid) {
+        const pIdx = scores.findIndex(s => s.uid === currentUid);
+        if (pIdx !== -1) {
+          playerRank = pIdx + 1;
+          playerEntry = scores[pIdx];
+        }
+      }
+
+      // Check if user has a local best if not on online leaderboard
+      let localBestScore = null;
+      if (playerRank === -1) {
+        try {
+          if (isTW) {
+            const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
+            if (stats.highWpm && stats.highWpm > 0) localBestScore = stats.highWpm;
+          } else {
+            const saved = Number(localStorage.getItem("snakeHigh"));
+            if (Number.isSafeInteger(saved) && saved > 0) localBestScore = saved;
+          }
+        } catch (_) {}
+      }
+
+      // 1. Render ONLY first 3 like 1, 2, 3
+      const medals = ["🥇", "🥈", "🥉"];
+      const top3 = scores.slice(0, 3);
+      top3.forEach((entry, index) => {
         const row = document.createElement("li");
-        row.className = "homeScoresRow";
+        const rankNum = index + 1;
+        row.className = `homeScoresRow rank-${rankNum}`;
+
+        const isCurrentPlayer = (currentUid && entry.uid === currentUid);
+        if (isCurrentPlayer) {
+          row.classList.add("isPlayer");
+        }
+
         const rank = document.createElement("span");
         const name = document.createElement("span");
         const score = document.createElement("span");
@@ -1057,8 +1119,16 @@
         name.className = "homeScoresName";
         score.className = "homeScoresScore";
 
-        rank.textContent = `#${index + 1}`;
+        rank.textContent = `#${rankNum} ${medals[index] || ""}`.trim();
         name.textContent = entry.name;
+
+        if (isCurrentPlayer) {
+          const youBadge = document.createElement("span");
+          youBadge.className = "homeScoresYouBadge";
+          youBadge.textContent = "You";
+          name.appendChild(youBadge);
+        }
+
         if (isTW) {
           score.style.color = "#ffc66d";
           score.textContent = `${entry.score} WPM`;
@@ -1070,36 +1140,145 @@
         row.append(rank, name, score);
         homeScoresList.append(row);
       });
+
+      // 2. Render Player Position if outside Top 3 or local score
+      if (playerRank > 3 && playerEntry) {
+        const divider = document.createElement("li");
+        divider.className = "homeScoresDivider";
+        divider.textContent = "Your rank";
+        homeScoresList.append(divider);
+
+        const pRow = document.createElement("li");
+        pRow.className = "homeScoresRow homeScoresPlayerRow isPlayer";
+
+        const rank = document.createElement("span");
+        const name = document.createElement("span");
+        const score = document.createElement("span");
+
+        rank.className = "homeScoresRank";
+        name.className = "homeScoresName";
+        score.className = "homeScoresScore";
+
+        rank.textContent = `#${playerRank}`;
+        name.textContent = playerEntry.name;
+        const youBadge = document.createElement("span");
+        youBadge.className = "homeScoresYouBadge";
+        youBadge.textContent = "You";
+        name.appendChild(youBadge);
+
+        if (isTW) {
+          score.style.color = "#ffc66d";
+          score.textContent = `${playerEntry.score} WPM`;
+        } else {
+          score.style.color = "#00ffcc";
+          score.textContent = `${playerEntry.score.toLocaleString()} pts`;
+        }
+
+        pRow.append(rank, name, score);
+        homeScoresList.append(pRow);
+      } else if (playerRank === -1 && localBestScore !== null) {
+        const divider = document.createElement("li");
+        divider.className = "homeScoresDivider";
+        divider.textContent = "Your standing";
+        homeScoresList.append(divider);
+
+        const pRow = document.createElement("li");
+        pRow.className = "homeScoresRow homeScoresPlayerRow";
+
+        const rank = document.createElement("span");
+        const name = document.createElement("span");
+        const score = document.createElement("span");
+
+        rank.className = "homeScoresRank";
+        name.className = "homeScoresName";
+        score.className = "homeScoresScore";
+
+        rank.textContent = "#—";
+        name.textContent = currentUid ? `${currentName}` : "You (Local)";
+        const youBadge = document.createElement("span");
+        youBadge.className = "homeScoresYouBadge";
+        youBadge.textContent = "Local";
+        name.appendChild(youBadge);
+
+        if (isTW) {
+          score.style.color = "#ffc66d";
+          score.textContent = `${localBestScore} WPM`;
+        } else {
+          score.style.color = "#00ffcc";
+          score.textContent = `${localBestScore.toLocaleString()} pts`;
+        }
+
+        pRow.append(rank, name, score);
+        homeScoresList.append(pRow);
+      }
+    }
+
+    function switchGame(game, resetTimer = true) {
+      if (game === selectedGame && !resetTimer) return;
+      selectedGame = game;
+
+      switchButtons.forEach((b) => {
+        const isActive = (b.dataset.game === game);
+        b.classList.toggle("active", isActive);
+        b.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+
+      if (game === "typewriter") {
+        if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "☕ Keycraft Typing high scores";
+        if (homePromptText) {
+          homePromptText.textContent = "Sign in to save your Keycraft Typing scores and appear on the global leaderboard.";
+        }
+      } else {
+        if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "🐍 Snake high scores";
+        if (homePromptText) {
+          homePromptText.textContent = "Sign in to save your Snake high scores and appear on the global leaderboard.";
+        }
+      }
+
+      renderCurrentScores();
+
+      if (resetTimer) {
+        restartAutoSwitchTimer();
+      }
     }
 
     // Switcher click handlers
     switchButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         const game = btn.dataset.game;
-        if (game === selectedGame) return;
-
-        selectedGame = game;
-        switchButtons.forEach((b) => {
-          const isActive = (b.dataset.game === game);
-          b.classList.toggle("active", isActive);
-          b.setAttribute("aria-selected", isActive ? "true" : "false");
-        });
-
-        if (game === "typewriter") {
-          if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "☕ Keycraft Typing high scores";
-          if (homePromptText) {
-            homePromptText.textContent = "Sign in to save your Keycraft Typing scores and appear on the global leaderboard.";
-          }
-        } else {
-          if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "🐍 Snake high scores";
-          if (homePromptText) {
-            homePromptText.textContent = "Sign in to save your Snake high scores and appear on the global leaderboard.";
-          }
-        }
-
-        renderCurrentScores();
+        switchGame(game, true);
       });
     });
+
+    // 5-second Auto-Switching between Keycraft Typing and Snake
+    function autoSwitchNext() {
+      const next = (selectedGame === "typewriter") ? "snake" : "typewriter";
+      switchGame(next, false);
+    }
+
+    function startAutoSwitchTimer() {
+      stopAutoSwitchTimer();
+      autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
+    }
+
+    function stopAutoSwitchTimer() {
+      if (autoSwitchTimer) {
+        clearInterval(autoSwitchTimer);
+        autoSwitchTimer = null;
+      }
+    }
+
+    function restartAutoSwitchTimer() {
+      startAutoSwitchTimer();
+    }
+
+    const homeScoresCard = document.querySelector(".homeScores");
+    if (homeScoresCard) {
+      homeScoresCard.addEventListener("mouseenter", stopAutoSwitchTimer);
+      homeScoresCard.addEventListener("mouseleave", startAutoSwitchTimer);
+    }
+
+    startAutoSwitchTimer();
 
     // 1. Listen to typewriterLeaderboard (Robust direct ref, memory sort + local fallback)
     function initTypeWriterQuery() {
@@ -1111,6 +1290,7 @@
           const wpm = Number(value?.wpm);
           if (Number.isSafeInteger(wpm) && wpm > 0) {
             scores.push({
+              uid: child.key,
               name: value.displayName || "Java Typist",
               score: wpm,
               accuracy: value.accuracy || 100
@@ -1128,11 +1308,11 @@
         console.warn("[Home leaderboard] Keycraft Typing global scores not accessible (check Data/Index/database.rules.json):", error);
         typewriterLoaded = true;
 
-        // If global query failed (e.g. locked rules), show local player's best as fallback
         try {
           const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
           if (stats.highWpm && stats.highWpm > 0 && typewriterScores.length === 0) {
             typewriterScores = [{
+              uid: auth.currentUser?.uid || "local",
               name: (auth.currentUser?.displayName || "You") + " (Local)",
               score: stats.highWpm,
               accuracy: 96
@@ -1155,7 +1335,11 @@
           const value = child.val();
           const score = Number(value?.score);
           if (Number.isSafeInteger(score) && score >= 0) {
-            scores.push({ name: value.displayName || "Player", score });
+            scores.push({
+              uid: child.key,
+              name: value.displayName || "Player",
+              score
+            });
           }
         });
         scores.sort((a, b) => b.score - a.score);
@@ -1169,11 +1353,11 @@
         console.warn("[Home leaderboard] Snake global scores not accessible (check Data/Index/database.rules.json):", error);
         snakeLoaded = true;
 
-        // If global query failed (e.g. locked rules), show local player's best as fallback
         try {
           const savedScore = Number(localStorage.getItem("snakeHigh"));
           if (Number.isSafeInteger(savedScore) && savedScore > 0 && snakeScores.length === 0) {
             snakeScores = [{
+              uid: auth.currentUser?.uid || "local",
               name: (auth.currentUser?.displayName || "You") + " (Local)",
               score: savedScore
             }];
