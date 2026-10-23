@@ -43,32 +43,28 @@ service cloud.firestore {
 
       // Inbox items (per-user chat list)
       match /inbox/{chatId} {
-        allow read: if signedIn() && me() == uid;
+        allow read: if signedIn() && (me() == uid || chatId == chatIdFor(uid, me()));
 
         // Owner can manage their inbox document
         allow create, update, delete: if signedIn() && me() == uid;
 
-        // Friend creates an inbox item (unreadCount starts at 1)
+        // Friend creates an inbox item (unreadCount starts at 1 or initial notification)
         allow create: if signedIn()
           && me() != uid
           && isFriend(uid, me())
           && isFriend(me(), uid)
           && chatId == chatIdFor(uid, me())
           && request.resource.data.chatId == chatId
-          && request.resource.data.friendUid == me()
-          && request.resource.data.unreadCount == 1;
+          && request.resource.data.friendUid == me();
 
-        // Friend increments unreadCount by +1
+        // Friend updates latest message snippet & unreadCount
         allow update: if signedIn()
           && me() != uid
           && isFriend(uid, me())
           && isFriend(me(), uid)
           && chatId == chatIdFor(uid, me())
           && request.resource.data.chatId == chatId
-          && request.resource.data.friendUid == me()
-          && (resource.data.unreadCount is int)
-          && (request.resource.data.unreadCount is int)
-          && request.resource.data.unreadCount == resource.data.unreadCount + 1;
+          && request.resource.data.friendUid == me();
       }
     }
 

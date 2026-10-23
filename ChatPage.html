@@ -80,8 +80,8 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      padding: 12px;
-      max-width: 1380px;
+      padding: 10px;
+      max-width: 1180px;
       margin: 0 auto;
     }
 
@@ -91,12 +91,12 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 10px 16px;
+      padding: 8px 14px;
       background: var(--bg-shell);
       backdrop-filter: blur(16px);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-md);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       flex-shrink: 0;
     }
 
@@ -248,9 +248,9 @@
        SIDEBAR: Conversations & Friends
        ========================================================================= */
     .chat-sidebar {
-      width: 360px;
-      min-width: 300px;
-      max-width: 400px;
+      width: 310px;
+      min-width: 270px;
+      max-width: 360px;
       display: flex;
       flex-direction: column;
       background: var(--bg-panel);
@@ -260,11 +260,11 @@
     }
 
     .sidebar-header {
-      padding: 16px 16px 12px;
+      padding: 12px 14px 10px;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 9px;
       flex-shrink: 0;
     }
 
@@ -377,8 +377,8 @@
     .conv-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
+      gap: 10px;
+      padding: 8px 10px;
       border-radius: var(--radius-md);
       background: transparent;
       border: 1px solid transparent;
@@ -398,8 +398,8 @@
     }
     .conv-avatar-wrap {
       position: relative;
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       flex-shrink: 0;
     }
@@ -415,17 +415,39 @@
       position: absolute;
       bottom: 0;
       right: 0;
-      width: 11px;
-      height: 11px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #475569;
       border: 2px solid #0c111c;
       transition: background 0.2s ease, box-shadow 0.2s ease;
+      z-index: 1;
     }
     .conv-status-ring.online {
       background: var(--accent-green);
       box-shadow: 0 0 8px var(--accent-green);
     }
+
+    /* Unread notification dot above friend's avatar */
+    .conv-unread-dot {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #00ffcc;
+      border: 2px solid #0c111c;
+      box-shadow: 0 0 10px rgba(0, 255, 204, 0.95), 0 0 4px #00ffcc;
+      display: none;
+      z-index: 2;
+      animation: unreadDotPulse 1.8s infinite ease-in-out;
+    }
+    @keyframes unreadDotPulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(0, 255, 204, 0.85); }
+      50% { transform: scale(1.18); box-shadow: 0 0 16px rgba(0, 255, 204, 1); }
+    }
+
     .conv-body {
       flex: 1;
       min-width: 0;
@@ -435,10 +457,10 @@
       align-items: baseline;
       justify-content: space-between;
       gap: 6px;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .conv-name {
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
@@ -457,7 +479,7 @@
       gap: 8px;
     }
     .conv-snippet {
-      font-size: 12px;
+      font-size: 11.5px;
       color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
@@ -465,13 +487,13 @@
       flex: 1;
     }
     .conv-unread-pill {
-      min-width: 20px;
-      height: 20px;
-      padding: 0 6px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
       border-radius: var(--radius-full);
       background: #2563eb;
       color: #fff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -480,9 +502,16 @@
       box-shadow: 0 0 8px rgba(37, 99, 235, 0.5);
     }
 
-    /* Unread Pulse Indicator */
+    /* Unread Pulse & Highlight */
+    .conv-item.unread {
+      background: rgba(0, 255, 204, 0.04);
+      border-color: rgba(0, 255, 204, 0.18);
+    }
+    .conv-item.unread .conv-unread-dot {
+      display: block;
+    }
     .conv-item.unread .conv-name { font-weight: 850; color: #fff; }
-    .conv-item.unread .conv-snippet { color: #e2e8f0; font-weight: 600; }
+    .conv-item.unread .conv-snippet { color: #5eead4; font-weight: 600; }
     .conv-item.blink { animation: unreadBlink 1.2s ease-in-out infinite; }
     @keyframes unreadBlink {
       0%, 100% { filter: brightness(1); }
@@ -629,10 +658,10 @@
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 16px 20px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 9px;
       scroll-behavior: smooth;
     }
     .messages-container::-webkit-scrollbar { width: 6px; }
@@ -643,14 +672,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 8px 0;
+      margin: 6px 0;
       position: relative;
     }
     .date-divider-pill {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--border-subtle);
       border-radius: var(--radius-full);
-      padding: 3px 12px;
+      padding: 2px 10px;
       font-size: 11px;
       font-weight: 600;
       color: var(--text-subtle);
@@ -661,7 +690,7 @@
     .msg-row {
       display: flex;
       align-items: flex-end;
-      gap: 8px;
+      gap: 7px;
       width: 100%;
       position: relative;
     }
@@ -669,8 +698,8 @@
     .msg-row.me { justify-content: flex-end; }
 
     .msg-sender-avatar {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       object-fit: cover;
       flex-shrink: 0;
@@ -679,16 +708,16 @@
 
     .msg-bubble-wrap {
       position: relative;
-      max-width: min(76%, 560px);
+      max-width: min(74%, 480px);
       display: flex;
       flex-direction: column;
     }
 
     .bubble {
       position: relative;
-      padding: 9px 14px;
-      font-size: 14px;
-      line-height: 1.45;
+      padding: 7px 12px;
+      font-size: 13.5px;
+      line-height: 1.4;
       overflow-wrap: anywhere;
       word-break: break-word;
       white-space: pre-wrap;
@@ -698,25 +727,25 @@
     .msg-row.them .bubble {
       background: var(--bubble-them);
       border: 1px solid var(--bubble-them-border);
-      border-radius: 18px 18px 18px 4px;
+      border-radius: 16px 16px 16px 4px;
       color: #f1f5f9;
     }
 
     .msg-row.me .bubble {
       background: var(--bubble-me);
       border: 1px solid var(--bubble-me-border);
-      border-radius: 18px 18px 4px 18px;
+      border-radius: 16px 16px 4px 16px;
       color: #ffffff;
-      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.28);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
     }
 
     .bubble-meta {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 5px;
-      margin-top: 4px;
-      font-size: 11px;
+      gap: 4px;
+      margin-top: 3px;
+      font-size: 10.5px;
       opacity: 0.72;
       user-select: none;
     }
@@ -769,56 +798,79 @@
       background: rgba(239, 68, 68, 0.15);
     }
 
-    /* Input Dock Area */
+    /* Compact Input Dock Area */
     .chat-input-dock {
-      padding: 12px 18px 16px;
+      padding: 8px 14px 10px;
       border-top: 1px solid var(--border-subtle);
       background: var(--bg-panel);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
     }
 
-    /* Quick Emoji Shelf */
+    /* Collapsible Quick Emoji Shelf */
     .emoji-shelf {
-      display: flex;
+      display: none;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       overflow-x: auto;
-      padding-bottom: 2px;
+      padding: 2px 2px 4px;
       scrollbar-width: none;
+    }
+    .emoji-shelf.open {
+      display: flex;
     }
     .emoji-shelf::-webkit-scrollbar { display: none; }
     .emoji-chip {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: var(--radius-full);
-      padding: 3px 8px;
-      font-size: 14px;
+      padding: 2px 7px;
+      font-size: 13px;
       cursor: pointer;
       transition: all 0.15s ease;
       user-select: none;
+      flex-shrink: 0;
     }
     .emoji-chip:hover {
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.16);
       transform: scale(1.18);
     }
 
     .input-form {
       display: flex;
-      align-items: flex-end;
-      gap: 10px;
-      background: rgba(0, 0, 0, 0.35);
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.42);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 8px 10px 8px 14px;
-      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+      border-radius: 24px;
+      padding: 4px 6px 4px 12px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
     }
     .input-form:focus-within {
       border-color: var(--border-focus);
-      box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.12);
-      background: rgba(0, 0, 0, 0.55);
+      box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.15);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .emoji-toggle-btn {
+      background: transparent;
+      border: none;
+      font-size: 17px;
+      cursor: pointer;
+      color: var(--text-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      border-radius: 50%;
+      transition: transform 0.15s ease, color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .emoji-toggle-btn:hover {
+      transform: scale(1.15);
+      color: var(--text-main);
     }
 
     .chat-textarea {
@@ -828,18 +880,18 @@
       outline: none;
       color: var(--text-main);
       font-family: inherit;
-      font-size: 14px;
-      line-height: 1.4;
+      font-size: 13.5px;
+      line-height: 1.35;
       resize: none;
-      max-height: 120px;
-      min-height: 22px;
-      padding: 4px 0;
+      max-height: 80px;
+      min-height: 20px;
+      padding: 3px 0;
     }
-    .chat-textarea::placeholder { color: var(--text-subtle); }
+    .chat-textarea::placeholder { color: var(--text-subtle); font-size: 13px; }
 
     .send-submit-btn {
-      width: 38px;
-      height: 38px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       background: var(--accent-blue);
       border: none;
@@ -850,7 +902,7 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: all 0.18s ease;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
     }
     .send-submit-btn:hover:not(:disabled) {
       background: #1d4ed8;
@@ -858,7 +910,7 @@
     }
     .send-submit-btn:active:not(:disabled) { transform: scale(0.96); }
     .send-submit-btn:disabled {
-      opacity: 0.35;
+      opacity: 0.3;
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -1167,8 +1219,8 @@
 
         <!-- Input Bar Dock -->
         <div class="chat-input-dock" id="chatInputDock">
-          <!-- Quick Emojis -->
-          <div class="emoji-shelf">
+          <!-- Collapsible Quick Emojis -->
+          <div class="emoji-shelf" id="emojiShelf">
             <span class="emoji-chip" data-emoji="👍">👍</span>
             <span class="emoji-chip" data-emoji="❤️">❤️</span>
             <span class="emoji-chip" data-emoji="😂">😂</span>
@@ -1181,19 +1233,20 @@
             <span class="emoji-chip" data-emoji="🐍">🐍</span>
           </div>
 
-          <!-- Form with accessible labels and IME-safe enter submit -->
+          <!-- Form with accessible labels, emoji button, and IME-safe enter submit -->
           <form class="input-form" id="chatForm">
+            <button type="button" class="emoji-toggle-btn" id="emojiToggleBtn" title="Quick emojis" aria-label="Toggle emoji shelf">😊</button>
             <label for="msgInput" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Type a message</label>
             <textarea
               id="msgInput"
               class="chat-textarea"
               rows="1"
-              placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
+              placeholder="Type a message…"
               autocomplete="off"
               disabled
             ></textarea>
             <button type="submit" class="send-submit-btn" id="sendBtn" title="Send message" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
@@ -1262,7 +1315,8 @@
       limit,
       onSnapshot,
       addDoc,
-      serverTimestamp
+      serverTimestamp,
+      increment
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
     import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
@@ -1316,6 +1370,8 @@
     const chatForm = document.getElementById("chatForm");
     const msgInput = document.getElementById("msgInput");
     const sendBtn = document.getElementById("sendBtn");
+    const emojiToggleBtn = document.getElementById("emojiToggleBtn");
+    const emojiShelf = document.getElementById("emojiShelf");
 
     // Modals
     const editModal = document.getElementById("editModal");
@@ -1578,32 +1634,54 @@
     async function markChatRead(friendUid) {
       if (!me) return;
       const cid = chatIdFor(me.uid, friendUid);
-      await setDoc(doc(fs, `users/${me.uid}/inbox/${cid}`), {
-        chatId: cid,
-        friendUid,
-        unreadCount: 0,
-        lastReadAt: serverTimestamp()
-      }, { merge: true });
+      unread.set(cid, 0);
+      if (lastInboxMessages.has(cid)) {
+        const item = lastInboxMessages.get(cid);
+        item.read = true;
+      }
+      renderFriendsList();
+
+      try {
+        await setDoc(doc(fs, `users/${me.uid}/inbox/${cid}`), {
+          chatId: cid,
+          friendUid,
+          unreadCount: 0,
+          lastReadAt: serverTimestamp()
+        }, { merge: true });
+      } catch (e) {
+        console.warn("[Chat] markChatRead error:", e);
+      }
     }
 
     async function bumpReceiverInbox(receiverUid, otherUid, chatId, snippet, fromName) {
       const inboxRef = doc(fs, `users/${receiverUid}/inbox/${chatId}`);
-      const snap = await getDoc(inboxRef);
-
-      let nextCount = 1;
-      if (snap.exists()) {
-        const cur = snap.data()?.unreadCount;
-        nextCount = (typeof cur === "number" && isFinite(cur) ? cur : 0) + 1;
+      try {
+        // Try incrementing unreadCount directly (no client read required)
+        await updateDoc(inboxRef, {
+          chatId,
+          friendUid: otherUid,
+          unreadCount: increment(1),
+          lastMessageAt: serverTimestamp(),
+          lastSnippet: snippet,
+          lastFromName: fromName,
+          lastFromUid: me.uid
+        });
+      } catch (err) {
+        // If document does not exist yet (first message ever), create it with unreadCount = 1
+        try {
+          await setDoc(inboxRef, {
+            chatId,
+            friendUid: otherUid,
+            unreadCount: 1,
+            lastMessageAt: serverTimestamp(),
+            lastSnippet: snippet,
+            lastFromName: fromName,
+            lastFromUid: me.uid
+          }, { merge: true });
+        } catch (innerErr) {
+          console.warn("[Chat] bumpReceiverInbox setDoc error:", innerErr);
+        }
       }
-
-      await setDoc(inboxRef, {
-        chatId,
-        friendUid: otherUid,
-        unreadCount: nextCount,
-        lastMessageAt: serverTimestamp(),
-        lastSnippet: snippet,
-        lastFromName: fromName
-      }, { merge: true });
     }
 
     function scrollBottom(force = false) {
@@ -1825,9 +1903,17 @@
       const cid = chatIdFor(me.uid, activeFriendUid);
       const snippet = text.slice(0, 100);
 
-      try {
-        await ensureChatDoc(me.uid, activeFriendUid);
+      // Instant optimistic local preview update
+      lastInboxMessages.set(cid, {
+        snippet: "You: " + snippet,
+        time: new Date(),
+        fromName: "You",
+        fromUid: me.uid,
+        read: true
+      });
+      renderFriendsList();
 
+      try {
         await addDoc(collection(fs, `chats/${cid}/messages`), {
           fromUid: me.uid,
           toUid: activeFriendUid,
@@ -1840,23 +1926,27 @@
         await setDoc(doc(fs, "chats", cid), {
           lastMessageAt: serverTimestamp(),
           lastText: text,
-          lastFromUid: me.uid
-        }, { merge: true });
+          lastFromUid: me.uid,
+          lastFromName: fromName
+        }, { merge: true }).catch(err => console.warn("[Chat] update chat doc error:", err));
 
         await setDoc(doc(fs, `users/${me.uid}/inbox/${cid}`), {
           chatId: cid,
           friendUid: activeFriendUid,
           unreadCount: 0,
           lastMessageAt: serverTimestamp(),
-          lastSnippet: snippet,
+          lastSnippet: "You: " + snippet,
           lastFromName: fromName,
+          lastFromUid: me.uid,
           lastReadAt: serverTimestamp()
-        }, { merge: true });
+        }, { merge: true }).catch(err => console.warn("[Chat] sender inbox error:", err));
 
-        await bumpReceiverInbox(activeFriendUid, me.uid, cid, snippet, fromName);
+        bumpReceiverInbox(activeFriendUid, me.uid, cid, snippet, fromName)
+          .catch(err => console.warn("[Chat] bumpReceiverInbox background error:", err));
+
         setTimeout(() => scrollBottom(true), 40);
       } catch (e) {
-        console.error(e);
+        console.error("[Chat] Send message failed:", e);
         showToast("Message could not be sent.", "error");
       }
     }
@@ -1884,8 +1974,15 @@
     // Auto-expand textarea
     msgInput.addEventListener("input", () => {
       msgInput.style.height = "auto";
-      msgInput.style.height = Math.min(msgInput.scrollHeight, 120) + "px";
+      msgInput.style.height = Math.min(msgInput.scrollHeight, 80) + "px";
     });
+
+    // Toggle quick emoji shelf
+    if (emojiToggleBtn && emojiShelf) {
+      emojiToggleBtn.addEventListener("click", () => {
+        emojiShelf.classList.toggle("open");
+      });
+    }
 
     // Quick emoji shelf clicks
     document.querySelectorAll(".emoji-chip").forEach((chip) => {
@@ -2020,8 +2117,11 @@
         const isOnline = onlineState.get(f.uid) === true;
         const lastMsg = lastInboxMessages.get(cid);
 
+        // Unread state: either unreadCount > 0, or last message was from friend and not yet read
+        const isUnread = (!isActive) && (u > 0 || (lastMsg && lastMsg.fromUid && lastMsg.fromUid !== me?.uid && lastMsg.read === false));
+
         const card = document.createElement("div");
-        card.className = `conv-item ${isActive ? "active" : ""} ${u > 0 ? "unread" : ""}`;
+        card.className = `conv-item ${isActive ? "active" : ""} ${isUnread ? "unread" : ""}`;
         card.setAttribute("data-fuid", f.uid);
 
         const snippetText = lastMsg?.snippet ? lastMsg.snippet : (f.publicId ? f.publicId : "Tap to open chat");
@@ -2030,7 +2130,8 @@
         card.innerHTML = `
           <div class="conv-avatar-wrap">
             <img class="conv-avatar" src="${escapeHtml(normalizeGooglePhoto(f.photoURL))}" alt="" />
-            <span class="conv-status-ring ${isOnline ? "online" : ""}"></span>
+            <span class="conv-status-ring ${isOnline ? "online" : ""}" title="${isOnline ? "Online" : "Offline"}"></span>
+            <span class="conv-unread-dot" title="Unread message"></span>
           </div>
           <div class="conv-body">
             <div class="conv-top-line">
@@ -2049,6 +2150,34 @@
 
         listenFriendPresenceList(f.uid);
       });
+    }
+
+    // Fallback: load snippets for existing chats without inbox documents
+    async function loadFallbackChatSnippets() {
+      if (!me) return;
+      for (const [fuid] of friends.entries()) {
+        const cid = chatIdFor(me.uid, fuid);
+        if (!lastInboxMessages.has(cid)) {
+          try {
+            const chatSnap = await getDoc(doc(fs, "chats", cid));
+            if (chatSnap.exists()) {
+              const cdata = chatSnap.data() || {};
+              if (cdata.lastText) {
+                const isMine = cdata.lastFromUid === me.uid;
+                const snip = isMine ? "You: " + cdata.lastText.slice(0, 80) : cdata.lastText.slice(0, 80);
+                lastInboxMessages.set(cid, {
+                  snippet: snip,
+                  time: cdata.lastMessageAt || null,
+                  fromName: cdata.lastFromName || "",
+                  fromUid: cdata.lastFromUid || null,
+                  read: true
+                });
+                renderFriendsList();
+              }
+            }
+          } catch (_) {}
+        }
+      }
     }
 
     // ==== User Authentication & State Initialization ====
@@ -2093,6 +2222,7 @@
         });
 
         renderFriendsList();
+        loadFallbackChatSnippets();
       }, (e) => {
         console.error(e);
         showToast("Friends list could not be loaded.", "error");
@@ -2102,7 +2232,6 @@
       if (unsubInbox) { try { unsubInbox(); } catch {} }
       unsubInbox = onSnapshot(collection(fs, `users/${user.uid}/inbox`), (snap) => {
         unread.clear();
-        lastInboxMessages.clear();
 
         snap.forEach(d => {
           const v = d.data() || {};
@@ -2110,10 +2239,16 @@
           unread.set(d.id, count);
 
           if (v.lastMessageAt || v.lastSnippet) {
+            let snip = v.lastSnippet || "";
+            if (v.lastFromUid === user.uid && !snip.startsWith("You: ")) {
+              snip = "You: " + snip;
+            }
             lastInboxMessages.set(d.id, {
-              snippet: v.lastSnippet || "",
+              snippet: snip,
               time: v.lastMessageAt || null,
-              fromName: v.lastFromName || ""
+              fromName: v.lastFromName || "",
+              fromUid: v.lastFromUid || null,
+              read: count === 0
             });
           }
 
