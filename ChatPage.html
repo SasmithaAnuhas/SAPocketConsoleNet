@@ -693,6 +693,7 @@
       gap: 7px;
       width: 100%;
       position: relative;
+      margin: 2px 0;
     }
     .msg-row.them { justify-content: flex-start; }
     .msg-row.me { justify-content: flex-end; }
@@ -708,19 +709,28 @@
 
     .msg-bubble-wrap {
       position: relative;
-      max-width: min(74%, 480px);
+      max-width: min(76%, 520px);
+      min-width: 0;
       display: flex;
       flex-direction: column;
     }
+    .msg-row.them .msg-bubble-wrap { align-items: flex-start; }
+    .msg-row.me .msg-bubble-wrap { align-items: flex-end; }
 
     .bubble {
       position: relative;
-      padding: 7px 12px;
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 11px 6px 12px;
       font-size: 13.5px;
-      line-height: 1.4;
-      overflow-wrap: anywhere;
+      line-height: 1.35;
       word-break: break-word;
-      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: flex-end;
+      gap: 2px 9px;
       transition: box-shadow 0.18s ease;
     }
 
@@ -739,20 +749,32 @@
       box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
     }
 
-    .bubble-meta {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 4px;
-      margin-top: 3px;
-      font-size: 10.5px;
-      opacity: 0.72;
-      user-select: none;
+    .bubble-text {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      flex: 0 1 auto;
+      color: inherit;
     }
-    .msg-row.me .bubble-meta { opacity: 0.85; }
+
+    .bubble-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10.5px;
+      line-height: 1;
+      white-space: nowrap;
+      user-select: none;
+      flex-shrink: 0;
+      margin-left: auto;
+      padding-bottom: 1px;
+      opacity: 0.72;
+    }
+    .msg-row.me .bubble-meta { opacity: 0.88; }
     .status-check {
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--accent-cyan);
+      display: inline-block;
     }
 
     /* Floating Micro Action Toolbar on Message Hover */
@@ -1780,13 +1802,7 @@
         const editedTag = m.editedAt ? " • edited" : "";
         const checkmarks = mine ? `<span class="status-check">✓✓</span>` : "";
 
-        bubble.innerHTML = `
-          <div class="bubble-text">${escapeHtml(safeText(m.text, ""))}</div>
-          <div class="bubble-meta">
-            <span>${escapeHtml(timeFormatted)}${editedTag}</span>
-            ${checkmarks}
-          </div>
-        `;
+        bubble.innerHTML = `<span class="bubble-text">${escapeHtml(safeText(m.text, ""))}</span><span class="bubble-meta"><span>${escapeHtml(timeFormatted)}${editedTag}</span>${checkmarks}</span>`;
 
         bubbleWrap.appendChild(bubble);
         row.appendChild(bubbleWrap);
