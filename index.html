@@ -206,18 +206,13 @@
       <span class="friendLabel">Friends</span>
     </a>
 
-    <a href="ChatPage.html" class="friendButton chatNavButton" aria-label="Open chat" title="Chat">
-      <span class="friendIcon" aria-hidden="true">💬</span>
-      <span class="friendLabel">Chat</span>
-    </a>
-
     <a href="AccSettings.html" class="avatarWrap" aria-label="Account" title="Account">
       <div id="userAvatar" class="userAvatar"></div>
       <span class="onlineDot" aria-hidden="true"></span>
     </a>
   </nav>
 
-  <a href="ChatPage.html" class="floatingChat" aria-label="Chat" title="Chat"><span aria-hidden="true">💬</span><span class="floatingChatLabel">Chat</span></a>
+  <a href="ChatPage.html" class="floatingChat" aria-label="Chat" title="Chat"><span class="floatingChatIcon" aria-hidden="true">💬</span></a>
 
   <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
     <div class="loginReminderIcon" aria-hidden="true">👋</div>
@@ -686,29 +681,33 @@
     }
     .floatingChat{
       position: fixed;
-      right: 16px;
-      bottom: calc(12px + env(safe-area-inset-bottom) + 52px);
-      min-width: 44px; height: 44px; padding: 0 14px 0 11px;
-      border-radius: 50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size: 16px;
+      right: 18px;
+      bottom: calc(14px + env(safe-area-inset-bottom) + 54px);
+      width: 46px;
+      height: 46px;
+      border-radius: 13px; /* Curved square outline */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
       color: #fff;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.18);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.38);
-      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      background: rgba(18, 24, 38, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 255, 204, 0.35);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 12px rgba(0, 255, 204, 0.12);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
       z-index: 10000;
+      text-decoration: none;
     }
     .floatingChat:hover{
-      transform: translateY(-1px);
-      border-color: rgba(0,255,204,0.45);
-      box-shadow: 0 14px 28px rgba(0,0,0,0.48);
+      transform: translateY(-2px) scale(1.04);
+      border-color: rgba(0, 255, 204, 0.65);
+      background: linear-gradient(135deg, rgba(0, 255, 204, 0.22), rgba(140, 110, 255, 0.22));
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 255, 204, 0.25);
     }
-    .chatNavButton{
-      border-color: rgba(0,255,204,0.38);
-      background: linear-gradient(135deg, rgba(0,255,204,0.22), rgba(140,110,255,0.22));
+    .floatingChat:active{
+      transform: scale(0.96);
     }
     .friendButton{
       display:flex;
@@ -836,6 +835,13 @@
     }
 
     @media (max-width: 600px){
+      .floatingChat{
+        right: 14px;
+        bottom: calc(12px + env(safe-area-inset-bottom) + 58px);
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+      }
       .bottomBar{
         display:grid;
         grid-template-columns: repeat(6, minmax(0, 1fr));
