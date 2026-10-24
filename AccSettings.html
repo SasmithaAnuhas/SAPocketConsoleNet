@@ -178,6 +178,15 @@
 
       <div class="grid">
         <div class="field">
+          <p class="fieldLabel">Custom Display Name (Appears in chats & friends lists)</p>
+          <div class="fieldRow">
+            <input id="customNameInput" type="text" placeholder="Enter custom display name..." style="flex:1; min-width:180px; padding:9px 12px; background:#0b0f14; border:1px solid #2a3b52; border-radius:10px; color:#fff; font-size:13.5px;" />
+            <button id="saveNameBtn" class="primary" type="button">Save Name</button>
+          </div>
+          <div class="hint" style="margin-top:6px; font-size:11.5px; opacity:0.8;">This custom nickname will appear to other players in your chats, leaderboards, and friends lists.</div>
+        </div>
+
+        <div class="field">
           <p class="fieldLabel">Public ID (share-friendly)</p>
           <div class="fieldRow">
             <div id="publicIdText" class="mono">—</div>
@@ -222,13 +231,15 @@
       setPersistence,
       browserLocalPersistence,
       signInWithPopup,
-      signOut
+      signOut,
+      updateProfile
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
     import {
       getFirestore,
       doc,
       setDoc,
+      getDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
@@ -281,6 +292,8 @@
 
     const liveDot = document.getElementById("liveDot");
     const liveText = document.getElementById("liveText");
+    const customNameInput = document.getElementById("customNameInput");
+    const saveNameBtn = document.getElementById("saveNameBtn");
 
     const fallbackAvatar =
       "data:image/svg+xml;charset=utf-8," +
@@ -367,7 +380,9 @@
       avatarEl.src = normalizeGooglePhoto(getBestPhotoURL(user));
       const provider0 = user?.providerData?.[0];
 
-      nameEl.textContent = safeText(user?.displayName || provider0?.displayName, "Google User");
+      const savedCustomName = localStorage.getItem("pc_custom_name") || user?.displayName || provider0?.displayName || "Google User";
+      nameEl.textContent = safeText(savedCustomName, "Google User");
+      if (customNameInput) customNameInput.value = savedCustomName;
       emailEl.textContent = safeText(user?.email || provider0?.email);
 
       currentUid = user.uid;
@@ -387,34 +402,42 @@
     }
 
     async function upsertUserDoc(user) {
-  const provider0 = user?.providerData?.[0];
-  const publicId = makePublicId(user.uid);
+    const provider0 = user?.providerData?.[0];
+    const publicId = makePublicId(user.uid);
 
-  const displayName = user.displayName || provider0?.displayName || "Google User";
-  const email = user.email || provider0?.email || null;
-  const photoURL = user.photoURL || provider0?.photoURL || null;
-  const provider = provider0?.providerId || "google";
+    let displayName = localStorage.getItem("pc_custom_name") || user.displayName || provider0?.displayName || "Google User";
+    try {
+      const snap = await getDoc(doc(fs, "users", user.uid));
+      if (snap.exists() && snap.data().displayName) {
+        displayName = snap.data().displayName;
+        localStorage.setItem("pc_custom_name", displayName);
+      }
+    } catch (_) {}
 
-  // 1) PRIVATE profile (only you can read/write with the new rules)
-  await setDoc(doc(fs, "users", user.uid), {
-    uid: user.uid,
-    publicId,
-    displayName,
-    email,           // keep email private
-    photoURL,
-    provider,
-    lastLoginAt: serverTimestamp()
-  }, { merge: true });
+    const email = user.email || provider0?.email || null;
+    const photoURL = user.photoURL || provider0?.photoURL || null;
+    const provider = provider0?.providerId || "google";
 
-  // 2) PUBLIC profile (everyone signed-in can read, used for searching)
-  await setDoc(doc(fs, "publicUsers", user.uid), {
-    uid: user.uid,
-    publicId,
-    displayName,
-    photoURL,
-    lastLoginAt: serverTimestamp()
-  }, { merge: true });
-}
+    await setDoc(doc(fs, "users", user.uid), {
+      uid: user.uid,
+      publicId,
+      displayName,
+      email,
+      photoURL,
+      provider,
+      lastLoginAt: serverTimestamp()
+    }, { merge: true });
+
+    await setDoc(doc(fs, "publicUsers", user.uid), {
+      uid: user.uid,
+      publicId,
+      displayName,
+      photoURL,
+      lastLoginAt: serverTimestamp()
+    }, { merge: true });
+
+    return displayName;
+  }
 
     
 
@@ -498,6 +521,40 @@
         ? (r.mode === "share" ? "Status: Shared Public ID." : "Status: Share not supported—copied Public ID instead.")
         : "Status: Share/copy failed.";
     });
+
+    if (saveNameBtn) {
+      saveNameBtn.addEventListener("click", async () => {
+        const u = auth.currentUser;
+        if (!u) {
+          statusEl.textContent = "Status: Please log in first.";
+          return;
+        }
+        const newName = (customNameInput ? customNameInput.value : "").trim();
+        if (!newName) {
+          statusEl.textContent = "Status: Display name cannot be empty.";
+          return;
+        }
+        if (newName.length > 30) {
+          statusEl.textContent = "Status: Name must be 30 characters or fewer.";
+          return;
+        }
+        saveNameBtn.disabled = true;
+        statusEl.textContent = "Status: Saving display name...";
+        try {
+          await setDoc(doc(fs, "users", u.uid), { displayName: newName }, { merge: true });
+          await setDoc(doc(fs, "publicUsers", u.uid), { displayName: newName }, { merge: true });
+          localStorage.setItem("pc_custom_name", newName);
+          try { await updateProfile(u, { displayName: newName }); } catch (_) {}
+          nameEl.textContent = newName;
+          statusEl.textContent = "Status: Custom display name saved as \"" + newName + "\".";
+        } catch (e) {
+          showError("Save Name", e);
+          statusEl.textContent = "Status: Failed to save name (see Debug).";
+        } finally {
+          saveNameBtn.disabled = false;
+        }
+      });
+    }
 
     loginBtn.addEventListener("click", async () => {
       setBusy(true);

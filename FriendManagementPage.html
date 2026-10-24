@@ -116,6 +116,7 @@
         </div>
 
         <div class="rightActions">
+          <button id="editNameBtn" type="button" title="Edit Custom Display Name">✏️ Name</button>
           <button id="goLoginBtn" class="primary" type="button">Go to Login</button>
           <button id="logoutBtn" type="button">Logout</button>
         </div>
@@ -133,13 +134,14 @@
       <!-- SEARCH -->
       <div id="tabSearch" class="panel">
         <div class="field">
-          <p class="fieldLabel">Search by Public ID</p>
+          <p class="fieldLabel">Search or Discover Players</p>
           <div class="fieldRow">
-            <input id="publicSearchInput" type="text" placeholder="Example: PC-1A2B3C4D" />
+            <input id="publicSearchInput" type="text" placeholder="Search with/without PC- (e.g. 1A2B3C4D or PC-1A2B3C4D) or Name..." />
             <button id="searchBtn" class="primary" type="button">Search</button>
+            <button id="clearSearchBtn" type="button" style="display:none;">Clear</button>
           </div>
           <div class="hint">
-            Tip: Public ID is generated from the user UID (your format: <code>PC-</code> + first 8 chars).
+            Tip: Search by Public ID (with or without <code>PC-</code>) or player name. Clear input to see suggested players.
           </div>
         </div>
 
@@ -187,7 +189,8 @@
     import {
       getAuth,
       onAuthStateChanged,
-      signOut
+      signOut,
+      updateProfile
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
     import {
@@ -198,6 +201,7 @@
       collection,
       query,
       where,
+      limit,
       getDocs,
       onSnapshot,
       serverTimestamp,
@@ -242,11 +246,13 @@
     const liveDot = document.getElementById("liveDot");
     const liveText = document.getElementById("liveText");
 
+    const editNameBtn = document.getElementById("editNameBtn");
     const goLoginBtn = document.getElementById("goLoginBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
     const publicSearchInput = document.getElementById("publicSearchInput");
     const searchBtn = document.getElementById("searchBtn");
+    const clearSearchBtn = document.getElementById("clearSearchBtn");
     const searchResults = document.getElementById("searchResults");
 
     const incomingList = document.getElementById("incomingList");
@@ -315,6 +321,9 @@
         document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
         btn.classList.add("active");
         document.getElementById(btn.dataset.tab).classList.add("active");
+        if (btn.dataset.tab === "tabSearch" && typeof triggerSearch === "function") {
+          triggerSearch();
+        }
       });
     });
 
@@ -398,33 +407,21 @@
       const publicId = makePublicId(uid);
 
       const uref = doc(fs, "users", uid);
-      const snap = await getDoc(uref);
+      const snap = await getDoc(uref).catch(() => null);
+      const existingData = snap?.exists() ? snap.data() : null;
 
-      const displayName = user.displayName || "Google User";
+      const displayName = existingData?.displayName || localStorage.getItem("pc_custom_name") || user.displayName || "Google User";
       const photoURL = user.photoURL || null;
 
-      if (!snap.exists()) {
-        await setDoc(uref, {
-          uid,
-          publicId,
-          displayName,
-          photoURL,
-          // email intentionally omitted from public profile
-          createdAt: serverTimestamp(),
-          lastLoginAt: serverTimestamp()
-        }, { merge: true });
-      } else {
-        // keep profile fresh
-        await setDoc(uref, {
-          uid,
-          publicId,
-          displayName,
-          photoURL,
-          lastLoginAt: serverTimestamp()
-        }, { merge: true });
-      }
+      await setDoc(uref, {
+        uid,
+        publicId,
+        displayName,
+        photoURL,
+        lastLoginAt: serverTimestamp()
+      }, { merge: true });
 
-      // Keep publicUsers in sync for public ID search.
+      // Keep publicUsers in sync for public ID and name search.
       await setDoc(doc(fs, "publicUsers", uid), {
         uid,
         publicId,
@@ -433,8 +430,32 @@
         lastLoginAt: serverTimestamp()
       }, { merge: true });
 
-      const latest = await getDoc(uref);
-      return latest.data();
+      myProfile = { uid, publicId, displayName, photoURL };
+      return myProfile;
+    }
+
+    async function updateMyCustomName(newName) {
+      const clean = safeText(newName, "").trim();
+      if (!clean) {
+        statusEl.textContent = "Status: Name cannot be empty.";
+        return;
+      }
+      if (clean.length > 30) {
+        statusEl.textContent = "Status: Name must be 30 characters or fewer.";
+        return;
+      }
+      try {
+        await setDoc(doc(fs, "users", me.uid), { displayName: clean }, { merge: true });
+        await setDoc(doc(fs, "publicUsers", me.uid), { displayName: clean }, { merge: true });
+        localStorage.setItem("pc_custom_name", clean);
+        if (myProfile) myProfile.displayName = clean;
+        try { await updateProfile(auth.currentUser, { displayName: clean }); } catch (_) {}
+        nameEl.textContent = clean;
+        statusEl.textContent = "Status: Display name updated to \"" + clean + "\".";
+      } catch (e) {
+        showError("Update Name", e);
+        statusEl.textContent = "Status: Failed to update name.";
+      }
     }
 
     function renderEmpty(listEl, text) {
@@ -448,15 +469,56 @@
       `;
     }
 
-    async function searchByPublicId(publicId) {
-      const cleaned = safeText(publicId, "").toUpperCase();
-      if (!cleaned) return [];
+    async function searchOrSuggestUsers(rawQuery) {
+      const queryStr = safeText(rawQuery, "").trim();
 
-      const q = query(collection(fs, "publicUsers"), where("publicId", "==", cleaned));
-      const res = await getDocs(q);
-      const out = [];
-      res.forEach(d => out.push(d.data()));
-      return out;
+      let allPublic = [];
+      try {
+        const snap = await getDocs(query(collection(fs, "publicUsers"), limit(80)));
+        snap.forEach(d => allPublic.push(d.data()));
+      } catch (e) {
+        showError("Fetch public users", e);
+      }
+
+      // If no query, return suggested players (exclude self and existing friends)
+      if (!queryStr) {
+        const suggestions = allPublic.filter(p => p.uid !== me?.uid && !myFriends.has(p.uid));
+        return { isSuggested: true, list: suggestions };
+      }
+
+      const termLower = queryStr.toLowerCase();
+      const termUpper = queryStr.toUpperCase();
+      const withPC = termUpper.startsWith("PC-") ? termUpper : ("PC-" + termUpper);
+      const withoutPC = termUpper.startsWith("PC-") ? termUpper.slice(3) : termUpper;
+
+      // Also try direct Firestore query for exact publicId in case it was outside limit
+      if (withPC.length >= 6) {
+        try {
+          const exactSnap = await getDocs(query(collection(fs, "publicUsers"), where("publicId", "==", withPC)));
+          exactSnap.forEach(d => {
+            if (!allPublic.some(x => x.uid === d.id)) {
+              allPublic.push(d.data());
+            }
+          });
+        } catch (_) {}
+      }
+
+      const filtered = allPublic.filter(p => {
+        const pId = (p.publicId || "").toUpperCase();
+        const pName = (p.displayName || "").toLowerCase();
+        const pUid = (p.uid || "").toLowerCase();
+
+        // 1. Matches with or without "PC-"
+        if (pId === withPC || pId.includes(termUpper) || pId.replace("PC-", "").includes(withoutPC)) return true;
+        // 2. Matches display name or nickname
+        if (pName.includes(termLower)) return true;
+        // 3. Matches UID
+        if (pUid.includes(termLower)) return true;
+
+        return false;
+      });
+
+      return { isSuggested: false, list: filtered };
     }
 
     async function sendFriendRequest(targetProfile) {
@@ -706,15 +768,31 @@
       });
     }
 
-    function renderSearchResults(results) {
+    function renderSearchResults(data, queryStr = "") {
       searchResults.innerHTML = "";
+      const { isSuggested, list } = (Array.isArray(data) ? { isSuggested: false, list: data } : data);
 
-      if (!results.length) {
-        renderEmpty(searchResults, "No users found for that Public ID.");
+      if (isSuggested) {
+        searchResults.insertAdjacentHTML("beforeend", `
+          <div style="padding: 6px 4px 10px; font-weight: 700; font-size: 13px; color: #3ea6ff; display: flex; align-items: center; gap: 6px;">
+            <span>👥</span> <span>Suggested Players to Add</span>
+          </div>
+        `);
+      } else if (queryStr) {
+        searchResults.insertAdjacentHTML("beforeend", `
+          <div style="padding: 6px 4px 10px; font-weight: 700; font-size: 13px; color: #3ea6ff; display: flex; align-items: center; gap: 6px;">
+            <span>🔍</span> <span>Search Results for "${escapeHtml(queryStr)}"</span>
+          </div>
+        `);
+      }
+
+      if (!list.length) {
+        const msg = isSuggested ? "No other players found yet. Invite a friend by sharing your Public ID!" : `No players found matching "${escapeHtml(queryStr)}". Check the Public ID or name.`;
+        renderEmpty(searchResults, msg);
         return;
       }
 
-      results.forEach(p => {
+      list.forEach(p => {
         const isMe = p.uid === me.uid;
         const isFriend = myFriends.has(p.uid);
         const outgoing = outgoingReqTo.has(p.uid);
@@ -726,7 +804,7 @@
         } else if (isFriend) {
           actionHtml = `<button disabled type="button">Already friends</button>`;
         } else if (incoming) {
-          actionHtml = `<button disabled type="button">They requested you (check Requests)</button>`;
+          actionHtml = `<button disabled type="button">They requested you</button>`;
         } else if (outgoing) {
           actionHtml = `<button class="danger" data-cancel="${escapeHtml(p.uid)}" type="button">Cancel request</button>`;
         } else {
@@ -736,7 +814,7 @@
         const photo = normalizeGooglePhoto(p.photoURL || fallbackAvatar);
         searchResults.insertAdjacentHTML("beforeend", `
           <div class="item">
-            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" onerror="this.onerror=null; this.src='${fallbackAvatar}';" />
             <div class="itemMeta">
               <p class="itemTitle">${escapeHtml(p.displayName || "User")}</p>
               <div class="mono">Public ID: ${escapeHtml(p.publicId || "-")}</div>
@@ -784,6 +862,21 @@
       friends.forEach(f => {
         const photo = normalizeGooglePhoto(f.photoURL || fallbackAvatar);
         const online = friendPresenceState.get(f.uid) || false;
+
+        // Fetch live custom name from publicUsers
+        getDoc(doc(fs, "publicUsers", f.uid)).then(pSnap => {
+          if (pSnap.exists()) {
+            const p = pSnap.data();
+            if (p?.displayName && p.displayName !== f.displayName) {
+              f.displayName = p.displayName;
+              const row = friendsList.querySelector(`[data-friend-item="${CSS.escape(f.uid)}"]`);
+              if (row) {
+                const title = row.querySelector(".itemTitle");
+                if (title) title.textContent = p.displayName;
+              }
+            }
+          }
+        }).catch(() => {});
 
         friendsList.insertAdjacentHTML("beforeend", `
           <div class="item" data-friend-item="${escapeHtml(f.uid)}">
@@ -873,25 +966,54 @@
       }, (e) => showError("Outgoing onSnapshot", e));
     }
 
-    // Search button
-    searchBtn.addEventListener("click", async () => {
+    // Search and suggestions trigger
+    let searchDebounceTimer = null;
+    async function triggerSearch() {
       if (!me) { statusEl.textContent = "Status: Please sign in first."; return; }
-      const pid = publicSearchInput.value;
+      const q = publicSearchInput.value;
       statusEl.textContent = "Status: Searching...";
       debugEl.textContent = "Debug: -";
       searchBtn.disabled = true;
 
       try {
-        const res = await searchByPublicId(pid);
-        renderSearchResults(res);
-        statusEl.textContent = `Status: Found ${res.length} result(s).`;
+        const res = await searchOrSuggestUsers(q);
+        renderSearchResults(res, q.trim());
+        const count = res.list.length;
+        statusEl.textContent = res.isSuggested
+          ? `Status: Showing ${count} suggested player(s).`
+          : `Status: Found ${count} matching player(s).`;
+        if (clearSearchBtn) clearSearchBtn.style.display = q.trim() ? "inline-block" : "none";
       } catch (e) {
         showError("Search", e);
-        statusEl.textContent = "Status: Search failed (see Debug).";
+        statusEl.textContent = "Status: Search failed.";
       } finally {
         searchBtn.disabled = false;
       }
+    }
+
+    searchBtn.addEventListener("click", triggerSearch);
+    publicSearchInput.addEventListener("input", () => {
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(triggerSearch, 220);
     });
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener("click", () => {
+        publicSearchInput.value = "";
+        clearSearchBtn.style.display = "none";
+        triggerSearch();
+      });
+    }
+
+    // Edit Custom Display Name Handler
+    if (editNameBtn) {
+      editNameBtn.addEventListener("click", async () => {
+        if (!me) { statusEl.textContent = "Status: Please sign in first."; return; }
+        const currentName = nameEl.textContent || "";
+        const entered = prompt("Enter your custom display name (shown in chats & friends lists):", currentName);
+        if (entered === null) return;
+        await updateMyCustomName(entered);
+      });
+    }
 
     // Login navigation / logout
     goLoginBtn.addEventListener("click", () => {
@@ -937,7 +1059,7 @@
     async function setLoggedInUI(user) {
       authChip.textContent = "Signed in";
       avatarEl.src = normalizeGooglePhoto(getBestPhotoURL(user));
-      nameEl.textContent = safeText(user.displayName, "Google User");
+      nameEl.textContent = safeText(localStorage.getItem("pc_custom_name") || user.displayName, "Google User");
       sublineEl.textContent = `Public ID: ${makePublicId(user.uid)} | UID: ${user.uid}`;
     }
 

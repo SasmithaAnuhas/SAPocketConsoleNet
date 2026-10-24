@@ -1150,7 +1150,10 @@
             <span id="mePresenceRing" class="status-ring" title="Realtime Presence Status"></span>
           </div>
           <div class="user-info-text">
-            <div id="meName" class="user-display-name">Guest</div>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <span id="meName" class="user-display-name">Guest</span>
+              <button type="button" id="editMyNameBtn" style="background:none; border:none; cursor:pointer; font-size:11px; opacity:0.8; padding:1px 3px;" title="Edit custom display name">✏️</button>
+            </div>
             <div id="meSub" class="user-sub-id">Offline</div>
           </div>
           <button type="button" id="logoutBtn" class="top-nav-btn" style="padding: 4px 8px; font-size: 11px; margin-left: 4px;" title="Sign out">Logout</button>
@@ -1203,8 +1206,8 @@
             <button type="button" class="mobile-back-btn" id="mobileBackBtn" aria-label="Back to conversations">
               ←
             </button>
-            <div class="chat-header-avatar-wrap">
-              <img id="chatHeaderAvatar" class="chat-header-avatar" alt="Friend Avatar" src="" />
+            <div class="chat-header-avatar-wrap" id="chatHeaderAvatarWrap" style="display: none;">
+              <img id="chatHeaderAvatar" class="chat-header-avatar" alt="Friend Avatar" src="" onerror="this.onerror=null; this.src='data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'128\' height=\'128\'%3E%3Crect width=\'100%25\' height=\'100%25\' fill=\'%230b0f14\'/%3E%3Ccircle cx=\'64\' cy=\'52\' r=\'22\' fill=\'%23223044\'/%3E%3Cpath d=\'M24 118c8-22 28-34 40-34s32 12 40 34\' fill=\'%23223044\'/%3E%3C/svg%3E';" />
               <span id="chatHeaderPresence" class="status-ring"></span>
             </div>
             <div class="chat-header-meta">
@@ -1213,7 +1216,7 @@
                 <span class="public-tag" id="chatHeaderPublicId" style="display:none;"></span>
               </div>
               <div class="chat-header-status">
-                <span id="chatHeaderLiveDot" class="presence-live-dot"></span>
+                <span id="chatHeaderLiveDot" class="presence-live-dot" style="display: none;"></span>
                 <span id="chatHeaderStatusText">No conversation selected</span>
               </div>
             </div>
@@ -1323,7 +1326,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
     import {
       getFirestore,
       doc,
@@ -1366,6 +1369,7 @@
     const meName = document.getElementById("meName");
     const meSub = document.getElementById("meSub");
     const mePresenceRing = document.getElementById("mePresenceRing");
+    const editMyNameBtn = document.getElementById("editMyNameBtn");
     const logoutBtn = document.getElementById("logoutBtn");
 
     const chatLayout = document.getElementById("chatLayout");
@@ -1377,6 +1381,7 @@
     const filterTabs = document.querySelectorAll(".filter-tab");
     const conversationsList = document.getElementById("conversationsList");
 
+    const chatHeaderAvatarWrap = document.getElementById("chatHeaderAvatarWrap");
     const chatHeaderAvatar = document.getElementById("chatHeaderAvatar");
     const chatHeaderPresence = document.getElementById("chatHeaderPresence");
     const chatHeaderName = document.getElementById("chatHeaderName");
@@ -1615,10 +1620,19 @@
     async function upsertUserDoc(user) {
       const provider0 = user?.providerData?.[0];
       const publicId = makePublicId(user.uid);
-      const displayName = user.displayName || provider0?.displayName || "Google User";
       const email = user.email || provider0?.email || null;
       const photoURL = user.photoURL || provider0?.photoURL || null;
       const provider = provider0?.providerId || "google";
+
+      // Check existing custom display name so it is not overwritten on login
+      let displayName = localStorage.getItem("pc_custom_name") || user.displayName || provider0?.displayName || "Google User";
+      try {
+        const snap = await getDoc(doc(fs, "users", user.uid));
+        if (snap.exists() && snap.data().displayName) {
+          displayName = snap.data().displayName;
+          localStorage.setItem("pc_custom_name", displayName);
+        }
+      } catch (_) {}
 
       await setDoc(doc(fs, "users", user.uid), {
         uid: user.uid,
@@ -1637,6 +1651,32 @@
         photoURL,
         lastLoginAt: serverTimestamp()
       }, { merge: true });
+
+      return displayName;
+    }
+
+    async function updateMyCustomName(newName) {
+      const clean = safeText(newName, "").trim();
+      if (!clean) {
+        showToast("Display name cannot be empty.", "error");
+        return;
+      }
+      if (clean.length > 30) {
+        showToast("Display name must be 30 characters or fewer.", "error");
+        return;
+      }
+      try {
+        await setDoc(doc(fs, "users", me.uid), { displayName: clean }, { merge: true });
+        await setDoc(doc(fs, "publicUsers", me.uid), { displayName: clean }, { merge: true });
+        localStorage.setItem("pc_custom_name", clean);
+        if (myProfile) myProfile.displayName = clean;
+        try { await updateProfile(auth.currentUser, { displayName: clean }); } catch (_) {}
+        meName.textContent = clean;
+        showToast(`Display name updated to "${clean}"`, "success");
+      } catch (e) {
+        console.error(e);
+        showToast("Failed to update name.", "error");
+      }
     }
 
     async function ensureChatDoc(uidA, uidB) {
@@ -1866,8 +1906,10 @@
       activeFriendUid = friendUid;
       const f = friends.get(friendUid);
 
+      if (chatHeaderAvatarWrap) chatHeaderAvatarWrap.style.display = "block";
+      if (chatHeaderLiveDot) chatHeaderLiveDot.style.display = "inline-block";
       chatHeaderName.textContent = f ? safeText(f.displayName, "Friend") : "Chat";
-      chatHeaderAvatar.src = normalizeGooglePhoto(f?.photoURL);
+      chatHeaderAvatar.src = normalizeGooglePhoto(f?.photoURL) || fallbackAvatar;
       
       if (f?.publicId) {
         chatHeaderPublicId.textContent = f.publicId;
@@ -2200,11 +2242,13 @@
     async function initSignedIn(user) {
       me = user;
       meAvatar.src = normalizeGooglePhoto(user.photoURL);
-      meName.textContent = safeText(user.displayName, "Player");
+      const savedName = localStorage.getItem("pc_custom_name") || user.displayName || "Player";
+      meName.textContent = safeText(savedName, "Player");
       meSub.textContent = "Connecting…";
 
       try {
-        await upsertUserDoc(user);
+        const customName = await upsertUserDoc(user);
+        if (customName) meName.textContent = customName;
       } catch (e) {
         console.error(e);
       }
@@ -2226,9 +2270,11 @@
         stopAllFriendPresenceList();
         friends.clear();
 
+        const friendUids = [];
         snap.forEach(d => {
           const v = d.data() || {};
           const uid = v.uid || d.id;
+          friendUids.push(uid);
           friends.set(uid, {
             uid,
             publicId: v.publicId || null,
@@ -2239,6 +2285,26 @@
 
         renderFriendsList();
         loadFallbackChatSnippets();
+
+        // Keep friends' names live if they update custom display names
+        for (const fuid of friendUids) {
+          getDoc(doc(fs, "publicUsers", fuid)).then(pSnap => {
+            if (pSnap.exists()) {
+              const p = pSnap.data();
+              if (p?.displayName) {
+                const current = friends.get(fuid);
+                if (current && current.displayName !== p.displayName) {
+                  current.displayName = p.displayName;
+                  if (p.photoURL) current.photoURL = p.photoURL;
+                  if (activeFriendUid === fuid) {
+                    chatHeaderName.textContent = p.displayName;
+                  }
+                  renderFriendsList();
+                }
+              }
+            }
+          }).catch(() => {});
+        }
       }, (e) => {
         console.error(e);
         showToast("Friends list could not be loaded.", "error");
@@ -2318,10 +2384,13 @@
       `;
       friendsCounter.textContent = "0 friends";
 
+      if (chatHeaderAvatarWrap) chatHeaderAvatarWrap.style.display = "none";
+      if (chatHeaderAvatar) chatHeaderAvatar.src = "";
       chatHeaderName.textContent = "Select a friend";
       chatHeaderPublicId.style.display = "none";
       chatHeaderPresence.classList.remove("online");
       chatHeaderLiveDot.classList.remove("on");
+      if (chatHeaderLiveDot) chatHeaderLiveDot.style.display = "none";
       chatHeaderStatusText.textContent = "No conversation selected";
       chatHeaderActions.style.display = "none";
 
@@ -2330,6 +2399,20 @@
 
       msgInput.disabled = true;
       sendBtn.disabled = true;
+    }
+
+    // Edit Custom Display Name Handler
+    if (editMyNameBtn) {
+      editMyNameBtn.addEventListener("click", async () => {
+        if (!me) {
+          showToast("Please sign in first.", "error");
+          return;
+        }
+        const currentName = meName.textContent || "";
+        const entered = prompt("Enter your custom display name (shown in chats & friends lists):", currentName);
+        if (entered === null) return;
+        await updateMyCustomName(entered);
+      });
     }
 
     // Sign out handler
