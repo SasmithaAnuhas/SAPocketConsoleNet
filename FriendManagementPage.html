@@ -98,7 +98,7 @@
 <body>
   <div class="card">
     <div class="header">
-      <div class="brand"><span class="dot"></span> Pocket Console</div>
+      <a href="index.html" class="brand" style="text-decoration:none; color:inherit; cursor:pointer;" title="Return to Pocket Console Home"><span class="dot"></span> Pocket Console</a>
       <div id="authChip" style="font-size:12px;opacity:.85;">Checking sign-in...</div>
     </div>
 
@@ -1065,12 +1065,15 @@
 
     async function init() {
       statusEl.textContent = "Status: Initializing...";
+      try { await setPersistence(auth, browserLocalPersistence); } catch (_) {}
       renderEmpty(incomingList, "Loading...");
       renderEmpty(outgoingList, "Loading...");
       renderEmpty(friendsList, "Loading...");
 
       onAuthStateChanged(auth, async (user) => {
         if (!user) {
+          localStorage.removeItem("pc_logged_in");
+          localStorage.removeItem("pc_cached_avatar");
           me = null;
           myProfile = null;
           myFriends.clear();
@@ -1079,6 +1082,9 @@
           setLoggedOutUI();
           return;
         }
+
+        localStorage.setItem("pc_logged_in", "true");
+        if (user.photoURL) localStorage.setItem("pc_cached_avatar", user.photoURL);
 
         me = user;
         await setLoggedInUI(user);

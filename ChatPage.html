@@ -1326,7 +1326,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
     import {
       getFirestore,
       doc,
@@ -1361,6 +1361,7 @@
     try { getAnalytics(app); } catch (_) {}
 
     const auth = getAuth(app);
+    try { setPersistence(auth, browserLocalPersistence).catch(() => {}); } catch (_) {}
     const fs = getFirestore(app);
     const rtdb = getDatabase(app);
 
@@ -2435,6 +2436,8 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        localStorage.removeItem("pc_logged_in");
+        localStorage.removeItem("pc_cached_avatar");
         meAvatar.src = fallbackAvatar;
         meName.textContent = "Not signed in";
         meSub.textContent = "Guest mode";
@@ -2442,6 +2445,8 @@
         stopAll();
         return;
       }
+      localStorage.setItem("pc_logged_in", "true");
+      if (user.photoURL) localStorage.setItem("pc_cached_avatar", user.photoURL);
       await initSignedIn(user);
     });
   </script>

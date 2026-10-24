@@ -883,7 +883,7 @@
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
   import { getDatabase, ref, set, onValue, onDisconnect, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
   window.addEventListener("DOMContentLoaded", () => {
@@ -900,6 +900,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    try { setPersistence(auth, browserLocalPersistence).catch(() => {}); } catch (_) {}
     const rtdb = getDatabase(app);
 
     const avatarEl = document.getElementById("userAvatar");
@@ -918,7 +919,30 @@
     // Where to send users if login is required
     const AUTH_REDIRECT_URL = "https://sapocketconsole.blogspot.com/p/accountsettings.html";
 
-    dismissLoginReminder?.addEventListener("click", () => loginReminder?.close());
+    dismissLoginReminder?.addEventListener("click", () => {
+      sessionStorage.setItem("pc_dismissed_guest_prompt", "true");
+      loginReminder?.close();
+    });
+
+    // Immediate optimistic session check to prevent logged-out popup on return
+    const hasLocalSession = localStorage.getItem("pc_logged_in") === "true";
+    if (hasLocalSession) {
+      const savedName = localStorage.getItem("pc_custom_name") || "Player";
+      if (homePlayerState) {
+        homePlayerState.dataset.state = "signed-in";
+        homePlayerState.textContent = "Signed in as " + savedName;
+      }
+      if (homeSignInPrompt) homeSignInPrompt.hidden = true;
+      const cachedAvatar = localStorage.getItem("pc_cached_avatar");
+      if (cachedAvatar) setAvatar(cachedAvatar);
+    }
+
+    function maybeShowLoginReminder() {
+      if (!loginReminder || loginReminder.open) return;
+      if (auth.currentUser || localStorage.getItem("pc_logged_in") === "true") return;
+      if (sessionStorage.getItem("pc_dismissed_guest_prompt") === "true") return;
+      loginReminder.showModal();
+    }
 
     const placeholder =
       "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==";
@@ -978,6 +1002,8 @@
       displayedAuthUid = uid;
 
       if (!user) {
+        localStorage.removeItem("pc_logged_in");
+        localStorage.removeItem("pc_cached_avatar");
         if (!authStateChanged) return;
 
         // Signed out
@@ -993,17 +1019,20 @@
           window.location.href = AUTH_REDIRECT_URL;
           return;
         }
-        if (loginReminder && !loginReminder.open) loginReminder.showModal();
+        maybeShowLoginReminder();
         return;
       }
 
       // Signed in
+      localStorage.setItem("pc_logged_in", "true");
+      if (user.photoURL) localStorage.setItem("pc_cached_avatar", user.photoURL);
       if (loginReminder?.open) loginReminder.close();
       setAvatar(user.photoURL);
       setOnlineDotVisible(true);
+      const name = localStorage.getItem("pc_custom_name") || user.displayName || "Player";
       if (homePlayerState) {
         homePlayerState.dataset.state = "signed-in";
-        homePlayerState.textContent = `Signed in as ${user.displayName || "Player"}`;
+        homePlayerState.textContent = `Signed in as ${name}`;
       }
       if (homeSignInPrompt) homeSignInPrompt.hidden = true;
 
@@ -1033,7 +1062,15 @@
         });
     }
 
-    window.addEventListener("pageshow", refreshAuthState);
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) {
+        // Page was restored from Back-Forward Cache (bfcache).
+        // Reload to sync fresh login state without showing stale guest state.
+        window.location.reload();
+        return;
+      }
+      refreshAuthState();
+    });
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") refreshAuthState();
     });
