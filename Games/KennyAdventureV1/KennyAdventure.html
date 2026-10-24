@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kenny Adventure - Level 1: Sunny Meadow</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        /* Inline Critical Fallback Styles */
-        #loading-screen { display: none !important; }
-        #main-menu { display: block; }
-    </style>
 </head>
 <body>
 
@@ -29,7 +24,7 @@
                 <span id="gems-text">0</span>
             </div>
         </div>
-        <button class="pause-btn" id="pause-btn">⏸</button>
+        <button class="pause-btn" id="pause-btn" title="Pause Game (ESC / P)">⏸</button>
     </div>
 
     <!-- UI Overlay Screens -->
@@ -56,7 +51,7 @@
         <div id="victory-screen" class="menu">
             <h1 style="color: #40d17a;">🎉 Stage Clear!</h1>
             <p class="subtitle">You conquered Sunny Meadow!</p>
-            <div style="font-size: 20px; margin-bottom: 20px;">
+            <div style="font-size: 20px; margin-bottom: 24px;">
                 Final Score: <strong id="final-score" style="color: #ffd700;">0</strong>
             </div>
             <button class="btn" id="replay-btn">🔄 Play Again</button>

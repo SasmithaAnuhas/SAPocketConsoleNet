@@ -2,89 +2,314 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>Top-Down Racing</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <title>Turbo Drift - Pocket Console</title>
     <style>
+        :root {
+            --accent: #ff8c1a;
+            --accent-glow: rgba(255, 140, 26, 0.45);
+            --gold: #ffcc00;
+            --gold-glow: rgba(255, 204, 0, 0.4);
+            --cyan: #00ffcc;
+            --danger: #ff4757;
+            --bg-dark: #080c12;
+            --panel-bg: rgba(13, 18, 27, 0.90);
+            --border-subtle: rgba(255, 255, 255, 0.12);
+            color-scheme: dark;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background: #0b0b0b;
+            background: var(--bg-dark);
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
         }
+
         canvas {
             display: block;
             width: 100%;
             height: 100%;
             touch-action: none;
         }
-        #menuOverlay {
-            position: absolute;
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: fixed;
             inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 60% 20%, rgba(255, 140, 26, 0.09), transparent 60%),
+                        radial-gradient(circle at 20% 80%, rgba(0, 255, 204, 0.06), transparent 60%);
+            z-index: 1;
+        }
+
+        /* Top Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            top: 12px;
+            left: 14px;
+            z-index: 25;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.75);
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            z-index: 20;
+            gap: 10px;
         }
-        #loadingOverlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border-subtle);
+            color: #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        }
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        /* In-Game Floating Pause Button */
+        .hud-pause-btn {
+            position: fixed;
+            top: 12px;
+            right: 14px;
+            z-index: 25;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border-subtle);
+            background: rgba(15, 23, 42, 0.85);
+            color: #e2e8f0;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(circle at top, rgba(35, 35, 35, 0.95), rgba(5, 5, 5, 0.98));
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            z-index: 30;
-        }
-        #rotateOverlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.9);
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            z-index: 40;
-            text-align: center;
-            padding: 24px;
-        }
-        .rotate-panel {
-            width: min(520px, 92vw);
-            background: rgba(12, 12, 12, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 24px;
-        }
-        .rotate-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-        }
-        .rotate-text {
+            cursor: pointer;
             font-size: 14px;
-            opacity: 0.8;
-            margin: 0;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        .hud-pause-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transform: scale(1.06);
+        }
+
+        /* Overlay Shared Base */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 10, 16, 0.78);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fff;
+            z-index: 30;
+            padding: 16px;
+            animation: fadeIn 0.22s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .menu-panel {
+            width: min(500px, 92vw);
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 26px 24px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.65), 0 0 0 1px rgba(255, 140, 26, 0.12);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .game-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: rgba(255, 140, 26, 0.12);
+            border: 1px solid rgba(255, 140, 26, 0.3);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .menu-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 6px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 40%, #ff8c1a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-subtitle {
+            font-size: 14px;
+            color: #94a3b8;
+            margin: 0 0 20px 0;
+            line-height: 1.4;
+        }
+
+        .menu-row {
+            display: flex;
+            width: 100%;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .menu-row label {
+            width: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        .menu-row select {
+            flex: 1;
+            padding: 9px 12px;
+            background: rgba(10, 15, 24, 0.8);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+        .menu-row select:focus {
+            border-color: var(--accent);
+        }
+
+        .menu-actions {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .menu-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+        .menu-btn.primary {
+            background: linear-gradient(135deg, #ff8c1a, #ff5500);
+            border: none;
+            color: #1a0800;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(255, 140, 26, 0.35);
+        }
+        .menu-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(255, 140, 26, 0.5);
+            filter: brightness(1.08);
+        }
+        .menu-btn.disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Result & Stats Cards */
+        .stat-grid {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 10px 0 16px;
+            background: rgba(10, 15, 24, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 12px;
+        }
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-box-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+        .stat-box-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 3px;
+        }
+        .stat-box-val.highlight {
+            color: var(--cyan);
+        }
+
+        /* Loading Screen */
+        #loadingOverlay {
+            z-index: 40;
+            background: radial-gradient(circle at center, #101522 0%, #06090e 100%);
         }
         .loading-panel {
-            width: min(520px, 92vw);
-            background: rgba(12, 12, 12, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 22px;
+            width: min(440px, 90vw);
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
         }
         .loading-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            margin: 0 0 12px 0;
+            margin: 0 0 14px 0;
+            color: #fff;
         }
         .loading-bar {
-            height: 10px;
+            height: 8px;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.08);
             overflow: hidden;
@@ -93,121 +318,106 @@
             display: block;
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #ff8c1a, #ffd180);
+            background: linear-gradient(90deg, #ff8c1a, #00ffcc);
+            box-shadow: 0 0 12px var(--accent-glow);
             transition: width 0.2s ease;
         }
         .loading-text {
             font-size: 13px;
-            opacity: 0.75;
+            color: #94a3b8;
             margin-top: 10px;
-            letter-spacing: 0.2px;
         }
-        .menu-panel {
-            width: min(520px, 92vw);
-            background: rgba(15, 15, 15, 0.95);
+
+        /* Rotate Warning */
+        #rotateOverlay {
+            z-index: 50;
+            background: rgba(4, 7, 12, 0.94);
+        }
+        .rotate-panel {
+            width: min(460px, 90vw);
+            background: var(--panel-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
         }
-        .menu-title {
-            font-size: 28px;
+        .rotate-title {
+            font-size: 22px;
             font-weight: 700;
-            margin: 0 0 16px 0;
+            margin: 0 0 8px 0;
+            color: var(--accent);
         }
-        .menu-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .menu-row label {
-            width: 120px;
+        .rotate-text {
             font-size: 14px;
-            opacity: 0.9;
+            color: #94a3b8;
+            margin: 0;
         }
-        .menu-row select {
-            flex: 1;
-            padding: 8px 10px;
-            background: #111;
-            color: #fff;
-            border: 1px solid #333;
-            border-radius: 8px;
+
+        .controls-hint {
+            margin-top: 14px;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.45;
         }
-        .menu-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
-        .menu-btn {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #222;
-            color: #fff;
-            cursor: pointer;
-        }
-        .menu-btn.primary {
-            background: #ff8c1a;
-            border-color: #ff8c1a;
-            color: #111;
-            font-weight: 600;
-        }
-        .menu-btn.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+
         .hidden {
             display: none !important;
-        }
-        #resultOverlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.78);
-            color: #fff;
-            font-family: system-ui, sans-serif;
-            z-index: 35;
-        }
-        .result-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin: 0 0 10px 0;
-        }
-        .result-sub {
-            font-size: 14px;
-            opacity: 0.8;
-            margin: 0 0 14px 0;
         }
     </style>
 </head>
 <body>
+    <div class="ambient-glow" aria-hidden="true"></div>
+
+    <!-- Navigation Header -->
+    <div class="nav-bar">
+        <a href="../../index.html" class="nav-btn" title="Back to Pocket Console">‹ Console</a>
+    </div>
+
+    <!-- In-Game Floating Pause Button -->
+    <button id="inGamePauseBtn" class="hud-pause-btn hidden" type="button" aria-label="Pause Game" title="Pause Game (P / Esc)">⏸</button>
+
     <canvas id="game"></canvas>
+
+    <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div class="loading-panel">
-            <div class="loading-title">Loading assets…</div>
+            <div class="loading-title">Loading Turbo Drift…</div>
             <div class="loading-bar"><span id="loadingBar"></span></div>
-            <div id="loadingText" class="loading-text">Starting up</div>
+            <div id="loadingText" class="loading-text">Starting up engine</div>
         </div>
     </div>
+
+    <!-- Rotate Landscape Overlay -->
     <div id="rotateOverlay" class="hidden">
         <div class="rotate-panel">
-            <div class="rotate-title">Rotate your device</div>
-            <p class="rotate-text">Please switch to landscape for the best experience.</p>
+            <div class="rotate-title">Rotate Your Device 🔄</div>
+            <p class="rotate-text">Please switch to landscape mode for optimal racing control.</p>
         </div>
     </div>
-    <div id="menuOverlay" class="hidden">
+
+    <!-- Main & Single Player Menu Overlay -->
+    <div id="menuOverlay" class="overlay hidden">
         <div id="menuMain" class="menu-panel">
-            <div class="menu-title">Top-Down Racing</div>
-            <div class="menu-actions">
+            <span class="game-badge">Pocket Console</span>
+            <div class="menu-title">TURBO DRIFT</div>
+            <p class="menu-subtitle">High-octane precision drift racing on intense 2D tracks.</p>
+
+            <div class="menu-actions" style="flex-direction:column; gap:10px;">
                 <button id="btnSingle" class="menu-btn primary">Single Player</button>
-                <button class="menu-btn disabled" disabled>Multiplayer (soon)</button>
+                <button class="menu-btn disabled" disabled>Multiplayer (Coming Soon)</button>
+                <a href="../../index.html" class="menu-btn">Return to Console</a>
+            </div>
+
+            <div class="controls-hint">
+                PC Controls: Arrow Keys / WASD to Steer & Throttle • P / Esc to Pause
             </div>
         </div>
+
         <div id="menuSingle" class="menu-panel hidden">
-            <div class="menu-title">Single Player</div>
+            <span class="game-badge">Race Setup</span>
+            <div class="menu-title">RACE SETTINGS</div>
+            <p class="menu-subtitle">Configure your ride, course, and racing laps.</p>
+
             <div class="menu-row">
                 <label for="selectCar">Car</label>
                 <select id="selectCar"></select>
@@ -224,25 +434,71 @@
                 <label for="selectMap">Map</label>
                 <select id="selectMap"></select>
             </div>
+
             <div class="menu-actions">
                 <button id="btnBack" class="menu-btn">Back</button>
-                <button id="btnStart" class="menu-btn primary">Start</button>
+                <button id="btnStart" class="menu-btn primary">Start Race ▶</button>
             </div>
         </div>
     </div>
-        <div id="resultOverlay" class="hidden">
+
+    <!-- In-Game Pause Overlay -->
+    <div id="pauseOverlay" class="overlay hidden">
         <div class="menu-panel">
-            <div id="resultTitle" class="result-title">Race Complete</div>
-            <div id="resultSub" class="result-sub">Great run.</div>
-            <div id="resultPlace" class="result-sub">Place: 1/1</div>
-            <div id="resultTime" class="result-sub">Time: 00:00</div>
-            <div id="resultBest" class="result-sub">Best: 00:00</div>
+            <span class="game-badge" style="color:var(--cyan); border-color:rgba(0,255,204,0.3); background:rgba(0,255,204,0.1);">Race Paused</span>
+            <div class="menu-title">PAUSED</div>
+            <p class="menu-subtitle">The track is frozen. Catch your breath!</p>
+
+            <div class="stat-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="stat-box">
+                    <span class="stat-box-label">Current Lap</span>
+                    <span class="stat-box-val highlight" id="pauseLapVal">1 / 3</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-label">Race Time</span>
+                    <span class="stat-box-val" id="pauseTimeVal">00:00</span>
+                </div>
+            </div>
+
+            <div class="menu-actions" style="flex-direction:column; gap:10px;">
+                <button id="btnResumePause" class="menu-btn primary">▶ Resume Race</button>
+                <button id="btnRestartPause" class="menu-btn">🔄 Restart Race</button>
+                <button id="btnQuitPause" class="menu-btn">Main Menu</button>
+                <a href="../../index.html" class="menu-btn">Exit to Console</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Race Results Overlay -->
+    <div id="resultOverlay" class="overlay hidden">
+        <div class="menu-panel">
+            <span class="game-badge">Finished</span>
+            <div id="resultTitle" class="menu-title">Race Complete</div>
+            <div id="resultSub" class="menu-subtitle">Great run on the tarmac.</div>
+
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <span class="stat-box-label">Place</span>
+                    <span class="stat-box-val highlight" id="resultPlace">1/1</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-label">Total Time</span>
+                    <span class="stat-box-val" id="resultTime">00:00</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-label">Best Lap</span>
+                    <span class="stat-box-val" id="resultBest">00:00</span>
+                </div>
+            </div>
+
             <div class="menu-actions">
                 <button id="btnRestart" class="menu-btn primary">Restart</button>
                 <button id="btnQuit" class="menu-btn">Main Menu</button>
             </div>
+            <a href="../../index.html" class="menu-btn" style="width:100%; margin-top:10px;">Return to Console</a>
         </div>
     </div>
+
     <script src="game.js"></script>
 </body>
 </html>

@@ -3,177 +3,469 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Lane Rush (Kenney)</title>
+  <title>Lane Rush - Pocket Console</title>
   <style>
-    
-     /* Disable selection (deterrent only) */
-html, body {
-  -webkit-user-select: none; /* Safari/Chrome */
-  -ms-user-select: none;     /* old Edge */
-  user-select: none;         /* standard */
-}
-
-    
-    :root { color-scheme: dark; }
-    html, body { height: 100%; margin: 0; background:#0b0f14; font-family: Arial, sans-serif; overflow: hidden; }
-
-    #wrap { position: fixed; inset: 0; display: grid; place-items: center; }
-    canvas {
-      display: block;
-      background:#111;
-      border: 1px solid #2a3442;
-      border-radius: 12px;
-      touch-action: none;
+    :root {
+      --accent: #ff8c1a;
+      --accent-glow: rgba(255, 140, 26, 0.45);
+      --gold: #ffcc00;
+      --gold-glow: rgba(255, 204, 0, 0.4);
+      --cyan: #00ffcc;
+      --danger: #ff4757;
+      --bg-dark: #080c12;
+      --panel-bg: rgba(13, 18, 27, 0.88);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      color-scheme: dark;
     }
 
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--bg-dark);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Ambient Highway Glow */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 25%, rgba(255, 140, 26, 0.1), transparent 65%),
+                  radial-gradient(circle at 80% 80%, rgba(0, 255, 204, 0.06), transparent 60%);
+      z-index: 1;
+    }
+
+    #wrap {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 5;
+    }
+
+    canvas {
+      display: block;
+      background: #111;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      touch-action: none;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 140, 26, 0.15);
+    }
+
+    /* Navigation Header Bar */
+    .nav-bar {
+      position: fixed;
+      top: 10px;
+      left: 12px;
+      z-index: 25;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    /* Top Racing HUD */
     .hud {
       position: fixed;
       top: 10px;
       left: 50%;
       transform: translateX(-50%);
       display: none;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
-      padding: 8px 12px;
-      border: 1px solid #2a3442;
-      border-radius: 999px;
-      background: rgba(10,14,20,.75);
-      backdrop-filter: blur(6px);
-      user-select: none;
-      z-index: 20;
-    }
-    .hud b { font-weight: 700; }
-    .hud .btn {
       padding: 6px 10px;
-      border-radius: 10px;
-      border: 1px solid #2a3442;
-      background: #121a25;
-      color: #e6eefc;
-      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(10, 15, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      user-select: none;
+      z-index: 25;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
     }
 
+    .hud-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      padding: 3px 8px;
+    }
+    .hud-pill b {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .hud-pill.score b {
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+    }
+    .hud-pill.best b {
+      color: var(--gold);
+      text-shadow: 0 0 10px var(--gold-glow);
+    }
+    .hud-pill.speed {
+      color: #ffaa44;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .hud-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    /* Mobile Touch Steering Controls */
     .touch {
       position: fixed;
-      bottom: 14px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      width: min(92vw, 560px);
+      width: min(92vw, 520px);
       display: none;
       justify-content: space-between;
-      gap: 12px;
+      gap: 16px;
       pointer-events: none;
-      z-index: 20;
+      z-index: 25;
     }
-    .touch button {
+    .touch-btn {
       pointer-events: auto;
-      width: 46%;
-      padding: 16px 0;
-      border-radius: 14px;
-      border: 1px solid #2a3442;
-      background: rgba(18,26,37,.7);
-      color: #e6eefc;
-      font-size: 16px;
+      flex: 1;
+      height: 64px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 140, 26, 0.3);
+      background: rgba(18, 25, 38, 0.82);
+      color: #f1f5f9;
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transition: all 0.1s ease;
+      cursor: pointer;
+    }
+    .touch-btn:active {
+      background: rgba(255, 140, 26, 0.28);
+      border-color: var(--accent);
+      color: #fff;
+      transform: scale(0.96);
+      box-shadow: 0 0 20px var(--accent-glow);
     }
 
+    /* Modals & Overlays */
     .overlay {
       position: fixed;
       inset: 0;
       display: grid;
       place-items: center;
-      background: rgba(0,0,0,0.55);
-      z-index: 30;
+      background: rgba(5, 8, 14, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 35;
       padding: 16px;
+      animation: fadeIn 0.25s ease-out;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.97); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     .panel {
-      width: min(92vw, 520px);
-      border: 1px solid #2a3442;
-      background: rgba(10,14,20,.85);
-      backdrop-filter: blur(8px);
-      border-radius: 18px;
-      padding: 18px;
+      width: min(92vw, 440px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: var(--panel-bg);
+      border-radius: 24px;
+      padding: 26px 24px;
       color: #e6eefc;
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.65), 0 0 0 1px rgba(255, 140, 26, 0.1);
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
+    .game-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(255, 140, 26, 0.12);
+      border: 1px solid rgba(255, 140, 26, 0.3);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
     .panel h1 {
-      margin: 6px 0 10px 0;
-      font-size: 34px;
+      margin: 0 0 4px 0;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #ff8c1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .panel p {
+      margin: 0 0 18px 0;
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.45;
+    }
+
+    /* Score Summary Card */
+    .score-card {
+      width: 100%;
+      background: rgba(10, 15, 24, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .score-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .score-label {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 600;
       letter-spacing: 0.5px;
     }
-    .panel p { margin: 8px 0; opacity: 0.9; }
-
-    .select {
-      width: 100%;
-      display: grid;
-      gap: 8px;
-      text-align: left;
-      margin-top: 14px;
+    .score-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 2px;
     }
-    .select label { font-size: 14px; opacity: 0.9; }
-    select {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid #2a3442;
-      background: #0f1620;
-      color: #e6eefc;
-      font-size: 16px;
-      outline: none;
+    .score-val.highlight {
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+    }
+    .new-record-badge {
+      grid-column: 1 / -1;
+      background: linear-gradient(90deg, rgba(255, 204, 0, 0.15), rgba(255, 140, 0, 0.2));
+      border: 1px solid rgba(255, 204, 0, 0.4);
+      color: #ffd700;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-align: center;
+      display: none;
     }
 
+    /* Difficulty Pills Selector */
+    .diff-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+    .diff-group {
+      display: flex;
+      width: 100%;
+      background: rgba(10, 15, 24, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+      margin-bottom: 18px;
+    }
+    .diff-btn {
+      flex: 1;
+      padding: 9px 10px;
+      border: none;
+      background: transparent;
+      border-radius: 10px;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .diff-btn.active {
+      background: rgba(255, 140, 26, 0.2);
+      color: #ffaa44;
+      box-shadow: 0 0 12px rgba(255, 140, 26, 0.25);
+      font-weight: 700;
+    }
+
+    /* Native select hidden for compatibility */
+    #difficulty { display: none; }
+
+    /* Action Buttons */
     .primary {
       width: 100%;
-      margin-top: 14px;
-      padding: 12px 14px;
+      padding: 13px 20px;
       border-radius: 14px;
-      border: 1px solid #2a3442;
-      background: #121a25;
-      color: #e6eefc;
+      border: none;
+      background: linear-gradient(135deg, #ff8c1a, #ff5500);
+      color: #1a0800;
       font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 8px 24px rgba(255, 140, 26, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
+    .primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(255, 140, 26, 0.5);
+      filter: brightness(1.08);
+    }
+    .primary:active {
+      transform: translateY(0);
+    }
+
     .secondary {
       width: 100%;
       margin-top: 10px;
-      padding: 10px 14px;
+      padding: 11px 18px;
       border-radius: 14px;
-      border: 1px solid #2a3442;
-      background: transparent;
-      color: #e6eefc;
-      font-size: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      opacity: 0.9;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #fff;
     }
 
     .small {
-      margin-top: 10px;
-      font-size: 13px;
-      opacity: 0.8;
-      line-height: 1.35;
+      margin-top: 14px;
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.45;
     }
   </style>
 </head>
-<body> <br><br><br><br><br><br><br><br>
+<body>
+
+  <div class="ambient-glow" aria-hidden="true"></div>
+
+  <!-- Back to Console Navigation -->
+  <div class="nav-bar">
+    <a href="../../index.html" class="nav-btn" title="Back to Pocket Console">‹ Console</a>
+  </div>
+
+  <!-- Modern Floating Racing HUD -->
   <div class="hud" id="hud">
-    <div>Score: <b id="score">0</b></div>
-    <div>Best: <b id="best">0</b></div>
-    <button class="btn" id="restart">Restart</button>
+    <div class="hud-pill score">Score: <b id="score">0</b></div>
+    <div class="hud-pill best">Best: <b id="best">0</b></div>
+    <div class="hud-pill speed" id="speedPill">⚡ <b id="speedVal">120</b> <small>KM/H</small></div>
+    <button class="hud-btn" id="pauseBtn" type="button" title="Pause Game (P / Esc)">⏸</button>
+    <button class="hud-btn" id="restart" type="button" title="Restart Run (R)">🔄</button>
   </div>
 
-  <div id="wrap"> <canvas id="c"></canvas> </div>
+  <div id="wrap">
+    <canvas id="c"></canvas>
+  </div>
 
+  <!-- Touch Steering Buttons for Mobile -->
   <div class="touch" id="touch">
-    <button id="left">◀ Left</button>
-    <button id="right">Right ▶</button>
+    <button class="touch-btn" id="left" type="button">◀ Steer Left</button>
+    <button class="touch-btn" id="right" type="button">Steer Right ▶</button>
   </div>
 
+  <!-- Unified Game Modal (Start, Pause, Game Over) -->
   <div class="overlay" id="overlay">
     <div class="panel">
-      <h1 id="overlayTitle">CAR DODGE</h1>
+      <span class="game-badge" id="overlayBadge">Pocket Console</span>
+      <h1 id="overlayTitle">LANE RUSH</h1>
       <p id="overlaySubtitle">Avoid obstacles. Survive as long as possible.</p>
 
-      <div class="select" id="difficultyBlock">
-        <label for="difficulty">Difficulty</label>
+      <!-- Score Summary on Pause / Game Over -->
+      <div class="score-card" id="scoreCard" style="display:none;">
+        <div id="newRecordBadge" class="new-record-badge">🔥 NEW PERSONAL BEST!</div>
+        <div class="score-item">
+          <span class="score-label">Run Score</span>
+          <span class="score-val highlight" id="modalScoreVal">0</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">High Score</span>
+          <span class="score-val" id="modalBestVal">0</span>
+        </div>
+      </div>
+
+      <!-- Difficulty Selector Pills -->
+      <div id="difficultyBlock" style="width:100%;">
+        <div class="diff-title">Difficulty</div>
+        <div class="diff-group" id="diffGroup">
+          <button type="button" class="diff-btn" data-diff="easy">Cruising</button>
+          <button type="button" class="diff-btn active" data-diff="medium">Highway</button>
+          <button type="button" class="diff-btn" data-diff="hard">Turbo</button>
+        </div>
+        <!-- Hidden select for compatibility -->
         <select id="difficulty">
           <option value="easy">Easy</option>
           <option value="medium" selected>Medium</option>
@@ -182,11 +474,11 @@ html, body {
       </div>
 
       <button class="primary" id="startBtn">Start Game</button>
-      <button class="secondary" id="fsBtn">Full Screen (optional)</button>
+      <button class="secondary" id="fsBtn">Full Screen</button>
+      <a href="../../index.html" class="secondary" id="consoleBtn">Return to Console</a>
 
       <div class="small" id="hint">
-        Controls: Arrow keys / A-D on PC, or touch buttons on mobile.
-        Press R to restart during gameplay.
+        Controls: Arrow keys / A-D to steer • Space / P to pause • R to restart
       </div>
     </div>
   </div>
@@ -201,11 +493,18 @@ html, body {
 
   const scoreEl = document.getElementById("score");
   const bestEl = document.getElementById("best");
+  const speedValEl = document.getElementById("speedVal");
   const restartBtn = document.getElementById("restart");
+  const pauseBtn = document.getElementById("pauseBtn");
 
   const overlay = document.getElementById("overlay");
+  const overlayBadge = document.getElementById("overlayBadge");
   const overlayTitle = document.getElementById("overlayTitle");
   const overlaySubtitle = document.getElementById("overlaySubtitle");
+  const scoreCard = document.getElementById("scoreCard");
+  const modalScoreVal = document.getElementById("modalScoreVal");
+  const modalBestVal = document.getElementById("modalBestVal");
+  const newRecordBadge = document.getElementById("newRecordBadge");
   const difficultySel = document.getElementById("difficulty");
   const difficultyBlock = document.getElementById("difficultyBlock");
   const startBtn = document.getElementById("startBtn");
@@ -260,9 +559,8 @@ html, body {
   let laneCenters = computeLaneCenters();
   let laneDividers = computeLaneDividers();
 
-
   const state = {
-    mode: "menu", // "menu" | "play" | "over"
+    mode: "menu", // "menu" | "play" | "pause" | "over"
     tPrev: performance.now(),
     score: 0,
     best: Number(localStorage.getItem("car_best") || 0),
@@ -278,7 +576,7 @@ html, body {
   const keys = { left:false, right:false };
 
   function isTouchDevice() {
-    return (navigator.maxTouchPoints || 0) > 0;
+    return (navigator.maxTouchPoints || 0) > 0 || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
   }
 
   function setUIForMode() {
@@ -305,6 +603,11 @@ html, body {
       state.spawnEvery = 0.85;
     }
     state.difficulty = diff;
+    difficultySel.value = diff;
+
+    document.querySelectorAll('#diffGroup .diff-btn').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-diff') === diff);
+    });
   }
 
   function resetRun(diff) {
@@ -321,23 +624,66 @@ html, body {
     player.vx = 0;
 
     scoreEl.textContent = "0";
+    if (speedValEl) speedValEl.textContent = Math.round(state.speed * 0.32);
   }
 
   function showMenu() {
     state.mode = "menu";
-    overlayTitle.textContent = "CAR DODGE";
-    overlaySubtitle.textContent = "Avoid obstacles. Survive as long as possible.";
+    overlayBadge.textContent = "Arcade Survival";
+    overlayBadge.style.color = "var(--accent)";
+    overlayBadge.style.borderColor = "rgba(255, 140, 26, 0.3)";
+    overlayTitle.textContent = "LANE RUSH";
+    overlaySubtitle.textContent = "Dodge oncoming traffic. Test your reflex & speed.";
     startBtn.textContent = "Start Game";
-    difficultyBlock.style.display = "grid";
+    difficultyBlock.style.display = "block";
+    scoreCard.style.display = "none";
+    setUIForMode();
+  }
+
+  function pauseGame() {
+    if (state.mode !== "play") return;
+    state.mode = "pause";
+    overlayBadge.textContent = "Paused";
+    overlayBadge.style.color = "var(--cyan)";
+    overlayBadge.style.borderColor = "rgba(0, 255, 204, 0.3)";
+    overlayTitle.textContent = "PAUSED";
+    overlaySubtitle.textContent = "Catch your breath and jump back into the rush.";
+    startBtn.textContent = "Resume";
+    difficultyBlock.style.display = "none";
+
+    scoreCard.style.display = "grid";
+    newRecordBadge.style.display = "none";
+    modalScoreVal.textContent = state.score;
+    modalBestVal.textContent = state.best;
+
+    setUIForMode();
+  }
+
+  function resumeGame() {
+    state.mode = "play";
+    state.tPrev = performance.now();
     setUIForMode();
   }
 
   function showGameOver() {
     state.mode = "over";
+    const isNewBest = state.score > 0 && state.score >= state.best;
+
+    overlayBadge.textContent = "Highway Crash";
+    overlayBadge.style.color = "var(--danger)";
+    overlayBadge.style.borderColor = "rgba(255, 71, 87, 0.3)";
     overlayTitle.textContent = "GAME OVER";
-    overlaySubtitle.textContent = "Try again with a different difficulty if you want.";
+    overlaySubtitle.textContent = isNewBest
+      ? "Phenomenal run! You reached a new personal record!"
+      : "You clipped another vehicle. Dust off and try again!";
     startBtn.textContent = "Play Again";
-    difficultyBlock.style.display = "grid";
+    difficultyBlock.style.display = "block";
+
+    scoreCard.style.display = "grid";
+    newRecordBadge.style.display = isNewBest ? "block" : "none";
+    modalScoreVal.textContent = state.score;
+    modalBestVal.textContent = state.best;
+
     setUIForMode();
   }
 
@@ -393,11 +739,17 @@ html, body {
   window.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = true;
     if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = true;
+    if (e.key === " " || e.key === "Escape" || e.key.toLowerCase() === "p") {
+      e.preventDefault();
+      if (state.mode === "play") pauseGame();
+      else if (state.mode === "pause") resumeGame();
+    }
     if (e.key.toLowerCase() === "r") {
-      if (state.mode === "play") resetRun(state.difficulty);
+      if (state.mode === "play" || state.mode === "pause") resetRun(state.difficulty);
       else showMenu();
     }
   });
+
   window.addEventListener("keyup", (e) => {
     if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") keys.left = false;
     if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") keys.right = false;
@@ -409,14 +761,30 @@ html, body {
   });
 
   startBtn.addEventListener("click", async () => {
+    if (state.mode === "pause") {
+      resumeGame();
+      return;
+    }
     await requestFullScreen();
     resizeCanvas();
     resetRun(difficultySel.value);
     state.mode = "play";
+    state.tPrev = performance.now();
     setUIForMode();
   });
 
   restartBtn.addEventListener("click", () => resetRun(state.difficulty));
+  pauseBtn.addEventListener("click", () => {
+    if (state.mode === "play") pauseGame();
+  });
+
+  // Difficulty Pills click handling
+  document.querySelectorAll('#diffGroup .diff-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const diff = e.currentTarget.getAttribute('data-diff');
+      applyDifficulty(diff);
+    });
+  });
 
   // Entities
   let imgs = {};
@@ -424,59 +792,55 @@ html, body {
   const obstacles = [];
 
   function spawnObstacle() {
-  const choices = [
-    { img: imgs.car2, w: 80, h: 150, type: "car" }, //Obstacles Size
-    { img: imgs.car3, w: 80, h: 150, type: "car" },
-  ];
-  const pick = choices[(Math.random() * choices.length) | 0];
+    const choices = [
+      { img: imgs.car2, w: 80, h: 150, type: "car" },
+      { img: imgs.car3, w: 80, h: 150, type: "car" },
+    ];
+    const pick = choices[(Math.random() * choices.length) | 0];
+    const maxTries = 12;
 
-  const maxTries = 12;
+    for (let attempt = 0; attempt < maxTries; attempt++) {
+      const laneIndex = (Math.random() * LANES) | 0;
+      const x = laneCenters[laneIndex];
+      const y = -140;
 
-  for (let attempt = 0; attempt < maxTries; attempt++) {
-    const laneIndex = (Math.random() * LANES) | 0;
-    const x = laneCenters[laneIndex];
-    const y = -140;
+      const minGap = pick.h + 90;
+      let blocked = false;
 
-    // ❌ Prevent obstacle–obstacle overlap in the SAME lane
-    const minGap = pick.h + 90;
-    let blocked = false;
+      for (const o of obstacles) {
+        const sameLane = Math.abs(o.x - x) < 5;
+        if (!sameLane) continue;
 
-    for (const o of obstacles) {
-      const sameLane = Math.abs(o.x - x) < 5;
-      if (!sameLane) continue;
-
-      const oy = (typeof o.baseY === "number") ? o.baseY : o.y;
-      if (oy < 220 || Math.abs(oy - y) < minGap) {
-        blocked = true;
-        break;
+        const oy = (typeof o.baseY === "number") ? o.baseY : o.y;
+        if (oy < 220 || Math.abs(oy - y) < minGap) {
+          blocked = true;
+          break;
+        }
       }
+
+      if (blocked) continue;
+
+      const speedMul = 0.85 + Math.random() * 0.30;
+      const bobOffset = Math.random() * Math.PI * 2;
+      const bobSpeed = 2 + Math.random() * 1.5;
+      const bobAmount = pick.type === "car" ? 3 : 2;
+
+      obstacles.push({
+        x,
+        y,
+        baseY: y,
+        w: pick.w,
+        h: pick.h,
+        img: pick.img,
+        speedMul,
+        bobOffset,
+        bobSpeed,
+        bobAmount,
+      });
+
+      return;
     }
-
-    if (blocked) continue;
-
-    // Movement variation (already used in your update())
-    const speedMul = 0.85 + Math.random() * 0.30;
-    const bobOffset = Math.random() * Math.PI * 2;
-    const bobSpeed = 2 + Math.random() * 1.5;
-    const bobAmount = pick.type === "car" ? 3 : 2;
-
-    obstacles.push({
-      x,
-      y,
-      baseY: y,
-      w: pick.w,
-      h: pick.h,
-      img: pick.img,
-      speedMul,
-      bobOffset,
-      bobSpeed,
-      bobAmount,
-    });
-
-    return; // ✅ spawned successfully
   }
-}
-
 
   function drawTiled(img, x, y, w, h, offsetY) {
     const tileW = img.width;
@@ -497,6 +861,7 @@ html, body {
       ctx.drawImage(img, x, yy, w, tileH);
     }
   }
+
   function drawRoadInLanes(img, offsetY) {
     for (let i = 0; i < LANES; i++) {
       const x = road.x + (laneW * i);
@@ -544,9 +909,8 @@ html, body {
       spawnObstacle();
     }
 
-    // NEW: obstacle movement variation (speedMul + bobbing)
     for (const o of obstacles) {
-      o.baseY += state.speed * o.speedMul * dt; // different speed per obstacle
+      o.baseY += state.speed * o.speedMul * dt;
       const bob = Math.sin((state.scrollY * 0.02 * o.bobSpeed) + o.bobOffset) * o.bobAmount;
       o.y = o.baseY + bob;
     }
@@ -557,6 +921,7 @@ html, body {
 
     state.score += Math.floor(dt * 120);
     scoreEl.textContent = state.score;
+    if (speedValEl) speedValEl.textContent = Math.round(state.speed * 0.32);
 
     const pBox = {
       x: player.x - player.w/2 + 10,

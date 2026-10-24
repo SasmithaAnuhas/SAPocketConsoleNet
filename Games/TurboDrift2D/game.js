@@ -525,20 +525,43 @@
 
     draw(ctx) {
       ctx.save();
-      ctx.globalAlpha = 0.55;
+      ctx.globalAlpha = 0.6;
       ctx.lineWidth = 3;
-      ctx.strokeStyle = "#e6e6e6";
+      ctx.strokeStyle = "rgba(255, 140, 26, 0.4)";
+      ctx.fillStyle = "rgba(15, 20, 28, 0.75)";
       ctx.beginPath();
       ctx.arc(this.anchorX, this.anchorY, this.radius, 0, Math.PI * 2);
+      ctx.fill();
       ctx.stroke();
-      ctx.globalAlpha = 0.9;
-      ctx.fillStyle = "#f5f5f5";
+
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(this.anchorX - this.radius + 6, this.anchorY);
+      ctx.lineTo(this.anchorX + this.radius - 6, this.anchorY);
+      ctx.stroke();
+
+      ctx.globalAlpha = 0.95;
+      const knobGrad = ctx.createRadialGradient(
+        this.activeX - 4, this.activeY - 4, 2,
+        this.activeX, this.activeY, this.radius * 0.42
+      );
+      knobGrad.addColorStop(0, "#ffffff");
+      knobGrad.addColorStop(0.5, "#ffaa44");
+      knobGrad.addColorStop(1, "#d35400");
+      ctx.fillStyle = knobGrad;
       ctx.beginPath();
       ctx.arc(this.activeX, this.activeY, this.radius * 0.4, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 2;
+      ctx.stroke();
       ctx.restore();
     }
   }
+
+  let pauseGameFn = null;
+  let resumeGameFn = null;
 
   const keys = {
     up: false,
@@ -552,6 +575,13 @@
     if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = true;
     if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
     if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+    if (e.code === "Escape" || e.code === "KeyP") {
+      e.preventDefault();
+      if (gameState.started && !raceFinished) {
+        if (gameState.paused && typeof resumeGameFn === "function") resumeGameFn();
+        else if (!gameState.paused && typeof pauseGameFn === "function") pauseGameFn();
+      }
+    }
   });
 
   window.addEventListener("keyup", (e) => {
@@ -1896,55 +1926,105 @@
 
   const drawHUD = (ctx, elapsed) => {
     ctx.save();
-    const hudX = 12;
-    const hudY = 10;
-    const hudW = 260;
-    const hudLineH = 26;
-    let hudLines = 2;
-    if (gameState.started) {
-      hudLines = gameState.selectedMode.id === "race" ? 3 : 3;
-      if (checkpoints.length) hudLines += 1;
-    }
-    const hudH = 16 + hudLines * hudLineH;
-    ctx.fillStyle = "rgba(10, 10, 12, 0.6)";
+    const hudX = 14;
+    const hudY = 12;
+    const hudW = 270;
+    const hudH = 96 + (checkpoints.length ? 24 : 0) + (getBestTime() ? 24 : 0);
+
+    ctx.fillStyle = "rgba(12, 17, 26, 0.82)";
+    ctx.strokeStyle = "rgba(255, 140, 26, 0.35)";
+    ctx.lineWidth = 1.5;
     if (typeof ctx.roundRect === "function") {
       ctx.beginPath();
-      ctx.roundRect(hudX, hudY, hudW, hudH, 12);
+      ctx.roundRect(hudX, hudY, hudW, hudH, 14);
       ctx.fill();
+      ctx.stroke();
     } else {
       ctx.fillRect(hudX, hudY, hudW, hudH);
+      ctx.strokeRect(hudX, hudY, hudW, hudH);
     }
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "24px sans-serif";
+
     if (!gameState.started) {
-      ctx.fillText("Ready", 24, 36);
-      ctx.fillText(`Mode: ${gameState.selectedMode.label}`, 24, 64);
+      ctx.fillStyle = "#ffaa44";
+      ctx.font = "bold 20px system-ui, sans-serif";
+      ctx.fillText("READY", hudX + 16, hudY + 34);
+      ctx.font = "14px system-ui, sans-serif";
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText(`Mode: ${gameState.selectedMode.label}`, hudX + 16, hudY + 62);
       ctx.restore();
       return;
     }
-    ctx.fillText(`Mode: ${gameState.selectedMode.label}`, 24, 36);
-    const best = getBestTime();
-    if (gameState.selectedMode.id === "time_trial") {
-      ctx.fillText(`Time: ${fmtTime(elapsed)}`, 24, 64);
-      ctx.fillText(`Lap: ${lap}`, 24, 92);
-    } else if (gameState.selectedMode.id === "race") {
-      ctx.fillText(`Lap: ${lap}`, 24, 64);
-      ctx.fillText(`Opponents: ${gameState.selectedMode.mobs}`, 24, 92);
+
+    ctx.fillStyle = "#ff8c1a";
+    ctx.font = "bold 13px system-ui, sans-serif";
+    const modeUpper = (gameState.selectedMode.label || "RACE").toUpperCase();
+    ctx.fillText(modeUpper, hudX + 16, hudY + 28);
+
+    const lapText = `LAP ${lap}/${raceLaps || 3}`;
+    ctx.fillStyle = "#00ffcc";
+    ctx.font = "bold 13px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(lapText, hudX + hudW - 16, hudY + 28);
+    ctx.textAlign = "left";
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 28px monospace, sans-serif";
+    ctx.fillText(fmtTime(elapsed), hudX + 16, hudY + 62);
+
+    const speedKmh = Math.round(Math.abs(car.speed) * 0.28);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 13px system-ui, sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(`${speedKmh} KM/H`, hudX + hudW - 16, hudY + 60);
+    ctx.textAlign = "left";
+
+    const barX = hudX + 16;
+    const barY = hudY + 72;
+    const barW = hudW - 32;
+    const barH = 5;
+    const speedRatio = clamp(Math.abs(car.speed) / (maxSpeed || 800), 0, 1);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+    if (typeof ctx.roundRect === "function") {
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, barW, barH, 3);
+      ctx.fill();
+      if (speedRatio > 0.02) {
+        ctx.fillStyle = speedRatio > 0.8 ? "#ff3b5c" : (speedRatio > 0.4 ? "#ffaa44" : "#00ffcc");
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW * speedRatio, barH, 3);
+        ctx.fill();
+      }
     } else {
-      ctx.fillText(`Lap: ${lap}`, 24, 64);
+      ctx.fillRect(barX, barY, barW, barH);
+      ctx.fillStyle = "#ffaa44";
+      ctx.fillRect(barX, barY, barW * speedRatio, barH);
     }
-    if (best) {
-      ctx.fillText(`Best Lap: ${fmtTime(best)}`, 24, 148);
-    }
+
+    let lineY = barY + 20;
+
     if (checkpoints.length) {
       const passed = Math.max(0, Math.min(checkpoints.length, lastCheckpointIndex + 1));
-      ctx.fillText(`Checkpoint: ${passed}/${checkpoints.length}`, 24, 120);
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "13px system-ui, sans-serif";
+      ctx.fillText(`🏁 Checkpoint: ${passed}/${checkpoints.length}`, hudX + 16, lineY);
+      lineY += 22;
     }
+
+    const best = getBestTime();
+    if (best) {
+      ctx.fillStyle = "#ffcc00";
+      ctx.font = "13px system-ui, sans-serif";
+      ctx.fillText(`🏆 Best Lap: ${fmtTime(best)}`, hudX + 16, lineY);
+    }
+
     ctx.restore();
+
     if (countdownActive && countdownLabel) {
       ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "72px sans-serif";
+      ctx.fillStyle = "#ff8c1a";
+      ctx.shadowColor = "rgba(255, 140, 26, 0.85)";
+      ctx.shadowBlur = 30;
+      ctx.font = "bold 88px system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(countdownLabel, uiViewportWidth / 2, uiViewportHeight / 2);
@@ -1973,25 +2053,40 @@
     steeringStick.draw(CTX);
     CTX.save();
     const drawPedal = (p, label) => {
-      CTX.globalAlpha = p.pressed ? 0.9 : 0.6;
-      CTX.fillStyle = "#111";
-      CTX.strokeStyle = "#e6e6e6";
-      CTX.lineWidth = 3;
+      CTX.save();
+      const isGas = label === "GAS";
+      const accent = isGas ? "#ff8c1a" : "#ff3b5c";
+      CTX.globalAlpha = p.pressed ? 0.95 : 0.72;
+      CTX.fillStyle = p.pressed ? "rgba(35, 20, 15, 0.9)" : "rgba(15, 20, 28, 0.85)";
+      CTX.strokeStyle = p.pressed ? accent : "rgba(255, 255, 255, 0.25)";
+      CTX.lineWidth = p.pressed ? 3 : 2;
+
       if (typeof CTX.roundRect === "function") {
         CTX.beginPath();
-        CTX.roundRect(p.x, p.y, p.w, p.h, 12);
+        CTX.roundRect(p.x, p.y, p.w, p.h, 14);
         CTX.fill();
         CTX.stroke();
       } else {
         CTX.fillRect(p.x, p.y, p.w, p.h);
         CTX.strokeRect(p.x, p.y, p.w, p.h);
       }
-      CTX.globalAlpha = 0.9;
-      CTX.fillStyle = "#fff";
-      CTX.font = "18px sans-serif";
+
+      CTX.strokeStyle = p.pressed ? accent : "rgba(255, 255, 255, 0.12)";
+      CTX.lineWidth = 2;
+      const step = 8;
+      for (let gy = p.y + 12; gy < p.y + p.h - 12; gy += step) {
+        CTX.beginPath();
+        CTX.moveTo(p.x + 10, gy);
+        CTX.lineTo(p.x + p.w - 10, gy);
+        CTX.stroke();
+      }
+
+      CTX.fillStyle = p.pressed ? "#ffffff" : (isGas ? "#ffaa44" : "#ff6b81");
+      CTX.font = "bold 15px system-ui, sans-serif";
       CTX.textAlign = "center";
       CTX.textBaseline = "middle";
       CTX.fillText(label, p.x + p.w / 2, p.y + p.h / 2);
+      CTX.restore();
     };
     drawPedal(pedals.brake, "BRAKE");
     drawPedal(pedals.accel, "GAS");
@@ -2001,6 +2096,8 @@
 
   const showRaceResult = (playerWon, place, total, elapsedMs) => {
     if (!resultOverlay) return;
+    const inGamePauseBtn = document.getElementById("inGamePauseBtn");
+    if (inGamePauseBtn) inGamePauseBtn.classList.add("hidden");
     if (resultTitle) resultTitle.textContent = playerWon ? "You Win!" : "You Lose";
     if (resultSub) {
       resultSub.textContent = playerWon
@@ -2028,6 +2125,10 @@
   let lastTime = performance.now();
 
   const loop = (now) => {
+    if (gameState.paused) {
+      requestAnimationFrame(loop);
+      return;
+    }
     const dt = Math.min((now - lastTime) / 1000, 0.033);
     lastTime = now;
     if (countdownActive) {
@@ -2214,12 +2315,74 @@
       menuOverlay.classList.add("hidden");
     };
 
-    btnStart.addEventListener("click", () => startRace(true));
-    btnRestart?.addEventListener("click", () => startRace(false));
+    const pauseOverlay = document.getElementById("pauseOverlay");
+    const pauseLapVal = document.getElementById("pauseLapVal");
+    const pauseTimeVal = document.getElementById("pauseTimeVal");
+    const inGamePauseBtn = document.getElementById("inGamePauseBtn");
+    const btnResumePause = document.getElementById("btnResumePause");
+    const btnRestartPause = document.getElementById("btnRestartPause");
+    const btnQuitPause = document.getElementById("btnQuitPause");
+
+    let pauseStartTime = null;
+    const pauseGame = () => {
+      if (!gameState.started || raceFinished || gameState.paused) return;
+      gameState.paused = true;
+      pauseStartTime = performance.now();
+      if (pauseLapVal) pauseLapVal.textContent = `${lap} / ${raceLaps || 3}`;
+      if (pauseTimeVal) pauseTimeVal.textContent = fmtTime(lastElapsed);
+      if (pauseOverlay) pauseOverlay.classList.remove("hidden");
+      if (inGamePauseBtn) inGamePauseBtn.classList.add("hidden");
+    };
+
+    const resumeGame = () => {
+      if (!gameState.paused) return;
+      const now = performance.now();
+      const pausedDuration = now - (pauseStartTime || now);
+      if (timerStart !== null) timerStart += pausedDuration;
+      if (lapStartTime !== null) lapStartTime += pausedDuration;
+      lastTime = now;
+      gameState.paused = false;
+      if (pauseOverlay) pauseOverlay.classList.add("hidden");
+      if (inGamePauseBtn && gameState.started && !raceFinished) inGamePauseBtn.classList.remove("hidden");
+    };
+
+    pauseGameFn = pauseGame;
+    resumeGameFn = resumeGame;
+
+    inGamePauseBtn?.addEventListener("click", pauseGame);
+    btnResumePause?.addEventListener("click", resumeGame);
+    btnRestartPause?.addEventListener("click", () => {
+      resumeGame();
+      startRace(false);
+    });
+    btnQuitPause?.addEventListener("click", () => {
+      gameState.paused = false;
+      gameState.started = false;
+      raceFinished = false;
+      hideRaceResult();
+      if (pauseOverlay) pauseOverlay.classList.add("hidden");
+      if (inGamePauseBtn) inGamePauseBtn.classList.add("hidden");
+      showMain();
+      menuOverlay.classList.remove("hidden");
+    });
+
+    btnStart.addEventListener("click", () => {
+      if (inGamePauseBtn) inGamePauseBtn.classList.remove("hidden");
+      if (pauseOverlay) pauseOverlay.classList.add("hidden");
+      gameState.paused = false;
+      startRace(true);
+    });
+    btnRestart?.addEventListener("click", () => {
+      if (inGamePauseBtn) inGamePauseBtn.classList.remove("hidden");
+      if (pauseOverlay) pauseOverlay.classList.add("hidden");
+      gameState.paused = false;
+      startRace(false);
+    });
     btnQuit?.addEventListener("click", () => {
       gameState.started = false;
       raceFinished = false;
       hideRaceResult();
+      if (inGamePauseBtn) inGamePauseBtn.classList.add("hidden");
       showMain();
       menuOverlay.classList.remove("hidden");
     });
