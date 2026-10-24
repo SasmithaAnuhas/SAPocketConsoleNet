@@ -133,9 +133,9 @@
   ];
 
   const MAP_OPTIONS = [
-    { id: "default", label: "Default", file: "map.json" },
-    { id: "city", label: "City", file: "map_city.json" },
-    { id: "desert", label: "Desert", file: "map_desert.json" },
+    { id: "default", label: "Default", file: "maps/map.json" },
+    { id: "city", label: "City", file: "assets/maps/map_city.json" },
+    { id: "desert", label: "Desert", file: "assets/maps/map_desert.json" },
   ];
 
   const gameState = {
@@ -206,9 +206,20 @@
 
   const loadTiledMap = async (mapFile) => {
     try {
-      const res = await fetch(mapFile, { cache: "no-store" });
-      if (!res.ok) return;
-      const map = await res.json();
+      let map = null;
+      if (typeof window !== "undefined" && window.CURRENT_TURBO_MAP) {
+        map = window.CURRENT_TURBO_MAP;
+      } else {
+        let res = await fetch(mapFile, { cache: "no-store" });
+        if (!res.ok) {
+          const altPath = mapFile.startsWith("maps/") ? mapFile.replace("maps/", "") : "maps/" + mapFile;
+          res = await fetch(altPath, { cache: "no-store" });
+        }
+        if (res && res.ok) {
+          map = await res.json();
+        }
+      }
+      if (!map) return;
       const mapProps = Array.isArray(map.properties) ? map.properties : [];
       const lapProp = mapProps.find((p) => p.name === "laps");
       if (lapProp && typeof lapProp.value === "number") {
@@ -575,6 +586,11 @@
     if (e.code === "ArrowDown" || e.code === "KeyS") keys.down = true;
     if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
     if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+    if (e.code === "KeyR" && gameState.started && !raceFinished) {
+      respawnToCheckpoint(lastCheckpointIndex);
+      missedCheckpoint = false;
+      missedIndex = -1;
+    }
     if (e.code === "Escape" || e.code === "KeyP") {
       e.preventDefault();
       if (gameState.started && !raceFinished) {
@@ -663,6 +679,9 @@
   let countdownStart = 0;
   const countdownDuration = 3500;
   let countdownLabel = "";
+  let lapBanner = { text: "", timer: 0 };
+  let missedCheckpoint = false;
+  let missedIndex = -1;
 
   let scale = 1;
   let offsetX = 0;
@@ -1027,12 +1046,30 @@
     );
   };
 
+  const playLapChime = () => {
+    if (!audioUnlocked || !audio.ctx) return;
+    try {
+      const ctx = audio.ctx;
+      const t0 = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, t0);
+      osc.frequency.setValueAtTime(880, t0 + 0.12);
+      gain.gain.setValueAtTime(0.2, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.35);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.35);
+    } catch {}
+  };
+
   const checkpointToRect = (cp) => {
     const xMin = Math.min(cp.x1, cp.x2);
     const yMin = Math.min(cp.y1, cp.y2);
     const xMax = Math.max(cp.x1, cp.x2);
     const yMax = Math.max(cp.y1, cp.y2);
-    return { x: xMin, y: yMin, w: xMax - xMin, h: yMax - yMin };
+    return { x: xMin, y: yMin, w: Math.max(6, xMax - xMin), h: Math.max(6, yMax - yMin) };
   };
 
   const getCheckpointSpawn = (index) => {
@@ -1040,9 +1077,17 @@
     if (!cp) return null;
     const mx = (cp.x1 + cp.x2) / 2;
     const my = (cp.y1 + cp.y2) / 2;
-    const lineAngle = Math.atan2(cp.y2 - cp.y1, cp.x2 - cp.x1);
-    const trackAngle = lineAngle + Math.PI / 2;
-    const backOffset = 30;
+    let trackAngle = 0;
+    if (checkpoints.length > 1) {
+      const nextIndex = (index + 1) % checkpoints.length;
+      const next = checkpoints[nextIndex];
+      const nx = (next.x1 + next.x2) / 2;
+      const ny = (next.y1 + next.y2) / 2;
+      trackAngle = Math.atan2(ny - my, nx - mx);
+    } else {
+      trackAngle = Math.atan2(cp.y2 - cp.y1, cp.x2 - cp.x1) + Math.PI / 2;
+    }
+    const backOffset = 25;
     return {
       x: mx - Math.cos(trackAngle) * backOffset,
       y: my - Math.sin(trackAngle) * backOffset,
@@ -1184,9 +1229,12 @@
         }
       }
       if (crossedIndex !== -1) {
+        const finishIndex = checkpoints.length - 1;
         if (crossedIndex === currentCheckpoint) {
           lastCheckpointIndex = crossedIndex;
           currentCheckpoint += 1;
+          missedCheckpoint = false;
+          missedIndex = -1;
           if (currentCheckpoint >= checkpoints.length) {
             currentCheckpoint = 0;
             lap += 1;
@@ -1196,14 +1244,27 @@
               setBestTime(lapElapsed);
               lapStartTime = now;
             }
+            playLapChime();
+            lapBanner = {
+              text: lap > raceLaps ? "FINISH!" : (lap === raceLaps ? "FINAL LAP!" : `LAP ${lap}`),
+              timer: 2.2,
+            };
             if (lap > raceLaps) {
               raceFinished = true;
               const total = (gameState.selectedMode?.mobs || 0) + 1;
               showRaceResult(true, 1, total, lastElapsed);
             }
           }
+        } else if (crossedIndex === finishIndex && currentCheckpoint === 0 && lap === 1) {
+          if (lapStartTime === null) lapStartTime = performance.now();
         } else if (crossedIndex > currentCheckpoint) {
-          respawnToCheckpoint(lastCheckpointIndex);
+          missedCheckpoint = true;
+          missedIndex = currentCheckpoint;
+        } else if (crossedIndex === missedIndex) {
+          missedCheckpoint = false;
+          lastCheckpointIndex = crossedIndex;
+          currentCheckpoint = crossedIndex + 1;
+          missedIndex = -1;
         }
       }
     }
@@ -1419,13 +1480,14 @@
     if (mobCount <= 0) return;
     const useTrack = trackLength > 0;
     const useCheckpoints = aiCheckpoints.length > 0;
-    const aiBaseSpeed = 160;
-    const aiStepSpeed = 20;
+    const aiBaseSpeed = 265;
+    const aiStepSpeed = 25;
     for (let i = 0; i < mobCount; i++) {
       const aiImage = assets.images.aiCars.length
         ? assets.images.aiCars[i % assets.images.aiCars.length]
         : assets.images.car;
       const spawn = aiSpawnPoints[i];
+      const laneOffset = i % 2 === 0 ? -16 : 16;
       if (spawn) {
         const useTrackFromSpawn = useTrack && !useCheckpoints;
         const spawnT = useTrackFromSpawn ? nearestTrackT(spawn.x, spawn.y) : 0;
@@ -1451,6 +1513,7 @@
           steerY: 0,
           bumpTimer: 0,
           hitSlowTimer: 0,
+          laneOffset,
         });
       } else if (useTrack) {
         aiCars.push({
@@ -1470,6 +1533,7 @@
           steerY: 0,
           bumpTimer: 0,
           hitSlowTimer: 0,
+          laneOffset,
         });
       } else if (useCheckpoints) {
         const first = aiCheckpoints[0];
@@ -1495,6 +1559,7 @@
           steerY: 0,
           bumpTimer: 0,
           hitSlowTimer: 0,
+          laneOffset,
         });
       }
     }
@@ -1564,32 +1629,54 @@
         surfacePos = { x: ai.x, y: ai.y };
       }
       const aiSurface = surfacePos ? getSurfaceAt(surfacePos.x, surfacePos.y) : "none";
-      const aiSpeedFactor = aiSurface === "ground" ? 0.55 : 1;
+      const aiSpeedFactor = aiSurface === "ground" ? 0.6 : 1;
       const baseSpeed = Number.isFinite(ai.baseSpeed) ? ai.baseSpeed : ai.speed;
       const hitSlow = ai.hitSlowTimer > 0 ? 0.7 : 1;
-      const stepSpeed = baseSpeed * hitSlow * aiSpeedFactor;
+
       if (ai.useTrack) {
+        const stepSpeed = baseSpeed * hitSlow * aiSpeedFactor;
         ai.t = (ai.t + (stepSpeed * dt) / Math.max(trackLength, 1)) % 1;
         continue;
       }
       if (!aiCheckpoints.length) continue;
       ai.lastX = ai.x;
       ai.lastY = ai.y;
+
       const target = aiCheckpoints[ai.checkpointIndex % aiCheckpoints.length];
+      const nextTarget = aiCheckpoints[(ai.checkpointIndex + 1) % aiCheckpoints.length];
       const dx = target.x - ai.x;
       const dy = target.y - ai.y;
       const targetDist = Math.hypot(dx, dy);
+
+      // Smooth waypoint blending when entering apex
+      let steerTargetX = target.x;
+      let steerTargetY = target.y;
+      if (nextTarget && targetDist < 85) {
+        const blend = (85 - targetDist) / 85;
+        steerTargetX = lerp(target.x, nextTarget.x, blend * 0.55);
+        steerTargetY = lerp(target.y, nextTarget.y, blend * 0.55);
+      }
+
+      // Lane offset perpendicular to movement
+      const tdx = steerTargetX - ai.x;
+      const tdy = steerTargetY - ai.y;
+      const tDist = Math.hypot(tdx, tdy) || 1;
+      const perpX = (-tdy / tDist) * (ai.laneOffset || 0);
+      const perpY = (tdx / tDist) * (ai.laneOffset || 0);
+      const aimX = steerTargetX + perpX;
+      const aimY = steerTargetY + perpY;
+
       const avoid = computeAvoidance(ai.x, ai.y, ai);
       const surfaceHere = getSurfaceAt(ai.x, ai.y);
       const roadDir = surfaceHere !== "road" ? findRoadDirection(ai.x, ai.y) : null;
-      const targetDir = normalize(dx, dy);
+      const targetDir = normalize(aimX - ai.x, aimY - ai.y);
       const avoidDir = normalize(avoid.x, avoid.y);
-      const roadBias = roadDir ? 1.2 : 0;
-      const avoidBias = 0.6;
+      const roadBias = roadDir ? 1.5 : 0;
+      const avoidBias = 0.65;
       const mixX = targetDir.x + avoidDir.x * avoidBias + (roadDir ? roadDir.x * roadBias : 0);
       const mixY = targetDir.y + avoidDir.y * avoidBias + (roadDir ? roadDir.y * roadBias : 0);
       const desiredDir = normalize(mixX, mixY);
-      const steerLerp = 0.18;
+      const steerLerp = 0.22;
       if (!Number.isFinite(ai.steerX) || !Number.isFinite(ai.steerY)) {
         ai.steerX = desiredDir.x;
         ai.steerY = desiredDir.y;
@@ -1598,11 +1685,34 @@
         ai.steerY = lerp(ai.steerY, desiredDir.y, steerLerp);
       }
       const desiredAngle = Math.atan2(ai.steerY, ai.steerX);
-      const turnRate = 1.8;
+      const turnRate = 4.0;
       let angleDiff = desiredAngle - (ai.turnAngle ?? ai.angle);
       angleDiff = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
       ai.turnAngle = (ai.turnAngle ?? ai.angle) + clamp(angleDiff, -turnRate * dt, turnRate * dt);
       ai.angle = ai.turnAngle;
+
+      // Intelligent cornering speed regulation
+      const absDiff = Math.abs(angleDiff);
+      let cornerFactor = 1.0;
+      if (absDiff > 0.75) {
+        cornerFactor = 0.55;
+      } else if (absDiff > 0.35) {
+        cornerFactor = 0.75;
+      } else if (absDiff < 0.15) {
+        cornerFactor = 1.10;
+      }
+
+      // Dynamic rubber-banding to keep racing close & fun
+      let rubberBand = 1.0;
+      const playerProgress = (lap - 1) * checkpoints.length + currentCheckpoint;
+      const aiProgress = (ai.lap - 1) * checkpoints.length + ai.checkpointIndex;
+      if (playerProgress > aiProgress + 1) {
+        rubberBand = 1.08;
+      } else if (aiProgress > playerProgress + 2) {
+        rubberBand = 0.92;
+      }
+
+      const stepSpeed = baseSpeed * hitSlow * aiSpeedFactor * cornerFactor * rubberBand;
       ai.x += Math.cos(ai.angle) * stepSpeed * dt;
       ai.y += Math.sin(ai.angle) * stepSpeed * dt;
 
@@ -1630,15 +1740,15 @@
           const sign = mtv.x * Math.cos(aInfo.angle) + mtv.y * Math.sin(aInfo.angle) >= 0 ? 1 : -1;
           ai.t = (ai.t + sign * 0.006 + 1) % 1;
         } else if (typeof ai.x === "number" && typeof ai.y === "number") {
-          ai.x -= mtv.x * 0.4;
-          ai.y -= mtv.y * 0.4;
+          ai.x -= mtv.x * 0.45;
+          ai.y -= mtv.y * 0.45;
         }
         if (other.useTrack) {
           const sign = mtv.x * Math.cos(bInfo.angle) + mtv.y * Math.sin(bInfo.angle) < 0 ? 1 : -1;
           other.t = (other.t + sign * 0.006 + 1) % 1;
         } else if (typeof other.x === "number" && typeof other.y === "number") {
-          other.x += mtv.x * 0.4;
-          other.y += mtv.y * 0.4;
+          other.x += mtv.x * 0.45;
+          other.y += mtv.y * 0.45;
         }
         ai.hitSlowTimer = Math.max(ai.hitSlowTimer || 0, 0.2);
         other.hitSlowTimer = Math.max(other.hitSlowTimer || 0, 0.2);
@@ -1646,36 +1756,31 @@
 
       if (checkpoints.length) {
         const expected = ai.checkpointIndex % checkpoints.length;
-        let crossedIndex = -1;
+        let crossed = false;
         for (let i = 0; i < checkpoints.length; i++) {
           const cp = checkpoints[i];
           const rect = checkpointToRect(cp);
           if (segmentIntersectsRect(ai.lastX, ai.lastY, ai.x, ai.y, rect)) {
-            crossedIndex = i;
-            break;
+            if (i === expected) {
+              crossed = true;
+              break;
+            }
           }
         }
-        if (crossedIndex !== -1) {
-          if (crossedIndex === expected) {
-            ai.lastCheckpointIndex = crossedIndex;
-            ai.checkpointIndex += 1;
-            if (ai.checkpointIndex >= checkpoints.length) {
-              ai.checkpointIndex = 0;
-              ai.lap += 1;
-              if (ai.lap > raceLaps) {
-                ai.finished = true;
-                raceFinished = true;
-                const total = (gameState.selectedMode?.mobs || 0) + 1;
-                showRaceResult(false, 2, total, lastElapsed);
-              }
-            }
-          } else if (crossedIndex > expected) {
-            const backIdx = ai.lastCheckpointIndex >= 0 ? ai.lastCheckpointIndex : 0;
-            const back = aiCheckpoints[backIdx];
-            if (back) {
-              ai.x = back.x;
-              ai.y = back.y;
-              ai.speed *= 0.2;
+        if (!crossed && targetDist < 60) {
+          crossed = true;
+        }
+        if (crossed) {
+          ai.lastCheckpointIndex = expected;
+          ai.checkpointIndex += 1;
+          if (ai.checkpointIndex >= checkpoints.length) {
+            ai.checkpointIndex = 0;
+            ai.lap += 1;
+            if (ai.lap > raceLaps) {
+              ai.finished = true;
+              raceFinished = true;
+              const total = (gameState.selectedMode?.mobs || 0) + 1;
+              showRaceResult(false, 2, total, lastElapsed);
             }
           }
         }
@@ -1913,14 +2018,97 @@
   const drawCheckpointArrow = (ctx, img) => {
     if (!checkpoints.length) return;
     if (!img) return;
-    const cp = checkpoints[currentCheckpoint];
+    const targetIdx = (missedCheckpoint && missedIndex >= 0) ? missedIndex : currentCheckpoint;
+    const cp = checkpoints[targetIdx];
+    if (!cp) return;
     const mx = (cp.x1 + cp.x2) / 2;
     const my = (cp.y1 + cp.y2) / 2;
-    const angle = Math.atan2(cp.y2 - cp.y1, cp.x2 - cp.x1) + Math.PI / 2;
+    const nextIndex = (targetIdx + 1) % checkpoints.length;
+    const next = checkpoints[nextIndex];
+    let angle = 0;
+    if (next) {
+      const nx = (next.x1 + next.x2) / 2;
+      const ny = (next.y1 + next.y2) / 2;
+      angle = Math.atan2(ny - my, nx - mx);
+    } else {
+      angle = Math.atan2(cp.y2 - cp.y1, cp.x2 - cp.x1) + Math.PI / 2;
+    }
     ctx.save();
     ctx.translate(mx, my);
     ctx.rotate(angle);
     ctx.drawImage(img, -32, -32, 64, 64);
+    ctx.restore();
+  };
+
+  const drawMissedCheckpointMarker = (ctx) => {
+    if (!missedCheckpoint || missedIndex < 0 || !checkpoints[missedIndex]) return;
+    const cp = checkpoints[missedIndex];
+    const mx = (cp.x1 + cp.x2) / 2;
+    const my = (cp.y1 + cp.y2) / 2;
+    const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.012);
+    ctx.save();
+    ctx.strokeStyle = `rgba(255, 45, 85, ${0.8 + 0.2 * pulse})`;
+    ctx.lineWidth = 5;
+    ctx.shadowColor = "rgba(255, 45, 85, 0.9)";
+    ctx.shadowBlur = 18;
+    ctx.beginPath();
+    ctx.arc(mx, my, 45 + pulse * 14, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(255, 45, 85, 0.28)";
+    ctx.fill();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 26px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("!", mx, my);
+    ctx.restore();
+  };
+
+  const drawStartFinishLine = (ctx) => {
+    if (!checkpoints.length) return;
+    const finishCP = checkpoints[checkpoints.length - 1];
+    if (!finishCP) return;
+    const xMin = Math.min(finishCP.x1, finishCP.x2);
+    const yMin = Math.min(finishCP.y1, finishCP.y2);
+    const w = Math.max(6, Math.abs(finishCP.x2 - finishCP.x1));
+    const h = Math.max(6, Math.abs(finishCP.y2 - finishCP.y1));
+
+    ctx.save();
+    const isVertical = h > w;
+    const squareSize = 14;
+    const cols = Math.max(2, Math.round(w / squareSize));
+    const rows = Math.max(2, Math.round(h / squareSize));
+    const cellW = w / cols;
+    const cellH = h / rows;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        ctx.fillStyle = (r + c) % 2 === 0 ? "#ffffff" : "#111111";
+        ctx.fillRect(xMin + c * cellW, yMin + r * cellH, cellW, cellH);
+      }
+    }
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(xMin, yMin, w, h);
+
+    if (isVertical) {
+      ctx.fillStyle = "#e11d48";
+      ctx.fillRect(xMin - 4, yMin - 8, w + 8, 8);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(xMin, yMin - 8, (w + 8) / 2, 8);
+      ctx.fillStyle = "#e11d48";
+      ctx.fillRect(xMin - 4, yMin + h, w + 8, 8);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(xMin, yMin + h, (w + 8) / 2, 8);
+    } else {
+      ctx.fillStyle = "#e11d48";
+      ctx.fillRect(xMin - 8, yMin - 4, 8, h + 8);
+      ctx.fillStyle = "#e11d48";
+      ctx.fillRect(xMin + w, yMin - 4, 8, h + 8);
+    }
     ctx.restore();
   };
 
@@ -1982,7 +2170,7 @@
     const barY = hudY + 72;
     const barW = hudW - 32;
     const barH = 5;
-    const speedRatio = clamp(Math.abs(car.speed) / (maxSpeed || 800), 0, 1);
+    const speedRatio = clamp(Math.abs(car.speed) / 440, 0, 1);
     ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
     if (typeof ctx.roundRect === "function") {
       ctx.beginPath();
@@ -2030,6 +2218,51 @@
       ctx.fillText(countdownLabel, uiViewportWidth / 2, uiViewportHeight / 2);
       ctx.restore();
     }
+
+    if (missedCheckpoint) {
+      ctx.save();
+      const pulse = 0.82 + 0.18 * Math.sin(performance.now() * 0.009);
+      const boxW = 410;
+      const boxH = 50;
+      const boxX = (uiViewportWidth - boxW) / 2;
+      const boxY = 82;
+
+      ctx.fillStyle = `rgba(225, 29, 72, ${0.92 * pulse})`;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 2.5;
+      if (typeof ctx.roundRect === "function") {
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.fillRect(boxX, boxY, boxW, boxH);
+        ctx.strokeRect(boxX, boxY, boxW, boxH);
+      }
+
+      ctx.fillStyle = "#ffffff";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+      ctx.shadowBlur = 8;
+      ctx.font = "bold 18px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⚠️ MISSED CHECKPOINT! TURN BACK", uiViewportWidth / 2, boxY + boxH / 2);
+      ctx.restore();
+    }
+
+    if (lapBanner && lapBanner.timer > 0) {
+      ctx.save();
+      const alpha = Math.min(1, lapBanner.timer);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "#ffcc00";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.9)";
+      ctx.shadowBlur = 24;
+      ctx.font = "bold 56px system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(lapBanner.text, uiViewportWidth / 2, uiViewportHeight / 2 - 80);
+      ctx.restore();
+    }
   };
 
   const render = (elapsed) => {
@@ -2041,7 +2274,11 @@
     }
     if (tiledTrackTiles.length) {
       drawTiledTrack(CTX);
+    } else if (trackPath && trackPath.length > 1) {
+      drawTrack(CTX, assets.images.road);
     }
+    drawStartFinishLine(CTX);
+    drawMissedCheckpointMarker(CTX);
     drawWalls(CTX, assets.images.wall);
     drawObstacles(CTX, assets.images.obstacle);
     drawCheckpointArrow(CTX, assets.images.checkpoint);
@@ -2145,6 +2382,9 @@
       }
     } else {
       countdownLabel = "";
+    }
+    if (lapBanner && lapBanner.timer > 0) {
+      lapBanner.timer = Math.max(0, lapBanner.timer - dt);
     }
     updatePhysics(dt);
     updateAutoZoom(dt);
@@ -2301,6 +2541,9 @@
       lap = 1;
       currentCheckpoint = 0;
       lastCheckpointIndex = -1;
+      lapBanner = { text: "", timer: 0 };
+      missedCheckpoint = false;
+      missedIndex = -1;
       respawnToCheckpoint(-1);
       timerStart = null;
       lastElapsed = 0;
@@ -2312,6 +2555,8 @@
       countdownLabel = "3";
       car.speed = 0;
       gameState.started = true;
+      if (inGamePauseBtn) inGamePauseBtn.classList.remove("hidden");
+      if (pauseOverlay) pauseOverlay.classList.add("hidden");
       menuOverlay.classList.add("hidden");
     };
 

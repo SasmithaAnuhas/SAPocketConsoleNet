@@ -943,6 +943,8 @@ let enemies = [];
 let collectibles = [];
 let springs = [];
 let particles = [];
+let signboards = [];
+let isGameLoopRunning = false;
 let animTick = 0;
 
 function spawnPopCoin(x, y) {
@@ -953,13 +955,17 @@ function spawnPopCoin(x, y) {
 }
 
 function initLevel() {
-    const grid = LEVEL_1_ASCII.map(r => r.split(''));
+    const mapSource = (typeof window !== 'undefined' && window.CURRENT_LEVEL_MAP && Array.isArray(window.CURRENT_LEVEL_MAP)) 
+        ? window.CURRENT_LEVEL_MAP 
+        : LEVEL_1_ASCII;
+    const grid = mapSource.map(r => r.split(''));
     tileMap = new TileMap(grid);
     camera = new Camera();
     enemies = [];
     collectibles = [];
     springs = [];
     particles = [];
+    signboards = [];
 
     gameStateData.health = 3;
     gameStateData.score = 0;
@@ -977,6 +983,12 @@ function initLevel() {
             if (char === 'P') {
                 startX = px + 12;
                 startY = py + 14;
+                grid[r][c] = '.';
+            } else if (char === '>') {
+                signboards.push({ x: px, y: py, key: 'sign_right' });
+                grid[r][c] = '.';
+            } else if (char === 'X') {
+                signboards.push({ x: px, y: py, key: 'sign_exit' });
                 grid[r][c] = '.';
             } else if (char === 'S') {
                 enemies.push(new SlimeEnemy(px + 8, py + 28));
@@ -1002,6 +1014,24 @@ function initLevel() {
             }
         }
     }
+
+    // Ensure Start and Exit boards exist even if omitted from custom map
+    const hasStartSign = signboards.some(s => s.key === 'sign_right');
+    const hasExitSign = signboards.some(s => s.key === 'sign_exit');
+
+    if (!hasStartSign) {
+        signboards.push({ x: startX + 64, y: startY, key: 'sign_right' });
+    }
+    if (!hasExitSign) {
+        const flagItem = collectibles.find(c => c.type === 'flag');
+        if (flagItem) {
+            signboards.push({ x: flagItem.x - 56, y: flagItem.y, key: 'sign_exit' });
+        }
+    }
+
+    // Snap camera smoothly to start position
+    camera.x = Math.max(0, Math.min(startX - CONFIG.WIDTH * 0.35, tileMap.width - CONFIG.WIDTH));
+    camera.y = Math.max(0, Math.min(startY - CONFIG.HEIGHT * 0.65, tileMap.height - CONFIG.HEIGHT));
 
     player = new Player(startX, startY);
     updateHUD();
@@ -1067,6 +1097,9 @@ function resetGame() {
     }
     initLevel();
     currentGameState = 'PLAYING';
+    if (!isGameLoopRunning) {
+        gameLoop();
+    }
 }
 
 function startGame() {
@@ -1078,12 +1111,16 @@ function startGame() {
     }
     initLevel();
     currentGameState = 'PLAYING';
+    if (!isGameLoopRunning) {
+        gameLoop();
+    }
 }
 
 // ==========================================
 // 7. MAIN GAME LOOP
 // ==========================================
 function gameLoop() {
+    isGameLoopRunning = true;
     animTick++;
     ctx.clearRect(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT);
 
@@ -1167,17 +1204,17 @@ function gameLoop() {
                     collectibles.splice(i, 1);
                 } else if (item.type === 'flag') {
                     triggerVictory();
-                    return;
+                    break;
                 }
                 updateHUD();
             }
         }
+    }
 
-        // Update Particles
-        for (let i = particles.length - 1; i >= 0; i--) {
-            particles[i].update();
-            if (particles[i].life <= 0) particles.splice(i, 1);
-        }
+    // Update Particles (runs across all states so victory confetti/bursts animate)
+    for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        if (particles[i].life <= 0) particles.splice(i, 1);
     }
 
     // 2. RENDER PARALLAX BACKGROUND
@@ -1211,23 +1248,24 @@ function gameLoop() {
     ctx.save();
     ctx.translate(-Math.round(camera.x), -Math.round(camera.y));
 
-    // Signposts
-    if (assets.isReady('sign_right')) {
-        ctx.drawImage(assets.get('sign_right'), CONFIG.TILE_SIZE * 4, CONFIG.TILE_SIZE * 8, 64, 64);
-    }
-    if (assets.isReady('sign_exit')) {
-        ctx.drawImage(assets.get('sign_exit'), CONFIG.TILE_SIZE * 90, CONFIG.TILE_SIZE * 6, 64, 64);
-    }
+    // Spring Pads
+    springs.forEach(s => s.draw(ctx));
+
+    // Level Tiles (drawn before signboards and entities)
+    tileMap.draw(ctx, camera.x, camera.y);
+
+    // Bushes & Decor
     if (assets.isReady('bush')) {
         ctx.drawImage(assets.get('bush'), CONFIG.TILE_SIZE * 16, CONFIG.TILE_SIZE * 8, 64, 64);
         ctx.drawImage(assets.get('bush'), CONFIG.TILE_SIZE * 52, CONFIG.TILE_SIZE * 6, 64, 64);
     }
 
-    // Spring Pads
-    springs.forEach(s => s.draw(ctx));
-
-    // Level Tiles
-    tileMap.draw(ctx, camera.x, camera.y);
+    // Signposts / Banners (drawn ON TOP of terrain so they are fully visible!)
+    signboards.forEach(sign => {
+        if (assets.isReady(sign.key)) {
+            ctx.drawImage(assets.get(sign.key), sign.x, sign.y, 64, 64);
+        }
+    });
 
     // Collectibles & Flag
     collectibles.forEach(item => item.draw(ctx, animTick));
