@@ -207,8 +207,8 @@
   const loadTiledMap = async (mapFile) => {
     try {
       let map = null;
-      if (typeof window !== "undefined" && window.CURRENT_TURBO_MAP) {
-        map = window.CURRENT_TURBO_MAP;
+      if (typeof window !== "undefined" && window.CURRENT_TURBO_MAP && (!mapFile || mapFile.includes("map.json"))) {
+        map = window.CURRENT_TURBO_MAP.tiled || window.CURRENT_TURBO_MAP;
       } else {
         let res = await fetch(mapFile, { cache: "no-store" });
         if (!res.ok) {
@@ -220,6 +220,180 @@
         }
       }
       if (!map) return;
+
+      // Universal self-describing map loader for Map Editor files
+      if (typeof window !== "undefined" && window.CURRENT_TURBO_MAP && Array.isArray(window.CURRENT_TURBO_MAP.grid)) {
+        const currentLevel = window.CURRENT_TURBO_MAP;
+        const grid = currentLevel.grid || [];
+        const assetsMap = currentLevel.assets || {};
+        const mapW = grid.length && grid[0] ? grid[0].length : 14;
+        const mapH = grid.length || 10;
+        const tileW = currentLevel.tileSize || 128;
+        const tileH = currentLevel.tileSize || 128;
+
+        map.width = mapW;
+        map.height = mapH;
+        map.tilewidth = tileW;
+        map.tileheight = tileH;
+
+        // Build dynamic tilesets for every asset in assetsMap
+        const assetEntries = Object.entries(assetsMap);
+        const fileToGid = new Map();
+        const tilesets = [];
+        let nextGid = 1;
+
+        for (const [sym, filename] of assetEntries) {
+          if (filename && !fileToGid.has(filename)) {
+            fileToGid.set(filename, nextGid);
+            const isCar = filename.startsWith('car_') || filename.startsWith('car.');
+            tilesets.push({
+              firstgid: nextGid,
+              name: filename.replace(/\.png$/i, ''),
+              image: isCar ? 'assets/cars/' + filename : 'assets/tiles/' + filename,
+              tilewidth: tileW,
+              tileheight: tileH,
+              imagewidth: tileW,
+              imageheight: tileH,
+              columns: 1,
+              tilecount: 1
+            });
+            nextGid++;
+          }
+        }
+        map.tilesets = tilesets;
+
+        const groundData = new Array(mapW * mapH).fill(0);
+        const roadData = new Array(mapW * mapH).fill(0);
+        const objectData = new Array(mapW * mapH).fill(0);
+
+        const defaultGroundFilename = assetsMap['.'] || 'land_grass02.png';
+        const defaultGroundGid = fileToGid.get(defaultGroundFilename) || 1;
+
+        let spawnP = null;
+        const spawnsA = [];
+        let finishCell = null;
+        const roadCells = [];
+        const sceneryObstacles = [];
+
+        for (let y = 0; y < mapH; y++) {
+          for (let x = 0; x < mapW; x++) {
+            const ch = (grid[y] && grid[y][x]) || '.';
+            const idx = y * mapW + x;
+            const filename = assetsMap[ch];
+            const gid = filename ? fileToGid.get(filename) : 0;
+
+            // 1. Ground Layer: painted for all cells except empty space ' ' (deleted ground)
+            if (ch !== ' ') {
+              groundData[idx] = defaultGroundGid;
+            }
+
+            // 2. Identify if this cell has a road tile
+            const fnLower = (filename || '').toLowerCase();
+            const isRoad = ch === 'F' || ch === '|' || ch === '-' ||
+                           fnLower.includes('road') || fnLower.includes('asphalt');
+
+            if (isRoad) {
+              roadData[idx] = gid || defaultGroundGid;
+              roadCells.push({ x, y, ch });
+              if (ch === 'F' || fnLower.includes('asphalt07')) {
+                finishCell = { x, y };
+              }
+            } else if (ch === 'P') {
+              spawnP = { x: x * tileW + tileW / 2, y: y * tileH + tileH / 2 };
+              const roadGid = fileToGid.get('road_asphalt02.png') || 2;
+              roadData[idx] = roadGid;
+              roadCells.push({ x, y, ch: '-' });
+            } else if (ch === 'A') {
+              spawnsA.push({ x: x * tileW + tileW / 2, y: y * tileH + tileH / 2 });
+              const roadGid = fileToGid.get('road_asphalt02.png') || 2;
+              roadData[idx] = roadGid;
+              roadCells.push({ x, y, ch: '-' });
+            } else if (ch !== '.' && ch !== ' ' && gid) {
+              // 3. Scenery / Obstacle tile (trees, rocks, barrels, cones, tents, grandstands, barriers, oil)
+              objectData[idx] = gid;
+              sceneryObstacles.push({
+                x: x * tileW,
+                y: y * tileH,
+                w: tileW,
+                h: tileH,
+                isRect: true
+              });
+            }
+          }
+        }
+
+        map.layers = [
+          { name: "Ground", type: "tilelayer", data: groundData, width: mapW, height: mapH, opacity: 1, visible: true },
+          { name: "Road", type: "tilelayer", data: roadData, width: mapW, height: mapH, opacity: 1, visible: true },
+          { name: "Objects", type: "tilelayer", data: objectData, width: mapW, height: mapH, opacity: 1, visible: true }
+        ];
+
+        // Player spawn positioning
+        if (!spawnP) {
+          if (finishCell) {
+            spawnP = { x: finishCell.x * tileW + tileW / 2, y: finishCell.y * tileH + tileH / 2 };
+          } else if (roadCells.length) {
+            spawnP = { x: roadCells[0].x * tileW + tileW / 2, y: roadCells[0].y * tileH + tileH / 2 };
+          } else {
+            spawnP = { x: 320, y: 360 };
+          }
+        }
+        car.x = spawnP.x;
+        car.y = spawnP.y;
+        startSpawn = { x: car.x, y: car.y, angle: 0 };
+
+        // AI spawns positioning
+        if (spawnsA.length) {
+          aiSpawnPoints = spawnsA.map((p) => ({ x: p.x, y: p.y, angle: 0 }));
+        } else {
+          aiSpawnPoints = [
+            { x: spawnP.x - 60, y: spawnP.y + 20, angle: 0 },
+            { x: spawnP.x - 110, y: spawnP.y - 20, angle: 0 }
+          ];
+        }
+
+        // Obstacles list
+        if (sceneryObstacles.length) {
+          obstacles = sceneryObstacles;
+          hasMapObstacles = true;
+        }
+
+        // Circuit Checkpoints
+        const baseCheckpoints = [
+          { x1: 1400, y1: 550, x2: 1548, y2: 550 },
+          { x1: 1400, y1: 430, x2: 1548, y2: 430 },
+          { x1: 1320, y1: 246, x2: 1320, y2: 394 },
+          { x1: 1024, y1: 246, x2: 1024, y2: 394 },
+          { x1: 640, y1: 246, x2: 640, y2: 394 },
+          { x1: 440, y1: 246, x2: 440, y2: 394 },
+          { x1: 246, y1: 400, x2: 394, y2: 400 },
+          { x1: 246, y1: 650, x2: 394, y2: 650 },
+          { x1: 246, y1: 780, x2: 394, y2: 780 },
+          { x1: 400, y1: 886, x2: 400, y2: 1034 },
+          { x1: 650, y1: 886, x2: 650, y2: 1034 },
+          { x1: 910, y1: 886, x2: 910, y2: 1034 },
+          { x1: 886, y1: 780, x2: 1034, y2: 780 },
+          { x1: 970, y1: 630, x2: 970, y2: 778 },
+          { x1: 1200, y1: 630, x2: 1232, y2: 778 }
+        ];
+
+        if (finishCell) {
+          const fx = finishCell.x * tileW;
+          const fy = finishCell.y * tileH;
+          baseCheckpoints[baseCheckpoints.length - 1] = {
+            x1: fx + tileW / 2 - 10,
+            y1: fy,
+            x2: fx + tileW / 2 + 10,
+            y2: fy + tileH
+          };
+        }
+
+        checkpoints = baseCheckpoints;
+        hasMapCheckpoints = true;
+        currentCheckpoint = 0;
+        lastCheckpointIndex = -1;
+      }
+
       const mapProps = Array.isArray(map.properties) ? map.properties : [];
       const lapProp = mapProps.find((p) => p.name === "laps");
       if (lapProp && typeof lapProp.value === "number") {
@@ -1956,6 +2130,7 @@
     if (!obstacles.length) return ctx.restore();
     if (!obsImg) return ctx.restore();
     for (const obs of obstacles) {
+      if (obs.isRect || typeof obs.r !== "number") continue;
       const size = obs.r * 2;
       ctx.drawImage(obsImg, obs.x - size / 2, obs.y - size / 2, size, size);
     }
@@ -2271,8 +2446,7 @@
     CTX.setTransform(scale, 0, 0, scale, offsetX, offsetY);
     if (tiledTileLayers.length) {
       drawTileLayers(CTX);
-    }
-    if (tiledTrackTiles.length) {
+    } else if (tiledTrackTiles.length) {
       drawTiledTrack(CTX);
     } else if (trackPath && trackPath.length > 1) {
       drawTrack(CTX, assets.images.road);

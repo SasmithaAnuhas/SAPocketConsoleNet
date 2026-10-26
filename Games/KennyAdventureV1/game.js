@@ -955,10 +955,11 @@ function spawnPopCoin(x, y) {
 }
 
 function initLevel() {
-    const mapSource = (typeof window !== 'undefined' && window.CURRENT_LEVEL_MAP && Array.isArray(window.CURRENT_LEVEL_MAP)) 
+    const mapSource = (typeof window !== 'undefined' && window.CURRENT_LEVEL_MAP) 
         ? window.CURRENT_LEVEL_MAP 
         : LEVEL_1_ASCII;
-    const grid = mapSource.map(r => r.split(''));
+    const gridLines = Array.isArray(mapSource) ? mapSource : (mapSource.grid || LEVEL_1_ASCII);
+    const grid = gridLines.map(r => r.split(''));
     tileMap = new TileMap(grid);
     camera = new Camera();
     enemies = [];
