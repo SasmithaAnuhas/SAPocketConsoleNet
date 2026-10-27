@@ -401,13 +401,115 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--ps-card-border);
       color: #fff;
       font-size: 12.5px;
       font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .ps-rating-badge:hover {
+      background: rgba(255, 190, 0, 0.16);
+      border-color: var(--ps-plus-gold);
+      color: var(--ps-plus-gold);
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(255, 190, 0, 0.35);
+    }
+    .ps-rate-hint {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 190, 0, 0.2);
+      color: var(--ps-plus-gold);
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-left: 2px;
+    }
+
+    /* Community Rating Widget Styles */
+    .hub-rating-section {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--ps-card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+    }
+    .hub-rating-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .hub-rating-score {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--ps-plus-gold);
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: 0 0 12px rgba(255, 190, 0, 0.4);
+    }
+    .star-rating-widget {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .stars-row {
+      display: inline-flex;
+      gap: 4px;
+    }
+    .star-btn, .star-btn-lg {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 20px;
+      cursor: pointer;
+      transition: color 0.15s, transform 0.15s;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    .star-btn-lg {
+      font-size: 34px;
+      padding: 0 6px;
+    }
+    .star-btn:hover, .star-btn.active, .star-btn-lg:hover, .star-btn-lg.active {
+      color: var(--ps-plus-gold);
+      transform: scale(1.18);
+      text-shadow: 0 0 12px rgba(255, 190, 0, 0.7);
+    }
+    .rate-summary-box {
+      text-align: center;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 18px;
+    }
+    .rate-big-avg {
+      font-size: 46px;
+      font-weight: 900;
+      color: var(--ps-plus-gold);
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: 0 0 20px rgba(255, 190, 0, 0.45);
+    }
+    .rate-stars-display {
+      font-size: 22px;
+      color: var(--ps-plus-gold);
+      margin: 4px 0 6px;
+      letter-spacing: 2px;
+    }
+    .rate-count-sub {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    .rate-stars-interactive {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 14px 0 10px;
     }
 
     .ps-category-badge {
@@ -1680,7 +1782,10 @@
 
           <div class="ps-hero-meta-row">
             <div class="ps-trophy-badge" id="heroTrophy">🏆 5 Waves • Boss Slayer</div>
-            <div class="ps-rating-badge">★ 4.9 (1.4k Reviews)</div>
+            <button type="button" class="ps-rating-badge" id="heroRatingBadge" title="Click to view & submit player rating">
+              <span id="heroRatingText">★ Unrated (Be first!)</span>
+              <span class="ps-rate-hint">✎ Rate</span>
+            </button>
             <div class="ps-category-badge" id="heroFormat">Instant Play • Fullscreen</div>
           </div>
 
@@ -1720,6 +1825,7 @@
           
           <!-- Game 1: Galaxy Strike -->
           <div class="ps-game-card active"
+               data-game-id="galaxy_strike"
                data-cat-group="action"
                data-title="Galaxy Strike"
                data-cat="🚀 Action • Space Combat"
@@ -1740,7 +1846,7 @@
           <!-- Game 2: Turbo Drift -->
           <div class="ps-game-card"
                data-cat-group="racing"
-               data-title="Turbo Drift"
+               data-game-id="turbo_drift" data-title="Turbo Drift"
                data-cat="🏎️ Racing • Precision Drift"
                data-desc="Precision 2D top-down drift racer with city and desert circuits. Master acute hairpins, lay down burning rubber streaks, and challenge top speeds with responsive arcade handling."
                data-trophy="🏆 High-Speed Drifter"
@@ -1759,7 +1865,7 @@
           <!-- Game 3: Lane Rush -->
           <div class="ps-game-card"
                data-cat-group="racing action"
-               data-title="Lane Rush"
+               data-game-id="lane_rush" data-title="Lane Rush"
                data-cat="🏎️ Arcade • Highway Rush"
                data-desc="High-octane 3-lane highway traffic survival. Weave through congestion with dynamic synthesizer engine sounds, near-miss points, and explosive crashes."
                data-trophy="🏆 Traffic Dodger"
@@ -1778,7 +1884,7 @@
           <!-- Game 4: Keycraft Typing -->
           <div class="ps-game-card"
                data-cat-group="typing"
-               data-title="Keycraft Typing"
+               data-game-id="keycraft_typing" data-title="Keycraft Typing"
                data-cat="⌨️ Syntax Velocity • Java Edition"
                data-desc="Monkeytype-inspired Java syntax velocity trainer. Sharpen your typing velocity on real object-oriented classes, loops, brackets, and syntax with Google ranking."
                data-trophy="🏆 Master Java Typist"
@@ -1797,7 +1903,7 @@
           <!-- Game 5: Snake Arcade -->
           <div class="ps-game-card"
                data-cat-group="action"
-               data-title="Snake Arcade"
+               data-game-id="snake_arcade" data-title="Snake Arcade"
                data-cat="🐍 Retro Arcade • Global Leaderboard"
                data-desc="Classic cyber retro snake survival with power apples and global high score competition on the live PlayStation / Firebase leaderboard."
                data-trophy="🏆 Longest Tail Record"
@@ -1816,7 +1922,7 @@
           <!-- Game 6: XO Tic Tac Toe -->
           <div class="ps-game-card"
                data-cat-group="multiplayer"
-               data-title="XO Tic Tac Toe"
+               data-game-id="xo_duel" data-title="XO Tic Tac Toe"
                data-cat="👥 1v1 Online • Pass & Play"
                data-desc="Multiplayer tactical duel with real-time Firebase online matchmaking against friends, live presence indicators, and offline pass-and-play."
                data-trophy="🏆 Grandmaster Strategist"
@@ -1835,7 +1941,7 @@
           <!-- Game 7: Kenny Adventure -->
           <div class="ps-game-card"
                data-cat-group="action"
-               data-title="Kenny Adventure"
+               data-game-id="kenny_adventure" data-title="Kenny Adventure"
                data-cat="🏃 2D Platformer • Sunny Meadow"
                data-desc="Classic 2D side-scrolling platformer quest. Leap across perilous chasms, stomp slimes, collect golden coins and sapphire gems."
                data-trophy="🏆 Meadow Explorer"
@@ -2065,13 +2171,75 @@
       <div style="font-size:12.5px; color:var(--ps-cyan); font-weight:750; margin-bottom:12px;" id="modalHubCat">Category</div>
       <p style="font-size:14px; color:var(--text-main); line-height:1.55; margin-bottom:20px;" id="modalHubDesc">Description</p>
       
-      <div style="background:rgba(255,255,255,0.05); border:1px solid var(--ps-card-border); border-radius:12px; padding:14px; margin-bottom:20px;">
+      <div style="background:rgba(255,255,255,0.05); border:1px solid var(--ps-card-border); border-radius:12px; padding:14px; margin-bottom:16px;">
         <div style="font-size:11px; text-transform:uppercase; color:var(--text-sub); font-weight:700; margin-bottom:6px;">Trophies & Badges</div>
         <div style="font-size:13.5px; font-weight:800; color:var(--ps-plus-gold);" id="modalHubTrophy">🏆 Trophy Record</div>
       </div>
 
+      <!-- Real Community Ratings & Review Widget -->
+      <div class="hub-rating-section">
+        <div class="hub-rating-header">
+          <div class="hub-rating-score" id="hubRatingScore">★ --</div>
+          <div>
+            <div style="font-weight:800; font-size:13.5px;" id="hubRatingDesc">Community Rating</div>
+            <div style="font-size:11.5px; color:var(--text-sub);" id="hubRatingTotalCount">Live from player traffic</div>
+          </div>
+        </div>
+        <div class="star-rating-widget">
+          <span style="font-size:12px; color:var(--text-sub); font-weight:700;">Rate this game:</span>
+          <div class="stars-row" id="hubStarsRow">
+            <button type="button" class="star-btn" data-star="1" title="1 Star - Poor">★</button>
+            <button type="button" class="star-btn" data-star="2" title="2 Stars - Fair">★</button>
+            <button type="button" class="star-btn" data-star="3" title="3 Stars - Good">★</button>
+            <button type="button" class="star-btn" data-star="4" title="4 Stars - Great">★</button>
+            <button type="button" class="star-btn" data-star="5" title="5 Stars - Masterpiece">★</button>
+          </div>
+          <span class="user-rated-status" id="hubUserRatedStatus" style="font-size:11.5px; color:var(--ps-cyan); font-weight:700; margin-left:auto;"></span>
+        </div>
+      </div>
+
       <div style="display:flex; gap:12px;">
         <a href="#" class="ps-play-btn" id="modalHubPlayBtn" style="flex:1; justify-content:center;">▶ Launch Game</a>
+      </div>
+    </dialog>
+
+    <!-- PLAYSTATION GAME RATING MODAL -->
+    <dialog class="gameHubModal ratingModal" id="gameRatingModal">
+      <div class="hubModalHeader">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:26px;">⭐</span>
+          <div>
+            <h2 class="hubModalTitle" style="margin:0; font-size:20px;" id="rateModalGameTitle">Rate Game</h2>
+            <div style="font-size:12px; color:var(--ps-cyan);">Community Player Reviews</div>
+          </div>
+        </div>
+        <button class="hubCloseBtn" id="btnCloseRateModal" type="button" aria-label="Close">✕</button>
+      </div>
+
+      <div class="rate-modal-body">
+        <div class="rate-summary-box">
+          <div class="rate-big-avg" id="rateModalAvg">--</div>
+          <div class="rate-stars-display" id="rateModalAvgStars">★★★★★</div>
+          <div class="rate-count-sub" id="rateModalCountText">Based on live player ratings</div>
+        </div>
+
+        <div class="rate-interactive-wrap">
+          <div style="font-size:14px; font-weight:800; margin-bottom:8px; text-align:center;">Your Rating:</div>
+          <div class="rate-stars-interactive" id="rateModalStarsInteractive">
+            <button type="button" class="star-btn-lg" data-star="1" title="1 Star - Poor">★</button>
+            <button type="button" class="star-btn-lg" data-star="2" title="2 Stars - Fair">★</button>
+            <button type="button" class="star-btn-lg" data-star="3" title="3 Stars - Good">★</button>
+            <button type="button" class="star-btn-lg" data-star="4" title="4 Stars - Great">★</button>
+            <button type="button" class="star-btn-lg" data-star="5" title="5 Stars - Masterpiece">★</button>
+          </div>
+          <div id="rateModalFeedback" style="font-size:12.5px; color:var(--ps-plus-gold); text-align:center; min-height:18px; margin-top:6px;">Select stars to submit rating</div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+          <button type="button" class="ps-play-btn" id="btnSubmitRating" style="flex:1; justify-content:center;">
+            <span>Submit Rating</span>
+          </button>
+        </div>
       </div>
     </dialog>
 
@@ -2409,8 +2577,16 @@
       if (heroCategory) heroCategory.textContent = cat;
       if (heroDesc) heroDesc.textContent = desc;
       if (heroTrophy) heroTrophy.textContent = trophy;
-      if (heroPlayBtn) heroPlayBtn.href = link;
+      if (heroPlayBtn) {
+        heroPlayBtn.href = link;
+        heroPlayBtn.onclick = () => {
+          const gId = card.dataset.gameId || "galaxy_strike";
+          sessionStorage.setItem("pc_pending_rate_game", gId);
+          sessionStorage.setItem("pc_pending_rate_title", card.dataset.title || "Game");
+        };
+      }
       updateHeroTrophyBadge(auth.currentUser);
+      updateHeroRatingDisplay();
 
       if (dynamicBackdrop && art) {
         dynamicBackdrop.style.backgroundImage = `url("${art}")`;
@@ -2468,6 +2644,7 @@
     const modalHubPlayBtn = document.getElementById("modalHubPlayBtn");
 
     btnOpenGameHub?.addEventListener("click", () => {
+      updateGameHubRatingDisplay();
       if (!selectedActiveCard || !gameHubDialog) return;
       consoleAudio.play("select");
       if (modalHubTitle) modalHubTitle.textContent = selectedActiveCard.dataset.title;
@@ -3130,10 +3307,305 @@
         }
       });
 
+      currentUserRatings = data.ratings || {};
       renderUserTrophies(user);
       refreshWishlistUI();
       refreshVIPUI(user);
+      loadAllCommunityRatings();
     }
+    // ==========================================
+    // 13. REAL FIREBASE COMMUNITY RATINGS ENGINE
+    // ==========================================
+    let cachedCommunityRatings = JSON.parse(localStorage.getItem("pc_cached_game_ratings") || "{}");
+    let activeRatingGameId = "galaxy_strike";
+    let activeRatingGameTitle = "Galaxy Strike";
+    let userSelectedStars = 0;
+
+    const STAR_LABELS = {
+      1: "1★ Poor - Needs Improvement",
+      2: "2★ Fair - Decent Fun",
+      3: "3★ Good - Enjoyable Arcade",
+      4: "4★ Great - High Quality",
+      5: "5★ Masterpiece - Exceptional!"
+    };
+
+    function getGameRatingInfo(gameId) {
+      const data = cachedCommunityRatings[gameId];
+      if (data && data.count > 0) {
+        return {
+          avg: data.avg,
+          count: data.count,
+          starsText: `★ ${data.avg} (${data.count} ${data.count === 1 ? 'Review' : 'Reviews'})`,
+          displayStars: "★".repeat(Math.round(Number(data.avg))) + "☆".repeat(5 - Math.round(Number(data.avg)))
+        };
+      }
+      return {
+        avg: null,
+        count: 0,
+        starsText: "★ Unrated (Be first to rate!)",
+        displayStars: "☆☆☆☆☆"
+      };
+    }
+
+    function updateHeroRatingDisplay() {
+      if (!selectedActiveCard) return;
+      const gameId = selectedActiveCard.dataset.gameId || "galaxy_strike";
+      const info = getGameRatingInfo(gameId);
+      const heroRatingText = document.getElementById("heroRatingText");
+      if (heroRatingText) heroRatingText.textContent = info.starsText;
+    }
+
+    async function loadAllCommunityRatings() {
+      try {
+        const usersSnap = await getDocs(collection(fs, "users"));
+        const map = {};
+
+        usersSnap.forEach((docSnap) => {
+          const userRatings = docSnap.data()?.ratings;
+          if (userRatings && typeof userRatings === "object") {
+            Object.entries(userRatings).forEach(([gId, r]) => {
+              const stars = Number(r?.stars || (typeof r === "number" ? r : 0));
+              if (stars >= 1 && stars <= 5) {
+                if (!map[gId]) map[gId] = { sum: 0, count: 0 };
+                map[gId].sum += stars;
+                map[gId].count += 1;
+              }
+            });
+          }
+        });
+
+        Object.keys(map).forEach((gId) => {
+          map[gId].avg = (map[gId].sum / map[gId].count).toFixed(1);
+        });
+
+        cachedCommunityRatings = map;
+        localStorage.setItem("pc_cached_game_ratings", JSON.stringify(map));
+        updateHeroRatingDisplay();
+        updateGameHubRatingDisplay();
+      } catch (err) {
+        console.warn("[Ratings] Live ratings query:", err);
+      }
+    }
+
+    function updateGameHubRatingDisplay() {
+      if (!selectedActiveCard) return;
+      const gameId = selectedActiveCard.dataset.gameId || "galaxy_strike";
+      const info = getGameRatingInfo(gameId);
+
+      const hubRatingScore = document.getElementById("hubRatingScore");
+      const hubRatingTotalCount = document.getElementById("hubRatingTotalCount");
+      const hubUserRatedStatus = document.getElementById("hubUserRatedStatus");
+      const hubStarsRow = document.getElementById("hubStarsRow");
+
+      if (hubRatingScore) hubRatingScore.textContent = info.avg ? `★ ${info.avg}` : "★ --";
+      if (hubRatingTotalCount) {
+        hubRatingTotalCount.textContent = info.count > 0 
+          ? `Based on ${info.count} real player ${info.count === 1 ? 'review' : 'reviews'}`
+          : "No reviews yet. Be the first player to rate!";
+      }
+
+      // Check current user's rating for this game
+      const userRating = currentUserRatings[gameId];
+      if (userRating && userRating.stars) {
+        if (hubUserRatedStatus) hubUserRatedStatus.textContent = `Your Rating: ${userRating.stars}★ (Synced)`;
+        if (hubStarsRow) {
+          hubStarsRow.querySelectorAll(".star-btn").forEach((b) => {
+            b.classList.toggle("active", Number(b.dataset.star) <= userRating.stars);
+          });
+        }
+      } else {
+        if (hubUserRatedStatus) hubUserRatedStatus.textContent = "";
+        if (hubStarsRow) {
+          hubStarsRow.querySelectorAll(".star-btn").forEach(b => b.classList.remove("active"));
+        }
+      }
+    }
+
+    let currentUserRatings = {};
+
+    function openRatingModalForGame(gameId, gameTitle) {
+      activeRatingGameId = gameId;
+      activeRatingGameTitle = gameTitle;
+
+      const rateModalGameTitle = document.getElementById("rateModalGameTitle");
+      const rateModalAvg = document.getElementById("rateModalAvg");
+      const rateModalAvgStars = document.getElementById("rateModalAvgStars");
+      const rateModalCountText = document.getElementById("rateModalCountText");
+      const rateModalFeedback = document.getElementById("rateModalFeedback");
+
+      if (rateModalGameTitle) rateModalGameTitle.textContent = `Rate ${gameTitle}`;
+      const info = getGameRatingInfo(gameId);
+
+      if (rateModalAvg) rateModalAvg.textContent = info.avg ? info.avg : "--";
+      if (rateModalAvgStars) rateModalAvgStars.textContent = info.displayStars;
+      if (rateModalCountText) {
+        rateModalCountText.textContent = info.count > 0
+          ? `Based on ${info.count} real player ${info.count === 1 ? 'review' : 'reviews'}`
+          : "No player reviews yet. Submit your first score!";
+      }
+
+      // Initialize user stars
+      const existing = currentUserRatings[gameId]?.stars || 0;
+      userSelectedStars = existing;
+      highlightStars(userSelectedStars);
+      if (rateModalFeedback) {
+        rateModalFeedback.textContent = existing ? `Your rating: ${STAR_LABELS[existing]}` : "Select stars to submit rating";
+      }
+
+      const gameRatingModal = document.getElementById("gameRatingModal");
+      gameRatingModal?.showModal();
+    }
+
+    function highlightStars(val) {
+      const container = document.getElementById("rateModalStarsInteractive");
+      if (!container) return;
+      container.querySelectorAll(".star-btn-lg").forEach((b) => {
+        b.classList.toggle("active", Number(b.dataset.star) <= val);
+      });
+    }
+
+    const starBtnsLg = document.querySelectorAll("#rateModalStarsInteractive .star-btn-lg");
+    starBtnsLg.forEach((btn) => {
+      btn.addEventListener("mouseenter", () => {
+        highlightStars(Number(btn.dataset.star));
+      });
+      btn.addEventListener("mouseleave", () => {
+        highlightStars(userSelectedStars);
+      });
+      btn.addEventListener("click", () => {
+        consoleAudio.play("tick");
+        userSelectedStars = Number(btn.dataset.star);
+        highlightStars(userSelectedStars);
+        const feedback = document.getElementById("rateModalFeedback");
+        if (feedback) feedback.textContent = STAR_LABELS[userSelectedStars] || `${userSelectedStars} Stars`;
+      });
+    });
+
+    // Rating Submit Handler
+    const btnSubmitRating = document.getElementById("btnSubmitRating");
+    btnSubmitRating?.addEventListener("click", async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        showToast("🔒 Sign In Required", "Log in to submit and sync your game ratings.", "🔒");
+        loginReminder?.showModal();
+        return;
+      }
+
+      if (userSelectedStars < 1 || userSelectedStars > 5) {
+        const feedback = document.getElementById("rateModalFeedback");
+        if (feedback) feedback.textContent = "Please choose a star rating (1-5)";
+        return;
+      }
+
+      consoleAudio.play("select");
+      currentUserRatings[activeRatingGameId] = {
+        stars: userSelectedStars,
+        updatedAt: Date.now()
+      };
+
+      const gameRatingModal = document.getElementById("gameRatingModal");
+      gameRatingModal?.close();
+
+      showToast("⭐ Rating Saved!", `Thank you! Your ${userSelectedStars}★ review for ${activeRatingGameTitle} was recorded.`, "⭐");
+
+      try {
+        await setDoc(doc(fs, "users", currentUser.uid), {
+          ratings: currentUserRatings,
+          lastActiveAt: serverTimestamp()
+        }, { merge: true });
+        loadAllCommunityRatings();
+      } catch (err) {
+        console.error("[Ratings] Save error:", err);
+      }
+    });
+
+    // Hero Rating Badge Click -> Opens Rating Modal
+    const heroRatingBadge = document.getElementById("heroRatingBadge");
+    heroRatingBadge?.addEventListener("click", () => {
+      if (!selectedActiveCard) return;
+      consoleAudio.play("select");
+      const gameId = selectedActiveCard.dataset.gameId || "galaxy_strike";
+      const title = selectedActiveCard.dataset.title || "Game";
+      openRatingModalForGame(gameId, title);
+    });
+
+    const btnCloseRateModal = document.getElementById("btnCloseRateModal");
+    btnCloseRateModal?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      const gameRatingModal = document.getElementById("gameRatingModal");
+      gameRatingModal?.close();
+    });
+
+    // Hub Star Buttons Click -> Rate directly
+    const hubStarBtns = document.querySelectorAll("#hubStarsRow .star-btn");
+    hubStarBtns.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          showToast("🔒 Sign In Required", "Log in to submit and sync your game ratings.", "🔒");
+          loginReminder?.showModal();
+          return;
+        }
+
+        const stars = Number(btn.dataset.star);
+        const gameId = selectedActiveCard?.dataset.gameId || "galaxy_strike";
+        const title = selectedActiveCard?.dataset.title || "Game";
+
+        consoleAudio.play("select");
+        currentUserRatings[gameId] = { stars, updatedAt: Date.now() };
+        updateGameHubRatingDisplay();
+
+        showToast("⭐ Rating Saved!", `Recorded your ${stars}★ rating for ${title}!`, "⭐");
+
+        try {
+          await setDoc(doc(fs, "users", currentUser.uid), {
+            ratings: currentUserRatings,
+            lastActiveAt: serverTimestamp()
+          }, { merge: true });
+          loadAllCommunityRatings();
+        } catch (err) {
+          console.error("[Ratings] Save error:", err);
+        }
+      });
+    });
+
+    // Check post-game rating session
+    function checkPostGameRatingSession() {
+      const pendingGame = sessionStorage.getItem("pc_pending_rate_game");
+      const pendingTitle = sessionStorage.getItem("pc_pending_rate_title");
+      const autoStars = Number(sessionStorage.getItem("pc_auto_rate_stars") || 0);
+
+      if (pendingGame && autoStars >= 1 && autoStars <= 5) {
+        sessionStorage.removeItem("pc_pending_rate_game");
+        sessionStorage.removeItem("pc_pending_rate_title");
+        sessionStorage.removeItem("pc_auto_rate_stars");
+
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          currentUserRatings[pendingGame] = { stars: autoStars, updatedAt: Date.now() };
+          setDoc(doc(fs, "users", currentUser.uid), {
+            ratings: currentUserRatings,
+            lastActiveAt: serverTimestamp()
+          }, { merge: true }).then(() => {
+            loadAllCommunityRatings();
+          }).catch(() => {});
+          showToast("⭐ Rating Synced!", `Your ${autoStars}★ rating for ${pendingTitle || 'Game'} was recorded to the cloud!`, "⭐");
+        } else {
+          showToast("⭐ Session Finished!", `Finished ${pendingTitle}? Sign in to save your ${autoStars}★ community rating!`, "⭐");
+        }
+        return;
+      }
+
+      if (pendingGame && pendingTitle) {
+        sessionStorage.removeItem("pc_pending_rate_game");
+        sessionStorage.removeItem("pc_pending_rate_title");
+        setTimeout(() => {
+          showToast("⭐ Session Completed!", `Finished ${pendingTitle}? Tap to rate and update community score!`, "⭐");
+          openRatingModalForGame(pendingGame, pendingTitle);
+        }, 1200);
+      }
+    }
+
 
     // Countdown Ticker
     let secCounter = 20;
@@ -3314,6 +3786,8 @@
 
     initTypeWriterQuery();
     initSnakeQuery();
+    loadAllCommunityRatings();
+    checkPostGameRatingSession();
 
     // Time update
     function updateTime() {
