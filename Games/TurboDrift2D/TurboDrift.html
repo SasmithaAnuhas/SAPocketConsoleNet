@@ -86,6 +86,15 @@
             border-color: rgba(255, 255, 255, 0.25);
             transform: translateY(-1px);
         }
+        .nav-btn.console-back {
+            background: rgba(255, 140, 26, 0.12);
+            border-color: rgba(255, 140, 26, 0.35);
+            color: var(--accent);
+        }
+        .nav-btn.console-back:hover {
+            background: rgba(255, 140, 26, 0.25);
+            box-shadow: 0 0 16px var(--accent-glow);
+        }
 
         /* In-Game Floating Pause Button */
         .hud-pause-btn {
@@ -380,7 +389,7 @@
 
     <!-- Navigation Header -->
     <div class="nav-bar">
-        <a href="../../index.html" class="nav-btn" title="Back to Pocket Console">‹ Console</a>
+        <a href="../../index.html" class="nav-btn console-back" title="Back to Pocket Console">🎮 Console</a>
     </div>
 
     <!-- In-Game Floating Pause Button -->

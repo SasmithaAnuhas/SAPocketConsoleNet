@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05070e" />
+      <stop offset="50%" stop-color="#0a1224" />
+      <stop offset="100%" stop-color="#120c1f" />
+    </linearGradient>
+    <radialGradient id="nebulaCyan" cx="25%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#00ffcc" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="nebulaPurple" cx="80%" cy="75%" r="60%">
+      <stop offset="0%" stop-color="#9333ea" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="shipCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ffcc" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="enemyRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff4757" />
+      <stop offset="100%" stop-color="#ff7f50" />
+    </linearGradient>
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glowRed" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="600" height="360" fill="url(#bgGrad)" />
+  <rect width="600" height="360" fill="url(#nebulaCyan)" />
+  <rect width="600" height="360" fill="url(#nebulaPurple)" />
+
+  <!-- Stars -->
+  <circle cx="45" cy="60" r="1.5" fill="#fff" opacity="0.8" />
+  <circle cx="120" cy="190" r="1" fill="#fff" opacity="0.6" />
+  <circle cx="210" cy="40" r="2" fill="#38bdf8" opacity="0.9" />
+  <circle cx="340" cy="85" r="1.5" fill="#fff" opacity="0.7" />
+  <circle cx="490" cy="50" r="2" fill="#ffd166" opacity="0.8" />
+  <circle cx="530" cy="160" r="1" fill="#fff" opacity="0.5" />
+  <circle cx="80" cy="300" r="1.5" fill="#fff" opacity="0.7" />
+  <circle cx="270" cy="330" r="2" fill="#fff" opacity="0.8" />
+  <circle cx="430" cy="280" r="1.5" fill="#38bdf8" opacity="0.9" />
+  <circle cx="560" cy="310" r="2" fill="#fff" opacity="0.9" />
+
+  <!-- Laser Beams -->
+  <line x1="260" y1="210" x2="260" y2="100" stroke="#00ffcc" stroke-width="4" filter="url(#glowCyan)" />
+  <line x1="340" y1="210" x2="340" y2="100" stroke="#00ffcc" stroke-width="4" filter="url(#glowCyan)" />
+  <line x1="280" y1="120" x2="295" y2="190" stroke="#ff4757" stroke-width="3" filter="url(#glowRed)" />
+  <line x1="320" y1="120" x2="305" y2="190" stroke="#ff4757" stroke-width="3" filter="url(#glowRed)" />
+
+  <!-- Enemy Cruiser (Top Center) -->
+  <g transform="translate(300, 75)">
+    <polygon points="0,26 -28,-18 -10,-8 0,-14 10,-8 28,-18" fill="url(#enemyRed)" filter="url(#glowRed)" />
+    <circle cx="0" cy="0" r="5" fill="#ffd166" />
+  </g>
+
+  <!-- Player Fighter (Center) -->
+  <g transform="translate(300, 230)">
+    <!-- Thruster Flame -->
+    <polygon points="-10,24 0,48 10,24" fill="#ff9f43" filter="url(#glowRed)" opacity="0.85" />
+    <!-- Fighter Wings -->
+    <polygon points="0,-36 -28,24 -10,16 0,22 10,16 28,24" fill="url(#shipCyan)" filter="url(#glowCyan)" />
+    <!-- Cockpit Core -->
+    <ellipse cx="0" cy="-6" rx="5" ry="12" fill="#ffffff" />
+    <!-- Shield Aura -->
+    <circle cx="0" cy="0" r="46" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="14, 8" opacity="0.6" />
+  </g>
+
+  <!-- Title Badge -->
+  <rect x="200" y="278" width="200" height="24" rx="12" fill="rgba(0, 255, 204, 0.15)" stroke="rgba(0, 255, 204, 0.4)" />
+  <text x="300" y="294" font-family="system-ui, sans-serif" font-size="11" font-weight="800" fill="#00ffcc" text-anchor="middle" letter-spacing="2">POCKET ARCADE</text>
+
+  <!-- Title Heading -->
+  <text x="300" y="336" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3" filter="url(#glowCyan)">GALAXY STRIKE</text>
+</svg>

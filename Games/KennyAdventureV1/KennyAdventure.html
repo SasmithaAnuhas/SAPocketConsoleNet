@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kenny Adventure - Level 1: Sunny Meadow</title>
+    <title>Kenny Adventure - Pocket Console</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!-- Ambient Arcade Glow -->
+<div class="ambient-glow" aria-hidden="true"></div>
+
+<!-- Top Left Navigation to Console -->
+<div class="nav-bar">
+    <a href="../../index.html" class="nav-btn console-back" title="Return to Pocket Console Games">
+        <span aria-hidden="true">🎮</span> Console
+    </a>
+</div>
 
 <div id="game-container">
     <canvas id="gameCanvas"></canvas>
@@ -15,12 +25,12 @@
     <div id="hud" style="display: none;">
         <div class="hud-group">
             <div class="hud-item" id="hearts-container"></div>
-            <div class="hud-item">
-                <span style="color: #ffd700;">🪙</span>
+            <div class="hud-item coin-item">
+                <span style="color: #ffd700;" aria-hidden="true">🪙</span>
                 <span id="score-text">0</span>
             </div>
-            <div class="hud-item">
-                <span style="color: #00d2ff;">💎</span>
+            <div class="hud-item gem-item">
+                <span style="color: #00d2ff;" aria-hidden="true">💎</span>
                 <span id="gems-text">0</span>
             </div>
         </div>
@@ -31,37 +41,49 @@
     <div id="ui-overlay">
         <!-- Main Menu -->
         <div id="main-menu" class="menu" style="display: block;">
+            <div class="game-badge">Platformer Adventure</div>
             <h1>Kenny Adventure</h1>
             <p class="subtitle">Level 1: Sunny Meadow</p>
-            <button class="btn" id="start-btn">▶ Play Game</button>
-            <br>
-            <button class="btn btn-secondary" id="audio-toggle-btn">🔊 Sound: ON</button>
+            <div class="menu-actions">
+                <button class="btn" id="start-btn">▶ Play Game</button>
+                <button class="btn btn-secondary" id="audio-toggle-btn">🔊 Sound: ON</button>
+                <a href="../../index.html" class="btn btn-secondary" style="text-decoration: none;">🎮 Back to Console</a>
+            </div>
         </div>
 
         <!-- Pause Menu -->
         <div id="pause-menu" class="menu">
             <h1>Game Paused</h1>
             <p class="subtitle">Take a breather!</p>
-            <button class="btn" id="resume-btn">▶ Resume</button>
-            <br>
-            <button class="btn btn-secondary" id="restart-btn-pause">🔄 Restart Level</button>
+            <div class="menu-actions">
+                <button class="btn" id="resume-btn">▶ Resume</button>
+                <button class="btn btn-secondary" id="restart-btn-pause">🔄 Restart Level</button>
+                <a href="../../index.html" class="btn btn-secondary" style="text-decoration: none;">🎮 Exit to Console</a>
+            </div>
         </div>
 
         <!-- Victory Screen -->
         <div id="victory-screen" class="menu">
             <h1 style="color: #40d17a;">🎉 Stage Clear!</h1>
             <p class="subtitle">You conquered Sunny Meadow!</p>
-            <div style="font-size: 20px; margin-bottom: 24px;">
-                Final Score: <strong id="final-score" style="color: #ffd700;">0</strong>
+            <div class="victory-stat-box">
+                <div style="font-size: 14px; color: #9ab0ca; text-transform: uppercase; letter-spacing: 0.5px;">Final Score</div>
+                <div style="font-size: 32px; font-weight: 800; color: #ffd700;" id="final-score">0</div>
             </div>
-            <button class="btn" id="replay-btn">🔄 Play Again</button>
+            <div class="menu-actions">
+                <button class="btn" id="replay-btn">🔄 Play Again</button>
+                <a href="../../index.html" class="btn btn-secondary" style="text-decoration: none;">🎮 Back to Console</a>
+            </div>
         </div>
 
         <!-- Game Over Screen -->
         <div id="gameover-screen" class="menu">
-            <h1 style="color: #e85b5b;">💀 Game Over</h1>
+            <h1 style="color: #ff4757;">💀 Game Over</h1>
             <p class="subtitle">Kenny fell in action...</p>
-            <button class="btn" id="tryagain-btn">🔄 Try Again</button>
+            <div class="menu-actions">
+                <button class="btn" id="tryagain-btn">🔄 Try Again</button>
+                <a href="../../index.html" class="btn btn-secondary" style="text-decoration: none;">🎮 Exit to Console</a>
+            </div>
         </div>
     </div>
 
