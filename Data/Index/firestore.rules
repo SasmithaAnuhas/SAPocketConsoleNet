@@ -14,11 +14,23 @@ service cloud.firestore {
     }
 
     // -----------------------------
-    // USERS
+    // USERS (With Anti-Cheat Guards)
     // -----------------------------
     match /users/{uid} {
       allow read: if signedIn();
-      allow write: if signedIn() && me() == uid;
+      allow write: if signedIn() && me() == uid
+        && (!("typewriterWpm" in request.resource.data) || (request.resource.data.typewriterWpm is number && request.resource.data.typewriterWpm >= 0 && request.resource.data.typewriterWpm <= 300))
+        && (!("typewriterAcc" in request.resource.data) || (request.resource.data.typewriterAcc is number && request.resource.data.typewriterAcc >= 0 && request.resource.data.typewriterAcc <= 100))
+        && (!("snakeScore" in request.resource.data) || (request.resource.data.snakeScore is number && request.resource.data.snakeScore >= 0 && request.resource.data.snakeScore <= 50000))
+        && (!("galaxyScore" in request.resource.data) || (request.resource.data.galaxyScore is number && request.resource.data.galaxyScore >= 0 && request.resource.data.galaxyScore <= 200000))
+        && (!("carScore" in request.resource.data) || (request.resource.data.carScore is number && request.resource.data.carScore >= 0 && request.resource.data.carScore <= 100000))
+        && (!("kennyScore" in request.resource.data) || (request.resource.data.kennyScore is number && request.resource.data.kennyScore >= 0 && request.resource.data.kennyScore <= 100000));
+
+      // Wishlist subcollection
+      match /wishlist/{gameId} {
+        allow read: if signedIn() && me() == uid;
+        allow write: if signedIn() && me() == uid;
+      }
 
       // Friends subcollection
       match /friends/{friendUid} {
@@ -143,7 +155,6 @@ service cloud.firestore {
     // -----------------------------
     // XO GAME
     // -----------------------------
-
     match /gameInvites/{inviteId} {
       allow create: if signedIn()
         && request.resource.data.fromUid == me()
@@ -174,7 +185,6 @@ service cloud.firestore {
           )
         );
 
-      // Per your recent preference: sender can delete
       allow delete: if signedIn() && resource.data.fromUid == me();
     }
 
@@ -204,11 +214,9 @@ service cloud.firestore {
       allow update: if signedIn()
         && resource.data.members is list
         && resource.data.members.hasAny([me()])
-        // lock members/players
         && request.resource.data.members == resource.data.members
         && request.resource.data.players.X == resource.data.players.X
         && request.resource.data.players.O == resource.data.players.O
-        // validate state
         && request.resource.data.board is list
         && request.resource.data.board.size() == 9
         && request.resource.data.turn in ["X", "O"]
@@ -228,6 +236,33 @@ service cloud.firestore {
 
         allow delete: if false;
       }
+    }
+
+    // -----------------------------
+    // COMMUNITY GAME RATINGS
+    // -----------------------------
+    match /game_ratings/{ratingId} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && request.resource.data.userId == me()
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.gameId is string
+        && (!("review" in request.resource.data) || (request.resource.data.review is string && request.resource.data.review.size() <= 500));
+
+      allow delete: if signedIn() && resource.data.userId == me();
+    }
+
+    // -----------------------------
+    // STORE STATS (WISHLIST AGGREGATION)
+    // -----------------------------
+    match /store_stats/{gameId} {
+      allow read: if true;
+      allow create, update: if signedIn()
+        && request.resource.data.wishlistCount is int
+        && request.resource.data.wishlistCount >= 0;
+      allow delete: if false;
     }
 
   }

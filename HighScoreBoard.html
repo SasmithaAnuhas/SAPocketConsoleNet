@@ -262,6 +262,28 @@
           <footer>Rankings calculated by Peak WPM and Accuracy from Google authenticated players.</footer>
         </div>
       </section>
+
+      <!-- Galaxy Strike Leaderboard Panel -->
+      <section class="game-panel" aria-labelledby="galaxyTitle" style="margin-top: 32px;">
+        <header class="game-heading">
+          <div class="game-title-group">
+            <div class="game-icon" aria-hidden="true" style="border-color: rgba(0,255,204,0.3); background: rgba(0,255,204,0.1); color: #00ffcc;">🚀</div>
+            <div>
+              <h2 id="galaxyTitle">Galaxy Strike</h2>
+              <div class="game-label">Retro Laser Combat • Alien Armada Waves</div>
+            </div>
+          </div>
+          <a class="play-link" href="Games/GalaxyShooter/GalaxyShooter.html" style="background: #00ffcc; color: #051410;">Play Galaxy Strike</a>
+        </header>
+
+        <div class="score-summary" aria-live="polite" style="border-color: rgba(0,255,204,0.2); background: rgba(0,255,204,0.06);">
+          <div>
+            <div class="score-label">Your best on this device</div>
+            <div class="score-note">Saved in this browser</div>
+          </div>
+          <div class="score-value" id="galaxyPersonalBest" style="color: #00ffcc;">—</div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -305,6 +327,15 @@
       personalBestNote.textContent = "Could not read the score saved in this browser.";
       console.error("[HighScoreBoard] Unable to read Snake's saved high score.", error);
     }
+
+    try {
+      const gScore = localStorage.getItem("galaxy_best");
+      const gEl = document.getElementById("galaxyPersonalBest");
+      if (gEl) {
+        if (gScore && Number(gScore) > 0) gEl.textContent = Number(gScore).toLocaleString() + " pts";
+        else gEl.textContent = "0 pts";
+      }
+    } catch (_) {}
 
     function renderLeaderboard(snapshot) {
       const entries = [];
