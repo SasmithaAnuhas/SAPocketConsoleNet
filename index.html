@@ -86,19 +86,6 @@
         linear-gradient(to bottom, rgba(4, 7, 17, 0.5) 0%, rgba(4, 7, 17, 0.88) 55%, #040711 100%);
     }
 
-    /* PS5 Geometric Symbols Ambient Watermark */
-    .ps-symbols-watermark {
-      position: absolute;
-      right: 48px;
-      top: 90px;
-      font-size: 88px;
-      letter-spacing: 28px;
-      color: rgba(255, 255, 255, 0.025);
-      font-weight: 900;
-      user-select: none;
-      pointer-events: none;
-    }
-
     /* Main Console Container */
     #consoleContainer {
       position: relative;
@@ -159,24 +146,114 @@
     }
 
     .ps-brand-title {
-      font-size: 16.5px;
+      font-size: 17px;
       font-weight: 850;
       letter-spacing: 0.5px;
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
-    .ps-brand-badge {
-      font-size: 10px;
-      font-weight: 800;
+    .ps-status-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00f2fe;
+      box-shadow: 0 0 8px #00f2fe;
+      animation: statusPulse 2.4s infinite ease-in-out;
+      display: inline-block;
+    }
+    @keyframes statusPulse {
+      0%, 100% { opacity: 0.5; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 10px #00f2fe; }
+    }
+
+    /* PS5 Cinematic Boot Loading Screen */
+    .ps-boot-screen {
+      position: fixed;
+      inset: 0;
+      background: #040711;
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.65s;
+    }
+    .ps-boot-screen.fade-out {
+      opacity: 0;
+      transform: scale(1.02);
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .ps-boot-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: bootContentFade 0.5s ease-out;
+    }
+    @keyframes bootContentFade {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .ps-boot-logo-wrap {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .ps-boot-light-pulse {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 112, 209, 0.45) 0%, rgba(0, 242, 254, 0.12) 50%, transparent 70%);
+      animation: consoleLightPulse 2.2s ease-in-out infinite alternate;
+      filter: blur(8px);
+    }
+    @keyframes consoleLightPulse {
+      0% { transform: scale(0.9); opacity: 0.5; }
+      100% { transform: scale(1.2); opacity: 1; }
+    }
+    .ps-boot-brand {
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: 4px;
+      color: #f1f5f9;
       text-transform: uppercase;
-      padding: 2px 8px;
+      margin-bottom: 22px;
+      text-shadow: 0 0 16px rgba(0, 112, 209, 0.4);
+    }
+    .ps-boot-bar-track {
+      width: 170px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 999px;
-      background: linear-gradient(90deg, rgba(0, 112, 209, 0.25), rgba(0, 242, 254, 0.25));
-      border: 1px solid var(--ps-cyan);
-      color: var(--ps-cyan);
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .ps-boot-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #0070d1, #00f2fe);
+      border-radius: 999px;
+      box-shadow: 0 0 10px #00f2fe;
+      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ps-boot-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
       letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #64748b;
+      min-height: 16px;
     }
 
     /* Main Console Tabs */
@@ -753,14 +830,15 @@
     }
 
     .store-hero-banner::after {
-      content: '▲ ✖ ◼ ⬢';
+      content: '';
       position: absolute;
-      right: 20px;
-      bottom: -15px;
-      font-size: 100px;
-      color: rgba(255, 255, 255, 0.04);
-      font-weight: 900;
+      right: -40px;
+      bottom: -40px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(0, 112, 209, 0.15) 0%, transparent 70%);
       pointer-events: none;
+      filter: blur(20px);
     }
 
     .store-coming-pill {
@@ -1286,16 +1364,7 @@
       font-weight: 700;
     }
 
-    /* PlayStation Floating Symbols Animation */
-    @keyframes floatSymbols {
-      0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
-      50% { transform: translateY(-16px) rotate(1.8deg); opacity: 0.085; }
-      100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
-    }
-    .ps-symbols-watermark {
-      animation: floatSymbols 14s ease-in-out infinite alternate;
-      will-change: transform;
-    }
+    
 
     /* DualSense Lightbar on Card */
     .ps-game-card::after {
@@ -1678,30 +1747,77 @@
     .trophy-tier.silver { background: rgba(226, 232, 240, 0.18); border: 1px solid #cbd5e1; color: #e2e8f0; }
     .trophy-tier.bronze { background: rgba(205, 127, 50, 0.18); border: 1px solid #cd7f32; color: #cd7f32; }
 
-    @media (max-width: 900px) {
+    @media (max-width: 1024px) {
       .ps-controller-hints { display: none; }
       .ps-search-input { width: 140px; }
-      .ps-search-input:focus { width: 180px; }
+      .ps-search-input:focus { width: 190px; }
+      .friends-hero-banner { padding: 28px 24px; }
     }
     @media (max-width: 768px) {
-      .ps-symbols-watermark { display: none; }
       .ps-nav-tabs .ps-tab-text { display: none; }
-      .ps-topbar-inner { padding: 0 16px; }
-      .ps-deck-section, .ps-hero-stage, .ps-leaderboard-section { padding: 0 16px; }
-      .ps-game-card { flex: 0 0 170px; }
-      .ps-card-art { height: 130px; }
+      .ps-nav-tabs .ps-tab { padding: 8px 12px; }
+      .ps-topbar-inner { padding: 0 14px; gap: 8px; }
+      .ps-deck-section, .ps-hero-stage, .ps-leaderboard-section, #viewStore, #viewFriends { padding: 0 14px; }
+      .ps-game-card { flex: 0 0 165px; }
+      .ps-card-art { height: 120px; }
       .deck-scroll-btn { display: none; }
       .ps-gamepad-status { display: none; }
       .trophy-stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .store-hero-banner { padding: 30px 20px; }
+      .store-headline { font-size: 26px; }
+      .store-countdown-wrap { gap: 6px; }
+      .countdown-unit { padding: 6px 10px; }
+      .countdown-num { font-size: 18px; }
+      .ps-hero-title { font-size: 32px; }
+      .ps-hero-desc { font-size: 13.5px; }
+      .ps-hero-actions { gap: 10px; }
+      .ps-play-btn { padding: 12px 26px; font-size: 13px; }
+      .ps-hub-btn { padding: 11px 18px; font-size: 12.5px; }
+      .ps-control-center { padding: 0 14px; height: 52px; }
+      .ps-dock-brand { font-size: 11px; }
+      .ps-quick-friends, .ps-quick-chat { padding: 5px 12px; font-size: 12px; }
+    }
+    @media (max-width: 480px) {
+      .ps-search-box { display: none; }
+      .ps-brand-title { font-size: 14px; }
+      .ps-user-name { display: none; }
+      .ps-user-pill { padding: 4px; }
+      .ps-time-clock { display: none; }
+      .ps-deck-filters { gap: 6px; }
+      .deck-filter-btn { font-size: 11px; padding: 4px 10px; }
+      .ps-game-card { flex: 0 0 150px; }
+      .ps-card-art { height: 110px; }
+      .suggestions-grid, .friends-grid { grid-template-columns: 1fr; }
+      .store-upcoming-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <!-- 1. PS5 DYNAMIC FULL-BLEED BACKDROP -->
+  <!-- CINEMATIC PS5-STYLE CONSOLE BOOT OVERLAY -->
+  <div class="ps-boot-screen" id="psBootScreen" aria-hidden="true">
+    <div class="ps-boot-content">
+      <div class="ps-boot-logo-wrap">
+        <div class="ps-boot-light-pulse"></div>
+        <svg class="ps-boot-svg-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="12" rx="4"></rect>
+          <line x1="6" y1="12" x2="10" y2="12"></line>
+          <line x1="8" y1="10" x2="8" y2="14"></line>
+          <circle cx="15" cy="11" r="1.2" fill="currentColor"></circle>
+          <circle cx="17" cy="13" r="1.2" fill="currentColor"></circle>
+        </svg>
+      </div>
+      <div class="ps-boot-brand">POCKET CONSOLE</div>
+      <div class="ps-boot-bar-track">
+        <div class="ps-boot-bar-fill" id="psBootBarFill"></div>
+      </div>
+      <div class="ps-boot-status" id="psBootStatus">System Ready</div>
+    </div>
+  </div>
+
+  <!-- 1. DYNAMIC FULL-BLEED BACKDROP -->
   <div class="ps-backdrop-wrap" aria-hidden="true">
     <div class="ps-dynamic-bg" id="dynamicBackdrop" style="background-image: url('Games/GalaxyShooter/GalaxyBanner.svg');"></div>
     <div class="ps-backdrop-overlay"></div>
-    <div class="ps-symbols-watermark">▲ ✖ ◼ ⬢</div>
   </div>
 
   <div id="consoleContainer">
@@ -1713,7 +1829,6 @@
           <div>
             <div class="ps-brand-title">
               Pocket Console
-              <span class="ps-brand-badge">PlayStation 5 • Steam</span>
             </div>
           </div>
         </div>
@@ -1786,7 +1901,7 @@
               <span id="heroRatingText">★ Unrated (Be first!)</span>
               <span class="ps-rate-hint">✎ Rate</span>
             </button>
-            <div class="ps-category-badge" id="heroFormat">Instant Play • Fullscreen</div>
+            <div class="ps-category-badge" id="heroFormat">Controller Supported • 60 FPS</div>
           </div>
 
           <div class="ps-hero-actions">
@@ -2045,16 +2160,37 @@
         <!-- Teaser 1 -->
         <div class="store-teaser-card" data-game-id="shadow_ninja" data-game-title="Shadow Ninja: Cyber Quest">
           <div class="teaser-media">
-            <svg viewBox="0 0 400 240" width="100%" height="100%">
+            <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#0a192f"/>
-                  <stop offset="100%" stop-color="#1e3c72"/>
+                <linearGradient id="artNinjaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#070c17"/>
+                  <stop offset="60%" stop-color="#101d36"/>
+                  <stop offset="100%" stop-color="#0d2e5c"/>
+                </linearGradient>
+                <linearGradient id="bladeSlash" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00f2fe"/>
+                  <stop offset="100%" stop-color="#0070d1"/>
                 </linearGradient>
               </defs>
-              <rect width="400" height="240" fill="url(#g1)"/>
-              <circle cx="200" cy="120" r="60" fill="none" stroke="#00f2fe" stroke-width="2" stroke-dasharray="10,6" opacity="0.6"/>
-              <text x="200" y="125" font-family="system-ui" font-size="48" text-anchor="middle" fill="#fff">🥷</text>
+              <rect width="400" height="240" fill="url(#artNinjaGrad)"/>
+              <g opacity="0.25">
+                <line x1="0" y1="200" x2="400" y2="200" stroke="#00f2fe" stroke-width="1"/>
+                <line x1="0" y1="220" x2="400" y2="220" stroke="#00f2fe" stroke-width="1"/>
+                <line x1="200" y1="140" x2="40" y2="240" stroke="#00f2fe" stroke-width="1"/>
+                <line x1="200" y1="140" x2="120" y2="240" stroke="#00f2fe" stroke-width="1"/>
+                <line x1="200" y1="140" x2="280" y2="240" stroke="#00f2fe" stroke-width="1"/>
+                <line x1="200" y1="140" x2="360" y2="240" stroke="#00f2fe" stroke-width="1"/>
+              </g>
+              <rect x="50" y="110" width="35" height="90" fill="#040813" opacity="0.8"/>
+              <rect x="95" y="80" width="50" height="120" fill="#060c1c" opacity="0.9"/>
+              <rect x="255" y="90" width="45" height="110" fill="#060c1c" opacity="0.9"/>
+              <rect x="310" y="120" width="40" height="80" fill="#040813" opacity="0.8"/>
+              <path d="M 60 170 Q 190 120 340 70" stroke="url(#bladeSlash)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <path d="M 70 175 Q 195 125 330 80" stroke="#ffffff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.85"/>
+              <circle cx="200" cy="115" r="45" fill="radial-gradient(circle, rgba(0,242,254,0.2) 0%, transparent 70%)"/>
+              <polygon points="190,85 210,85 218,102 210,130 190,130 182,102" fill="#020409" stroke="#00f2fe" stroke-width="1.5"/>
+              <line x1="192" y1="98" x2="208" y2="98" stroke="#00f2fe" stroke-width="2"/>
+              <text x="24" y="38" font-family="'Plus Jakarta Sans', system-ui" font-size="11" font-weight="800" letter-spacing="2" fill="#00f2fe">CYBER STEALTH</text>
             </svg>
             <span class="teaser-badge">Action RPG</span>
           </div>
@@ -2073,18 +2209,32 @@
         <!-- Teaser 2 -->
         <div class="store-teaser-card" data-game-id="cyber_drift_2" data-game-title="Cyber Drift 2: Tokyo Nights">
           <div class="teaser-media">
-            <svg viewBox="0 0 400 240" width="100%" height="100%">
+            <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#2c003e"/>
+                <linearGradient id="artDriftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#140224"/>
+                  <stop offset="65%" stop-color="#2a0845"/>
+                  <stop offset="100%" stop-color="#ff007f"/>
+                </linearGradient>
+                <linearGradient id="neonSun" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ffd166"/>
                   <stop offset="100%" stop-color="#ff007f"/>
                 </linearGradient>
               </defs>
-              <rect width="400" height="240" fill="url(#g2)"/>
-              <circle cx="200" cy="120" r="60" fill="none" stroke="#ffd166" stroke-width="2" opacity="0.6"/>
-              <text x="200" y="125" font-family="system-ui" font-size="48" text-anchor="middle" fill="#fff">🏎️</text>
+              <rect width="400" height="240" fill="url(#artDriftGrad)"/>
+              <circle cx="200" cy="110" r="46" fill="url(#neonSun)"/>
+              <line x1="150" y1="100" x2="250" y2="100" stroke="#140224" stroke-width="2"/>
+              <line x1="156" y1="108" x2="244" y2="108" stroke="#140224" stroke-width="2.5"/>
+              <line x1="165" y1="116" x2="235" y2="116" stroke="#140224" stroke-width="3"/>
+              <polygon points="175,130 225,130 380,240 20,240" fill="#070311"/>
+              <line x1="200" y1="130" x2="200" y2="240" stroke="#ffd166" stroke-width="2" stroke-dasharray="14,10"/>
+              <line x1="175" y1="130" x2="20" y2="240" stroke="#ff007f" stroke-width="2.5"/>
+              <line x1="225" y1="130" x2="380" y2="240" stroke="#00f2fe" stroke-width="2.5"/>
+              <path d="M 160 190 Q 200 175 250 188" stroke="#ff007f" stroke-width="3" fill="none" opacity="0.9"/>
+              <path d="M 150 195 Q 195 180 260 193" stroke="#ffd166" stroke-width="2" fill="none" opacity="0.9"/>
+              <text x="24" y="38" font-family="'Plus Jakarta Sans', system-ui" font-size="11" font-weight="800" letter-spacing="2" fill="#ffd166">TOKYO SPEEDWAY</text>
             </svg>
-            <span class="teaser-badge" style="border-color:#ff007f; color:#ff007f;">Next-Gen 3D</span>
+            <span class="teaser-badge" style="border-color:#ff007f; color:#ff007f;">Ray-Traced WebGL</span>
           </div>
           <div class="teaser-info">
             <h3 class="teaser-title">Cyber Drift 2: Tokyo Nights</h3>
@@ -2101,18 +2251,29 @@
         <!-- Teaser 3 -->
         <div class="store-teaser-card" data-game-id="cosmic_odyssey" data-game-title="Cosmic Odyssey VR">
           <div class="teaser-media">
-            <svg viewBox="0 0 400 240" width="100%" height="100%">
+            <svg viewBox="0 0 400 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#020024"/>
-                  <stop offset="100%" stop-color="#097970"/>
+                <linearGradient id="artCosmicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#02040d"/>
+                  <stop offset="60%" stop-color="#07172c"/>
+                  <stop offset="100%" stop-color="#0b3b4a"/>
                 </linearGradient>
               </defs>
-              <rect width="400" height="240" fill="url(#g3)"/>
-              <circle cx="200" cy="120" r="60" fill="none" stroke="#00ffcc" stroke-width="2" stroke-dasharray="8,4" opacity="0.6"/>
-              <text x="200" y="125" font-family="system-ui" font-size="48" text-anchor="middle" fill="#fff">🌌</text>
+              <rect width="400" height="240" fill="url(#artCosmicGrad)"/>
+              <circle cx="60" cy="40" r="1.2" fill="#fff" opacity="0.8"/>
+              <circle cx="120" cy="70" r="1" fill="#fff" opacity="0.6"/>
+              <circle cx="280" cy="35" r="1.4" fill="#00f2fe" opacity="0.9"/>
+              <circle cx="340" cy="80" r="1" fill="#fff" opacity="0.7"/>
+              <circle cx="90" cy="150" r="1.5" fill="#fff" opacity="0.5"/>
+              <circle cx="285" cy="100" r="38" fill="radial-gradient(circle, #0e4e68 0%, #03131c 90%)"/>
+              <ellipse cx="285" cy="100" rx="65" ry="14" fill="none" stroke="#00ffcc" stroke-width="2" opacity="0.75" transform="rotate(-18 285 100)"/>
+              <path d="M 20 200 Q 150 110 320 180" stroke="rgba(0, 242, 254, 0.2)" stroke-width="24" fill="none" filter="blur(10px)"/>
+              <polygon points="120,135 155,143 140,147 115,145" fill="#e2e8f0"/>
+              <polygon points="115,145 140,147 135,152 110,148" fill="#94a3b8"/>
+              <line x1="108" y1="146" x2="88" y2="147" stroke="#00f2fe" stroke-width="3" stroke-linecap="round"/>
+              <text x="24" y="38" font-family="'Plus Jakarta Sans', system-ui" font-size="11" font-weight="800" letter-spacing="2" fill="#00ffcc">DEEP SPACE ODYSSEY</text>
             </svg>
-            <span class="teaser-badge" style="border-color:#00ffcc; color:#00ffcc;">Space Odyssey</span>
+            <span class="teaser-badge" style="border-color:#00ffcc; color:#00ffcc;">Space Survival</span>
           </div>
           <div class="teaser-info">
             <h3 class="teaser-title">Cosmic Odyssey VR</h3>
@@ -2133,8 +2294,8 @@
     <footer class="ps-control-center">
       <div class="ps-dock-left">
         <div class="ps-dock-brand">
-          <span style="color:var(--ps-cyan);" aria-hidden="true">▲ ✖ ◼ ⬢</span>
-          <span>PlayStation 5 & Steam Client</span>
+          <span class="ps-status-pulse"></span>
+          <span>Pocket Console OS</span>
         </div>
         <div class="ps-controller-hints">
           <span class="hint-item"><kbd>◀</kbd><kbd>▶</kbd> Select</span>
@@ -2376,6 +2537,22 @@
             gain.connect(this.ctx.destination);
             osc.start(t + idx * 0.08);
             osc.stop(t + idx * 0.08 + 0.35);
+          });
+        } else if (type === "boot") {
+          // Subtle acoustic console startup chime
+          const notes = [261.63, 392.00, 523.25, 783.99];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, t + idx * 0.04);
+            gain.gain.setValueAtTime(0.001, t + idx * 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.08, t + idx * 0.04 + 0.12);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.04 + 1.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t + idx * 0.04);
+            osc.stop(t + idx * 0.04 + 1.25);
           });
         } else if (type === "toast") {
           // Notification chime
@@ -4125,6 +4302,41 @@
     }
     updateTime();
     setInterval(updateTime, 1000);
+
+    // ==========================================
+    // 15. PS5 CINEMATIC BOOT SEQUENCE
+    // ==========================================
+    const psBootScreen = document.getElementById("psBootScreen");
+    const psBootBarFill = document.getElementById("psBootBarFill");
+    const psBootStatus = document.getElementById("psBootStatus");
+
+    function runBootSequence() {
+      if (!psBootScreen) return;
+      
+      setTimeout(() => {
+        if (psBootBarFill) psBootBarFill.style.width = "45%";
+        if (psBootStatus) psBootStatus.textContent = "Connecting Network";
+      }, 250);
+
+      setTimeout(() => {
+        if (psBootBarFill) psBootBarFill.style.width = "88%";
+        if (psBootStatus) psBootStatus.textContent = "Loading Profile";
+      }, 600);
+
+      setTimeout(() => {
+        if (psBootBarFill) psBootBarFill.style.width = "100%";
+        if (psBootStatus) psBootStatus.textContent = "Welcome";
+        try { consoleAudio.play("boot"); } catch (_) {}
+      }, 950);
+
+      setTimeout(() => {
+        psBootScreen.classList.add("fade-out");
+        setTimeout(() => {
+          psBootScreen.style.display = "none";
+        }, 700);
+      }, 1300);
+    }
+    runBootSequence();
   });
   </script>
 </body>
