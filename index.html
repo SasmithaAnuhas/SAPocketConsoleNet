@@ -3,919 +3,1227 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pocket Console</title>
-</head>
-<body>
-<div id="consoleContainer">
-  <!-- Ambient background -->
-  <div class="ambientWrap" aria-hidden="true">
-    <div class="bg-orb orb1"></div>
-    <div class="bg-orb orb2"></div>
-    <div class="noise"></div>
-  </div>
-
-  <!-- Header -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="brandDot" aria-hidden="true"></div>
-      <div>
-        <div class="brandTitle">Pocket Console</div>
-        <div class="brandSub">Instant games • No installs</div>
-      </div>
-    </div>
-
-    <div class="topActions">
-      <a class="pill leaderboardLink" href="HighScoreBoard.html">🏆 High Scores</a>
-      <button class="pill" id="scrollLeft" type="button" aria-label="Scroll featured left">‹</button>
-      <button class="pill" id="scrollRight" type="button" aria-label="Scroll featured right">›</button>
-    </div>
-  </header>
-
-  <!-- Featured carousel -->
-  <section class="section">
-    <div class="sectionTitleRow">
-      <h2 class="sectionTitle">Featured</h2>
-      <div class="sectionHint">Swipe</div>
-    </div>
-
-    <div class="carousel" id="featured">
-      <a class="tile" href="Games/TurboDrift2D/TurboDrift.html" aria-label="Turbo Drift">
-        <div class="tileMedia">
-          <img
-            src="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg"
-            alt="Turbo Drift banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="tileMeta">
-          <div class="tileTitle">Turbo Drift</div>
-          <div class="tileTag">Racing • Drift</div>
-        </div>
-        <div class="shine" aria-hidden="true"></div>
-      </a>
-
-      <a class="tile" href="Games/LaneRushV1/LaneRushV1.html" aria-label="Play Lane Rush">
-        <div class="tileMedia">
-          <img
-            src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp"
-            alt="LaneRushV banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="tileMeta">
-          <div class="tileTitle">Lane Rush</div>
-          <div class="tileTag">Arcade • Highway</div>
-        </div>
-        <div class="shine" aria-hidden="true"></div>
-      </a>
-
-      <a class="tile" href="Games/Keycraft TypingV1/KeycraftTypingV1.html" aria-label="Elevate your speed">
-        <div class="tileMedia">
-          <img
-            src="Games/Keycraft TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg"
-            alt="Keycraft Typing banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="tileMeta">
-          <div class="tileTitle">Keycraft Typing</div>
-          <div class="tileTag">New drop</div>
-        </div>
-        <div class="shine" aria-hidden="true"></div>
-      </a>
-    </div>
-  </section>
-
-  <section class="section" aria-labelledby="leaderboardSectionTitle">
-    <div class="homeScores">
-      <div class="homeScoresHeader">
-        <div>
-          <div class="homeScoresEyebrow">Live leaderboard</div>
-          <h2 id="leaderboardSectionTitle">☕ Keycraft Typing high scores</h2>
-        </div>
-        <a class="homeScoresFullLink" href="HighScoreBoard.html">View all</a>
-      </div>
-
-      <!-- Game switcher box -->
-      <div class="homeGameSwitcher" role="tablist" aria-label="Select Game Leaderboard">
-        <button type="button" class="homeGameSwitchBtn active" data-game="typewriter" role="tab" aria-selected="true">
-          <span>☕</span> Keycraft Typing
-        </button>
-        <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
-          <span>🐍</span> Snake game
-        </button>
-      </div>
-
-      <div class="homePlayerState" id="homePlayerState" data-state="loading" aria-live="polite">Checking player state…</div>
-      <div class="homeSignInPrompt" id="homeSignInPrompt" hidden>
-        <span id="homePromptText">Sign in to save your Keycraft Typing scores and appear on the global leaderboard.</span>
-        <a href="AccSettings.html">Sign in</a>
-      </div>
-      <ol class="homeScoresList" id="homeScoresList" aria-label="Top scores">
-        <li class="homeScoresEmpty">Loading scores…</li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- Library grid -->
-  <section class="section" style="padding-bottom: 140px;">
-    <div class="sectionTitleRow">
-      <h2 class="sectionTitle">Library</h2>
-      <div class="sectionHint">Tap to play</div>
-    </div>
-
-    <div class="library">
-      <a class="gameCard" href="Games/XOV1/XOV1.html" aria-label="Play XO Tic Tac Toe">
-        <div class="gameMedia">
-          <img
-            src="Games/XOV1/Assets/IconsAndBanners/XOXBanner1.jpg"
-            alt="XO Tic Tac Toe banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">XO Tic Tac Toe</div>
-          <div class="gameSub">1v1 Online & Pass-Play</div>
-        </div>
-      </a>
-
-      <a class="gameCard" href="Games/SnakeGameV1/SnakeGameV1.html" aria-label="Play Snake Arcade">
-        <div class="gameMedia">
-          <img
-            src="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg"
-            alt="Snake Arcade banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">Snake Arcade</div>
-          <div class="gameSub">Classic • High Scores</div>
-        </div>
-      </a>
-
-      <a class="gameCard" href="Games/Keycraft%20TypingV1/KeycraftTypingV1.html" aria-label="Play Keycraft Typing">
-        <div class="gameMedia">
-          <img
-            src="Games/Keycraft%20TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg"
-            alt="Keycraft Typing banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">Keycraft Typing</div>
-          <div class="gameSub">Java Velocity Practice</div>
-        </div>
-      </a>
-
-      <a class="gameCard" href="Games/KennyAdventureV1/KennyAdventure.html" aria-label="Play Kenny Adventure">
-        <div class="gameMedia">
-          <img 
-            src="Games/KennyAdventureV1/Assets/kenney_new-platformer-pack-1.1/Sample A.png" 
-            alt="Kenny Adventure banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">Kenny Adventure</div>
-          <div class="gameSub">Platformer • Sunny Meadow</div>
-        </div>
-      </a>
-
-      <a class="gameCard" href="Games/TurboDrift2D/TurboDrift.html" aria-label="Play Turbo Drift">
-        <div class="gameMedia">
-          <img
-            src="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg"
-            alt="Turbo Drift banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">Turbo Drift</div>
-          <div class="gameSub">Racing • Precision Drift</div>
-        </div>
-      </a>
-
-      <a class="gameCard" href="Games/LaneRushV1/LaneRushV1.html" aria-label="Play Lane Rush">
-        <div class="gameMedia">
-          <img
-            src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp"
-            alt="Lane Rush banner"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-        <div class="gameMeta">
-          <div class="gameTitle">Lane Rush</div>
-          <div class="gameSub">Arcade • Highway Survival</div>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <!-- Bottom nav -->
-  <nav id="bottomBar" class="bottomBar">
-    <div class="navLinks">
-      <a class="navLink active" href="#">Home</a>
-      <a class="navLink" href="#">Store</a>
-      <a class="navLink" href="#">Settings</a>
-    </div>
-
-    <div id="bottomTime" class="bottomTime">00:00</div>
-
-    <a href="FriendManagementPage.html" class="friendButton" aria-label="Open friends" title="Friends">
-      <span class="friendIcon" aria-hidden="true">👥</span>
-      <span class="friendLabel">Friends</span>
-    </a>
-
-    <a href="AccSettings.html" class="avatarWrap" aria-label="Account" title="Account">
-      <div id="userAvatar" class="userAvatar"></div>
-      <span class="onlineDot" aria-hidden="true"></span>
-    </a>
-  </nav>
-
-  <a href="ChatPage.html" class="floatingChat" aria-label="Chat" title="Chat"><span class="floatingChatIcon" aria-hidden="true">💬</span></a>
-
-  <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
-    <div class="loginReminderIcon" aria-hidden="true">👋</div>
-    <h2 id="loginReminderTitle">Make it yours</h2>
-    <p id="loginReminderMessage">You’re playing as a guest. Log in to connect with friends and access your account features.</p>
-    <div class="loginReminderActions">
-      <a class="loginReminderSignIn" href="AccSettings.html">Log in</a>
-      <button class="loginReminderDismiss" id="dismissLoginReminder" type="button">Continue as guest</button>
-    </div>
-  </dialog>
-  
-  
+  <title>Pocket Console | Steam Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
-      --game-card-width: 160px;
-      --game-card-media-height: 160px;
+      --steam-dark: #10141d;
+      --steam-client-bg: #171d25;
+      --steam-panel: #1b2838;
+      --steam-panel-hover: #213247;
+      --steam-card-bg: #16202d;
+      --steam-border: #2a3f5a;
+      --steam-border-glow: #3870a8;
+      --steam-blue: #66c0f4;
+      --steam-blue-deep: #1999e3;
+      --steam-accent-green: #5c7e10;
+      --steam-accent-green-bright: #799905;
+      --steam-text-main: #c7d5e0;
+      --steam-text-sub: #8f98a0;
+      --steam-white: #ffffff;
+      --steam-gold: #ffd166;
     }
-    * { box-sizing: border-box; }
-    html, body {
-      width: 100%;
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
-      background: #0e0f12;
+      -webkit-tap-highlight-color: transparent;
     }
-    body {
-      min-height: 100vh;
-      min-height: 100dvh;
-    }
-    a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
-    img { display: block; }
 
-    /* Container */
-    #consoleContainer{
+    html, body {
       width: 100%;
       min-height: 100vh;
-      min-height: 100dvh;
-      background: radial-gradient(1200px 600px at 20% 10%, rgba(0,255,204,0.12), transparent 55%),
-                  radial-gradient(900px 500px at 90% 30%, rgba(140,110,255,0.14), transparent 55%),
-                  #0e0f12;
-      color: #fff;
-      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
-      position: relative;
-      overflow-x: clip;
+      background: var(--steam-dark);
+      color: var(--steam-text-main);
+      font-family: 'Inter', system-ui, -apple-system, Roboto, sans-serif;
+      overflow-x: hidden;
     }
 
-    /* Ambient background wrapper (clips orb bleed so page never misaligns) */
-    .ambientWrap{
-      position: absolute;
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Ambient Steam Background Aura */
+    .steam-ambient {
+      position: fixed;
       inset: 0;
-      overflow: hidden;
       pointer-events: none;
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(25, 153, 227, 0.12), transparent 60%),
+        radial-gradient(1000px 600px at 85% 30%, rgba(102, 192, 244, 0.08), transparent 65%),
+        radial-gradient(800px 500px at 50% 90%, rgba(121, 153, 5, 0.05), transparent 70%);
       z-index: 0;
     }
 
-    /* Ambient orbs + noise */
-    .bg-orb{
-      position:absolute; inset:auto;
-      width: 520px; height: 520px;
-      border-radius: 50%;
-      filter: blur(32px);
-      opacity: 0.45;
-      pointer-events:none;
-      transform: translate3d(0,0,0);
-      animation: floaty 10s ease-in-out infinite;
-    }
-    .orb1{ left:-160px; top:80px; background: radial-gradient(circle at 30% 30%, rgba(0,255,204,0.40), transparent 55%); }
-    .orb2{ right:-220px; top:260px; background: radial-gradient(circle at 30% 30%, rgba(140,110,255,0.42), transparent 60%); animation-duration: 12s; }
-
-    .noise{
-      position: absolute; inset: 0;
-      pointer-events: none;
-      opacity: 0.07;
-      mix-blend-mode: overlay;
-      background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
-      background-size: 120px 120px;
-    }
-
-    @keyframes floaty{
-      0%,100%{ transform: translate3d(0,0,0) scale(1); }
-      50%{ transform: translate3d(0,-18px,0) scale(1.03); }
-    }
-
-    /* Top bar */
-    .topbar{
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 12px;
-      padding: 18px 18px 10px;
-      backdrop-filter: blur(10px);
-      background: linear-gradient(to bottom, rgba(14,15,18,0.88), rgba(14,15,18,0.55));
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .brand{
-      display:flex; align-items:center; gap: 12px;
-      min-width: 0;
-    }
-    .brandDot{
-      width: 12px; height: 12px; border-radius: 999px;
-      background: #00ffcc;
-      box-shadow: 0 0 18px rgba(0,255,204,0.65);
-      animation: pulse 2.2s ease-in-out infinite;
-    }
-    .brandTitle{ font-weight: 700; letter-spacing: 0.2px; }
-    .brandSub{ font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 2px; }
-
-    @keyframes pulse{
-      0%,100%{ transform: scale(1); opacity: .9; }
-      50%{ transform: scale(1.25); opacity: 1; }
-    }
-
-    .topActions{ display:flex; gap: 8px; }
-    .pill{
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      color: #fff;
-      border-radius: 999px;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: transform .18s ease, background .18s ease, border-color .18s ease;
-      user-select: none;
-    }
-    .pill:hover{ transform: translateY(-1px); background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.22); }
-    .pill:active{ transform: translateY(0px) scale(0.98); }
-
-    /* Sections */
-    .section{ padding: 12px 18px 6px; position: relative; z-index: 1; }
-    .sectionTitleRow{
-      display:flex; align-items: baseline; justify-content: space-between;
-      gap: 10px; margin: 4px 2px 10px;
-    }
-    .sectionTitle{ margin:0; font-size: 15px; font-weight: 700; letter-spacing: .2px; }
-    .sectionHint{ font-size: 12px; color: rgba(255,255,255,0.55); }
-
-    .homeScores{
-      max-width: 580px;
-      padding: 18px;
-      border: 1px solid rgba(0,255,204,0.2);
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(0,255,204,0.07), rgba(140,110,255,0.06));
-      box-shadow: 0 14px 38px rgba(0,0,0,0.24);
-    }
-    .homeScoresHeader{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .homeScoresEyebrow{ margin-bottom:4px; color:#00ffcc; font-size:10px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
-    .homeScoresHeader h2{ margin:0; font-size:16px; }
-    .homeScoresFullLink{ color:#00ffcc; font-size:12px; font-weight:700; white-space:nowrap; }
-    .homeGameSwitcher{
-      display: inline-flex;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.32);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 999px;
-      padding: 3px;
-      gap: 4px;
-      margin-top: 12px;
-    }
-    .homeGameSwitchBtn{
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.65);
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: background .18s ease, color .18s ease, transform .15s ease;
-      user-select: none;
-    }
-    .homeGameSwitchBtn:hover{
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
-    }
-    .homeGameSwitchBtn.active{
-      background: #ffc66d;
-      color: #120e06;
-      box-shadow: 0 2px 8px rgba(255, 198, 109, 0.35);
-    }
-    .homeGameSwitchBtn.active[data-game="snake"]{
-      background: #00ffcc;
-      color: #071310;
-      box-shadow: 0 2px 8px rgba(0, 255, 204, 0.35);
-    }
-    .homePlayerState{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      margin-top:13px;
-      color:rgba(255,255,255,0.75);
-      font-size:12px;
-    }
-    .homePlayerState::before{ content:""; width:8px; height:8px; border-radius:50%; background:#999; }
-    .homePlayerState[data-state="signed-in"]::before{ background:#00ffcc; box-shadow:0 0 10px rgba(0,255,204,.6); }
-    .homePlayerState[data-state="guest"]::before{ background:#ffcc66; }
-    .homeSignInPrompt{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-top:12px;
-      padding:11px 12px;
-      border:1px solid rgba(255,204,102,0.45);
-      border-radius:13px;
-      background:rgba(255,204,102,0.12);
-      color:#ffe2a8;
-      font-size:12px;
-      line-height:1.45;
-    }
-    .homeSignInPrompt[hidden]{ display:none; }
-    .homeSignInPrompt a{
-      flex:0 0 auto;
-      padding:7px 11px;
-      border-radius:999px;
-      background:#ffcc66;
-      color:#201607;
-      font-weight:800;
-      white-space:nowrap;
-    }
-    .homeScoresList{ display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
-    .homeScoresRow{ display:grid; grid-template-columns:36px minmax(0,1fr) auto; align-items:center; gap:10px; padding:8px 10px; border:1px solid rgba(255,255,255,0.07); border-radius:11px; background:rgba(0,0,0,0.18); font-size:12px; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
-    .homeScoresRow.rank-1{ border-color: rgba(245, 158, 11, 0.4); background: linear-gradient(90deg, rgba(245, 158, 11, 0.12), rgba(0,0,0,0.2)); }
-    .homeScoresRow.rank-1 .homeScoresRank{ color: #fbbf24; font-weight: 800; }
-    .homeScoresRow.rank-2{ border-color: rgba(148, 163, 184, 0.35); background: linear-gradient(90deg, rgba(148, 163, 184, 0.1), rgba(0,0,0,0.2)); }
-    .homeScoresRow.rank-2 .homeScoresRank{ color: #e2e8f0; font-weight: 800; }
-    .homeScoresRow.rank-3{ border-color: rgba(217, 119, 6, 0.3); background: linear-gradient(90deg, rgba(217, 119, 6, 0.08), rgba(0,0,0,0.2)); }
-    .homeScoresRow.rank-3 .homeScoresRank{ color: #f97316; font-weight: 800; }
-    .homeScoresRow.isPlayer{ border-color: rgba(0,255,204,0.5); box-shadow: 0 0 14px rgba(0,255,204,0.15); }
-    .homeScoresPlayerRow{ margin-top: 4px; border-color: rgba(0,255,204,0.38); background: linear-gradient(90deg, rgba(0,255,204,0.12), rgba(140,110,255,0.1)); box-shadow: 0 0 16px rgba(0,255,204,0.1); }
-    .homeScoresPlayerRow .homeScoresRank{ color: #00ffcc; font-weight: 800; }
-    .homeScoresYouBadge{ display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px; font-size: 10px; font-weight: 800; background: rgba(0,255,204,0.2); color: #00ffcc; border: 1px solid rgba(0,255,204,0.4); vertical-align: middle; }
-    .homeScoresDivider{ display: flex; align-items: center; gap: 8px; font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px; margin: 3px 0 1px; }
-    .homeScoresDivider::before, .homeScoresDivider::after{ content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
-    .homeScoresRank{ color:rgba(255,255,255,0.5); font-variant-numeric:tabular-nums; }
-    .homeScoresName{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .homeScoresScore{ color:#00ffcc; font-weight:800; font-variant-numeric:tabular-nums; }
-    .homeScoresEmpty{ padding:11px 4px 2px; color:rgba(255,255,255,0.57); font-size:12px; line-height:1.45; }
-
-    /* Carousel */
-    .carousel{
-      display:flex;
-      gap: 14px;
-      overflow-x: auto;
-      padding: 6px 2px 14px;
-      scroll-behavior: smooth;
-      scroll-snap-type: x mandatory;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .carousel::-webkit-scrollbar{ display: none; }
-
-    .tile{
+    #consoleContainer {
       position: relative;
-      min-width: var(--game-card-width);
-      height: auto;
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
-      border: 1px solid rgba(255,255,255,0.12);
-      overflow: hidden;
-      flex-shrink: 0;
-      scroll-snap-align: start;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.45);
-      transform: translateZ(0);
-      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
-      animation: popIn .45s ease both;
+      z-index: 5;
       display: flex;
       flex-direction: column;
-    }
-    .tile:nth-child(2){ animation-delay: .06s; }
-    .tile:nth-child(3){ animation-delay: .12s; }
-
-    @keyframes popIn{
-      from{ opacity: 0; transform: translateY(10px) scale(0.98); }
-      to{ opacity: 1; transform: translateY(0) scale(1); }
+      min-height: 100vh;
+      padding-bottom: 90px;
     }
 
-    .tile:hover{
-      transform: translateY(-4px) scale(1.01);
-      border-color: rgba(0,255,204,0.35);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
-    }
-    .tile:active{ transform: translateY(-2px) scale(0.995); }
-
-    .tileMedia{
-      position: relative;
-      height: var(--game-card-media-height);
-      background: #000;
-    }
-    .tileMedia img{
-      width:100%; height:100%;
-      object-fit: cover;
-      object-position: center;
-      filter: saturate(1.05) contrast(1.02);
-      transform: scale(1.02);
-      transition: transform .35s ease;
-    }
-    .tile:hover .tileMedia img{ transform: scale(1.06); }
-
-    .tileMeta{
-      position: relative;
-      margin: 12px;
-      padding: 10px 12px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.20));
-      border: 1px solid rgba(255,255,255,0.10);
-      backdrop-filter: blur(8px);
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .tileTitle{ font-weight: 700; font-size: 14px; }
-    .tileTag{
-      font-size: 12px;
-      color: rgba(255,255,255,0.75);
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06);
-      padding: 6px 10px;
-      border-radius: 999px;
-      white-space: nowrap;
-    }
-
-    /* "Satisfying" shine sweep */
-    .shine{
-      position:absolute;
-      inset:-40% -40%;
-      background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.20) 45%, transparent 55%);
-      transform: translateX(-60%);
-      opacity: 0;
-      pointer-events:none;
-    }
-    .tile:hover .shine{
-      opacity: 1;
-      animation: shine 1.05s ease;
-    }
-    @keyframes shine{
-      from{ transform: translateX(-60%) rotate(0.001deg); }
-      to{ transform: translateX(60%) rotate(0.001deg); }
-    }
-
-    /* Empty placeholders */
-    .tileEmpty .tileMedia{ background: rgba(0,0,0,0.65); }
-    .emptyState{
-      height: 100%;
-      display:flex; flex-direction: column;
-      align-items:center; justify-content:center;
-      gap: 10px;
-      color: rgba(255,255,255,0.72);
-    }
-    .emptyIcon{
-      width: 46px; height: 46px;
-      border-radius: 16px;
-      display:flex; align-items:center; justify-content:center;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.14);
-      font-size: 22px;
-    }
-    .emptyText{ font-size: 12px; }
-
-    /* Library grid */
-    .library{
-      display:grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--game-card-width), 1fr));
-      gap: 12px;
-      padding: 4px 2px 10px;
-    }
-
-    .gameCard{
-      border-radius: 22px;
-      overflow:hidden;
-      background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.12);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.38);
-      transform: translateZ(0);
-      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
-      animation: popIn .45s ease both;
-    }
-    .gameCard:hover{
-      transform: translateY(-4px);
-      border-color: rgba(140,110,255,0.35);
-      box-shadow: 0 18px 52px rgba(0,0,0,0.50);
-    }
-    .gameCard:active{ transform: translateY(-2px) scale(0.995); }
-
-    .gameMedia{
-      height: var(--game-card-media-height);
-      background: #000;
-      position: relative;
-    }
-    .gameMedia img{
-      width: 100%; height: 100%;
-      object-fit: cover;
-      object-position: center;
-      transform: scale(1.02);
-      transition: transform .35s ease;
-    }
-    .gameCard:hover .gameMedia img{ transform: scale(1.06); }
-
-    .gameMeta{
-      padding: 12px 12px 13px;
-      display:flex; flex-direction: column;
-      gap: 4px;
-    }
-    .gameTitle{ font-weight: 700; font-size: 13px; }
-    .gameSub{ font-size: 12px; color: rgba(255,255,255,0.60); }
-
-    .gameEmpty .gameMedia{ background: rgba(0,0,0,0.65); display:flex; }
-
-    /* Bottom bar */
-    .bottomBar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      position:fixed;
-      bottom:0; left:0; right:0;
-      width:100%;
-      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-      background: rgba(14,15,18,0.70);
+    /* ========================================================
+       1. STEAM TOP CLIENT BAR (Signature Steam Navigation)
+       ======================================================== */
+    .steam-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(23, 29, 37, 0.95);
       backdrop-filter: blur(14px);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      z-index: 9999;
-      box-sizing: border-box;
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--steam-border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     }
 
-    .navLinks{ display:flex; gap: 18px; align-items:center; }
-    .navLink{
-      font-size: 13px;
-      color: rgba(255,255,255,0.80);
-      padding: 8px 10px;
-      border-radius: 12px;
-      transition: background .18s ease, transform .18s ease, color .18s ease;
-    }
-    .navLink:hover{
-      background: rgba(255,255,255,0.07);
-      transform: translateY(-1px);
-      color: #fff;
-    }
-    .navLink.active{
-      color: #00ffcc;
-      background: rgba(0,255,204,0.10);
-      border: 1px solid rgba(0,255,204,0.20);
+    .steam-topbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
     }
 
-    .bottomTime{
-      font-size: 13px;
-      color: rgba(0,255,204,0.95);
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.2px;
+    .steam-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: max-content;
     }
 
-    .avatarWrap{
-      position: relative;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width: 40px; height: 40px;
-    }
-    .floatingChat{
-      position: fixed;
-      right: 18px;
-      bottom: calc(14px + env(safe-area-inset-bottom) + 54px);
-      width: 46px;
-      height: 46px;
-      border-radius: 13px; /* Curved square outline */
+    .steam-logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1999e3, #66c0f4);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
-      color: #fff;
-      background: rgba(18, 24, 38, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(0, 255, 204, 0.35);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45), 0 0 12px rgba(0, 255, 204, 0.12);
-      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease, background .18s ease;
-      z-index: 10000;
-      text-decoration: none;
+      box-shadow: 0 0 16px rgba(102, 192, 244, 0.4);
     }
-    .floatingChat:hover{
-      transform: translateY(-2px) scale(1.04);
-      border-color: rgba(0, 255, 204, 0.65);
-      background: linear-gradient(135deg, rgba(0, 255, 204, 0.22), rgba(140, 110, 255, 0.22));
-      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 255, 204, 0.25);
+    .steam-logo-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: #fff;
     }
-    .floatingChat:active{
-      transform: scale(0.96);
-    }
-    .friendButton{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 8px;
-      min-height: 42px;
-      padding: 0 15px 0 10px;
-      border: 1px solid rgba(0,255,204,0.38);
-      border-radius: 999px;
-      background: linear-gradient(135deg, rgba(0,255,204,0.2), rgba(140,110,255,0.2));
-      color: #fff;
-      box-shadow: 0 0 18px rgba(0,255,204,0.12), inset 0 1px rgba(255,255,255,0.1);
-      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
-    }
-    .friendButton:hover{
-      transform: translateY(-2px);
-      border-color: rgba(0,255,204,0.72);
-      background: linear-gradient(135deg, rgba(0,255,204,0.3), rgba(140,110,255,0.28));
-      box-shadow: 0 6px 24px rgba(0,255,204,0.2);
-    }
-    .friendButton:focus-visible{ outline: 2px solid #00ffcc; outline-offset: 3px; }
-    .friendIcon{
-      display:grid;
-      place-items:center;
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.24);
+
+    .steam-brand-name {
       font-size: 15px;
-      line-height: 1;
-    }
-    .friendLabel{ font-size: 12px; font-weight: 700; letter-spacing: .15px; }
-    .userAvatar{
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: #333 center/cover no-repeat;
-      border: 2px solid rgba(255,255,255,0.90);
-      box-shadow: 0 10px 28px rgba(0,0,0,0.45);
-      transition: transform .18s ease, border-color .18s ease;
-    }
-    .avatarWrap:hover .userAvatar{
-      transform: translateY(-1px);
-      border-color: rgba(0,255,204,0.65);
-    }
-
-    .onlineDot{
-      position:absolute;
-      right: 3px; bottom: 3px;
-      width: 10px; height: 10px;
-      background: #00ffcc;
-      border: 2px solid rgba(14,15,18,0.85);
-      border-radius: 50%;
-      box-shadow: 0 0 16px rgba(0,255,204,0.6);
-      animation: pulse 2.2s ease-in-out infinite;
-    }
-
-    .loginReminder{
-      width: min(420px, calc(100% - 32px));
-      padding: 28px;
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 24px;
-      background: #171a20;
+      font-weight: 850;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
       color: #fff;
-      text-align: center;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.65);
     }
-    .loginReminder::backdrop{ background: rgba(0,0,0,0.72); backdrop-filter: blur(5px); }
-    .loginReminderIcon{ font-size: 32px; }
-    .loginReminder h2{ margin: 12px 0 8px; font-size: 22px; }
-    .loginReminder p{ margin: 0; color: rgba(255,255,255,0.72); line-height: 1.5; }
-    .loginReminderActions{ display: grid; gap: 10px; margin-top: 22px; }
-    .loginReminderSignIn,
-    .loginReminderDismiss{
-      display: block;
+    .steam-brand-sub {
+      font-size: 10.5px;
+      color: var(--steam-blue);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Steam Main Tabs */
+    .steam-nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .steam-tab {
+      padding: 0 16px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--steam-text-main);
+      position: relative;
+      transition: color 0.18s ease;
+    }
+    .steam-tab:hover {
+      color: #fff;
+    }
+    .steam-tab.active {
+      color: var(--steam-blue);
+    }
+    .steam-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 12px;
+      right: 12px;
+      height: 3px;
+      background: var(--steam-blue);
+      border-radius: 3px 3px 0 0;
+      box-shadow: 0 0 12px var(--steam-blue);
+    }
+
+    /* Right Account Controls */
+    .steam-client-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .steam-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--steam-text-sub);
+    }
+
+    .steam-user-deck {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--steam-border);
+      border-radius: 999px;
+      padding: 4px 12px 4px 5px;
+      transition: all 0.2s;
+    }
+    .steam-user-deck:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--steam-blue);
+    }
+
+    .steam-avatar-ring {
+      position: relative;
+      width: 32px;
+      height: 32px;
+    }
+
+    .userAvatar {
       width: 100%;
-      padding: 12px 16px;
-      border: 1px solid rgba(255,255,255,0.16);
-      border-radius: 14px;
-      color: #fff;
-      font: inherit;
-      text-align: center;
-      cursor: pointer;
+      height: 100%;
+      border-radius: 50%;
+      background: #2a3f5a url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==") center/cover no-repeat;
+      border: 2px solid #57cbde;
     }
-    .loginReminderSignIn{
-      border-color: transparent;
-      background: #00c9a1;
-      color: #071310;
+
+    .onlineDot {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background: #5c7e10;
+      border: 2px solid var(--steam-client-bg);
+      border-radius: 50%;
+      box-shadow: 0 0 6px #799905;
+      transition: opacity 0.2s;
+    }
+
+    .steam-username {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ========================================================
+       2. STEAM SUB-BAR & SEARCH CATEGORIES
+       ======================================================== */
+    .steam-subbar {
+      background: linear-gradient(180deg, rgba(27, 40, 56, 0.9), rgba(20, 29, 41, 0.95));
+      border-bottom: 1px solid var(--steam-border);
+      padding: 12px 0;
+    }
+
+    .steam-subbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Category Filter Pills */
+    .steam-filter-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .steam-filter-tags::-webkit-scrollbar { display: none; }
+
+    .steam-pill-btn {
+      padding: 7px 14px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--steam-text-main);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+    .steam-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .steam-pill-btn.active {
+      background: var(--steam-blue);
+      color: #0b1a2a;
+      border-color: var(--steam-blue);
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(102, 192, 244, 0.4);
+    }
+
+    /* Search Bar */
+    .steam-search-wrap {
+      position: relative;
+      width: min(280px, 100%);
+    }
+    .steam-search-input {
+      width: 100%;
+      background: #101620;
+      border: 1px solid var(--steam-border);
+      border-radius: 4px;
+      padding: 8px 12px 8px 34px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .steam-search-input:focus {
+      border-color: var(--steam-blue);
+      box-shadow: 0 0 10px rgba(102, 192, 244, 0.25);
+    }
+    .steam-search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: var(--steam-text-sub);
+      pointer-events: none;
+    }
+
+    /* ========================================================
+       3. STEAM HERO SPOTLIGHT SHOWCASE (Featured & Recommended)
+       ======================================================== */
+    .steam-hero-section {
+      max-width: 1280px;
+      margin: 28px auto 14px;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .steam-section-heading {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .steam-section-heading span.badge {
+      font-size: 11px;
+      color: var(--steam-blue);
+      font-weight: 600;
+    }
+
+    .steam-spotlight-box {
+      background: linear-gradient(135deg, rgba(33, 49, 72, 0.8), rgba(20, 29, 41, 0.95));
+      border: 1px solid var(--steam-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      min-height: 380px;
+    }
+
+    .spotlight-media {
+      position: relative;
+      background: #0b111a;
+      overflow: hidden;
+      min-height: 280px;
+    }
+    .spotlight-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .steam-spotlight-box:hover .spotlight-media img {
+      transform: scale(1.03);
+    }
+
+    .spotlight-tag-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      padding: 4px 10px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid var(--steam-blue);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 750;
+      color: var(--steam-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      backdrop-filter: blur(8px);
+    }
+
+    .spotlight-info {
+      padding: 26px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: rgba(22, 32, 45, 0.9);
+      border-left: 1px solid var(--steam-border);
+    }
+
+    .spotlight-title {
+      font-size: 26px;
+      font-weight: 850;
+      color: #fff;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .spotlight-desc {
+      font-size: 13.5px;
+      color: var(--steam-text-main);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .spotlight-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .spotlight-pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--steam-text-sub);
+    }
+
+    .spotlight-cta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .spotlight-price {
+      font-size: 12px;
+      font-weight: 700;
+      color: #799905;
+      background: rgba(121, 153, 5, 0.14);
+      padding: 4px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Giant Steam Green "PLAY NOW" Button */
+    .steam-btn-green {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--steam-accent-green), var(--steam-accent-green-bright));
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(92, 126, 16, 0.45);
+      transition: all 0.18s ease;
+    }
+    .steam-btn-green:hover {
+      background: linear-gradient(90deg, #6c9413, #8cb306);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(121, 153, 5, 0.6);
+      color: #fff;
+    }
+
+    /* ========================================================
+       4. STEAM LIBRARY GRID (Steam Game Capsules)
+       ======================================================== */
+    .steam-library-section {
+      max-width: 1280px;
+      margin: 32px auto 20px;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .steam-capsule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .steam-capsule-card {
+      background: var(--steam-card-bg);
+      border: 1px solid var(--steam-border);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      position: relative;
+    }
+    .steam-capsule-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--steam-blue);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6), 0 0 16px rgba(102, 192, 244, 0.25);
+    }
+
+    .capsule-media {
+      position: relative;
+      width: 100%;
+      height: 155px;
+      background: #0f1622;
+      overflow: hidden;
+    }
+    .capsule-media img {
+      transition: transform 0.4s ease;
+    }
+    .steam-capsule-card:hover .capsule-media img {
+      transform: scale(1.05);
+    }
+
+    .capsule-overlay-btn {
+      position: absolute;
+      inset: 0;
+      background: rgba(16, 24, 34, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      backdrop-filter: blur(4px);
+      transition: opacity 0.2s ease;
+    }
+    .steam-capsule-card:hover .capsule-overlay-btn {
+      opacity: 1;
+    }
+    .capsule-play-pill {
+      padding: 9px 18px;
+      border-radius: 4px;
+      background: var(--steam-accent-green-bright);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .capsule-meta {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .capsule-title {
+      font-size: 15px;
+      font-weight: 750;
+      color: #fff;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .capsule-sub {
+      font-size: 12px;
+      color: var(--steam-text-sub);
+      margin-bottom: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .capsule-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .capsule-genre {
+      font-size: 11px;
+      color: var(--steam-text-sub);
+    }
+
+    .capsule-free-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #799905;
+      background: rgba(121, 153, 5, 0.14);
+      padding: 3px 6px;
+      border-radius: 3px;
+    }
+
+    /* ========================================================
+       5. STEAM COMMUNITY & LEADERBOARD PANEL
+       ======================================================== */
+    .steam-community-section {
+      max-width: 1280px;
+      margin: 20px auto 40px;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .homeScores {
+      background: linear-gradient(135deg, rgba(27, 40, 56, 0.95), rgba(16, 24, 34, 0.95));
+      border: 1px solid var(--steam-border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    .homeScoresHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .homeScoresEyebrow {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--steam-blue);
+      margin-bottom: 4px;
+    }
+    .homeScoresHeader h2 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .homeScoresFullLink {
+      color: var(--steam-blue);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: rgba(102, 192, 244, 0.1);
+      border: 1px solid rgba(102, 192, 244, 0.25);
+      transition: all 0.18s;
+    }
+    .homeScoresFullLink:hover {
+      background: rgba(102, 192, 244, 0.2);
+    }
+
+    /* Game switcher tab buttons */
+    .homeGameSwitcher {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0 16px;
+    }
+    .homeGameSwitchBtn {
+      padding: 7px 14px;
+      border-radius: 4px;
+      border: 1px solid var(--steam-border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--steam-text-main);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s;
+    }
+    .homeGameSwitchBtn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    .homeGameSwitchBtn.active {
+      background: rgba(102, 192, 244, 0.18);
+      border-color: var(--steam-blue);
+      color: var(--steam-blue);
       font-weight: 700;
     }
-    .loginReminderDismiss{ background: rgba(255,255,255,0.06); }
-    .loginReminderSignIn:hover{ background: #00e0b4; }
-    .loginReminderDismiss:hover{ background: rgba(255,255,255,0.12); }
 
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .bg-orb, .brandDot, .onlineDot, .tile, .gameCard { animation: none !important; }
-      .tile, .gameCard, .pill, .navLink, .friendButton, .userAvatar { transition: none !important; }
+    .homePlayerState {
+      font-size: 12.5px;
+      color: var(--steam-text-sub);
+      margin-bottom: 12px;
+    }
+    .homeSignInPrompt {
+      font-size: 12.5px;
+      color: var(--steam-gold);
+      background: rgba(255, 209, 102, 0.08);
+      border: 1px solid rgba(255, 209, 102, 0.25);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .homeSignInPrompt a {
+      font-weight: 700;
+      color: #fff;
+      background: var(--steam-gold);
+      color: #111;
+      padding: 4px 10px;
+      border-radius: 4px;
     }
 
-    /* Mobile tweaks */
-    @media (max-width: 720px){
-      .topbar{
-        flex-wrap: nowrap;
-        gap: 8px;
-        padding: 12px 12px 10px;
-      }
-      .brand{ gap: 8px; }
-      .topActions{
-        width: auto;
-        flex: 0 0 auto;
-        gap: 5px;
-      }
-      .topActions .pill{ padding: 7px 9px; }
+    .homeScoresList {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .homeScoresRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13px;
+    }
+    .homeScoresRow.isPlayer {
+      background: rgba(102, 192, 244, 0.12);
+      border-color: rgba(102, 192, 244, 0.4);
+    }
+    .homeScoresRank {
+      font-weight: 750;
+      color: var(--steam-text-sub);
+      width: 70px;
+    }
+    .homeScoresName {
+      flex: 1;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .homeScoresYouBadge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: var(--steam-blue);
+      color: #0b1a2a;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .homeScoresScore {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .homeScoresEmpty {
+      color: var(--steam-text-sub);
+      font-size: 13px;
+      padding: 14px 0;
+      text-align: center;
+    }
+    .homeScoresDivider {
+      font-size: 11px;
+      color: var(--steam-text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 0;
     }
 
-    @media (max-width: 380px){
-      :root{
-        --game-card-width: 150px;
-        --game-card-media-height: 150px;
-      }
-      .brandSub{ display:none; }
-      .brandTitle{ font-size:14px; }
-      .topActions .pill{ padding: 6px 7px; }
-      .leaderboardLink{ font-size:11px; white-space:nowrap; }
+    /* ========================================================
+       6. STEAM BOTTOM DOCK / FRIENDS DRAWER
+       ======================================================== */
+    .steam-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 54px;
+      background: rgba(16, 24, 34, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--steam-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 90;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
     }
 
-    @media (max-width: 600px){
-      .floatingChat{
-        right: 14px;
-        bottom: calc(12px + env(safe-area-inset-bottom) + 58px);
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+    .steam-dock-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .steam-dock-link {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--steam-text-sub);
+      transition: color 0.16s;
+    }
+    .steam-dock-link:hover, .steam-dock-link.active {
+      color: #fff;
+    }
+
+    .steam-dock-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .steam-friends-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--steam-border);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 700;
+      transition: all 0.18s;
+    }
+    .steam-friends-pill:hover {
+      background: rgba(102, 192, 244, 0.2);
+      border-color: var(--steam-blue);
+      color: var(--steam-blue);
+    }
+    .steam-friends-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #799905;
+      box-shadow: 0 0 6px #799905;
+    }
+
+    /* Floating Chat Pill */
+    .steam-chat-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      background: #1999e3;
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: 0 2px 10px rgba(25, 153, 227, 0.4);
+      transition: all 0.18s;
+    }
+    .steam-chat-pill:hover {
+      background: #2cb3ff;
+      transform: translateY(-1px);
+    }
+
+    /* Guest Modal */
+    .loginReminder {
+      border: 1px solid var(--steam-blue);
+      border-radius: 12px;
+      background: var(--steam-panel);
+      color: #fff;
+      padding: 24px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    .loginReminder::backdrop {
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+    }
+    .loginReminder h2 {
+      margin-bottom: 8px;
+    }
+    .loginReminder p {
+      font-size: 13.5px;
+      color: var(--steam-text-main);
+      margin-bottom: 20px;
+      line-height: 1.45;
+    }
+    .loginReminderActions {
+      display: flex;
+      gap: 10px;
+    }
+    .loginReminderSignIn {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      border-radius: 4px;
+      background: var(--steam-blue);
+      color: #0b1a2a;
+      font-weight: 700;
+    }
+    .loginReminderDismiss {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--steam-border);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 860px) {
+      .steam-spotlight-box {
+        grid-template-columns: 1fr;
       }
-      .bottomBar{
-        display:grid;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-        gap: 4px;
-        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+      .steam-nav-tabs {
+        display: none;
       }
-      .navLinks{ display:contents; }
-      .navLink{
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        min-width:0;
-        min-height:44px;
-        padding:8px 2px;
-        font-size:12px;
-        white-space:nowrap;
+      .steam-subbar-inner {
+        flex-direction: column;
+        align-items: stretch;
       }
-      .bottomTime{
-        justify-self:center;
-        font-size:12px;
-        white-space:nowrap;
-      }
-      .friendButton{
-        justify-self:center;
-        width:44px;
-        min-height:44px;
-        padding:0;
-      }
-      .friendLabel{ display:none; }
-      .avatarWrap{
-        justify-self:center;
-        width:44px;
-        height:44px;
+      .steam-search-wrap {
+        width: 100%;
       }
     }
-    
-    
   </style>
+</head>
+<body>
+  <div class="steam-ambient" aria-hidden="true"></div>
 
+  <div id="consoleContainer">
+    <!-- 1. STEAM TOP CLIENT BAR -->
+    <header class="steam-topbar">
+      <div class="steam-topbar-inner">
+        <div class="steam-brand">
+          <div class="steam-logo-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2a10 10 0 0 0-10 10c0 4.7 3.2 8.6 7.6 9.7l2.8-4a3.5 3.5 0 0 1 1.6-4.6 3.5 3.5 0 0 1 4.6 1.6 3.5 3.5 0 0 1-1.6 4.6l-3.8 2.6A10 10 0 1 0 12 2zm0 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="steam-brand-name">Pocket Console</div>
+            <div class="steam-brand-sub">Steam Deck Client</div>
+          </div>
+        </div>
+
+        <nav class="steam-nav-tabs" aria-label="Steam Navigation">
+          <a class="steam-tab active" href="#store">Store</a>
+          <a class="steam-tab" href="#library">Library</a>
+          <a class="steam-tab" href="HighScoreBoard.html">Community</a>
+          <a class="steam-tab" href="FriendManagementPage.html">Friends</a>
+          <a class="steam-tab" href="ChatPage.html">Chat</a>
+        </nav>
+
+        <div class="steam-client-actions">
+          <div class="steam-clock" id="bottomTime">00:00</div>
+          
+          <a href="AccSettings.html" class="steam-user-deck" title="Account Settings">
+            <div class="steam-avatar-ring">
+              <div id="userAvatar" class="userAvatar"></div>
+              <span class="onlineDot" aria-hidden="true"></span>
+            </div>
+            <span class="steam-username" id="topUserName">Player</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. STEAM SUB-BAR & SEARCH CATEGORIES -->
+    <section class="steam-subbar">
+      <div class="steam-subbar-inner">
+        <div class="steam-filter-tags" id="categoryFilters" role="tablist">
+          <button type="button" class="steam-pill-btn active" data-cat="all">All Games (7)</button>
+          <button type="button" class="steam-pill-btn" data-cat="action">🚀 Action & Arcade</button>
+          <button type="button" class="steam-pill-btn" data-cat="racing">🏎️ Racing</button>
+          <button type="button" class="steam-pill-btn" data-cat="multiplayer">👥 Multiplayer</button>
+          <button type="button" class="steam-pill-btn" data-cat="typing">⌨️ Syntax Velocity</button>
+        </div>
+
+        <div class="steam-search-wrap">
+          <span class="steam-search-icon" aria-hidden="true">🔍</span>
+          <input type="text" id="gameSearchInput" class="steam-search-input" placeholder="Search games by title..." aria-label="Search library games" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. STEAM HERO SPOTLIGHT SHOWCASE -->
+    <section class="steam-hero-section" id="store">
+      <div class="steam-section-heading">
+        <span>Featured & Recommended</span>
+        <span class="badge">🔥 Spotlight Release</span>
+      </div>
+
+      <div class="steam-spotlight-box">
+        <div class="spotlight-media">
+          <img
+            src="Games/GalaxyShooter/GalaxyBanner.svg"
+            alt="Galaxy Strike Banner"
+            id="spotlightImg"
+            loading="eager"
+          />
+          <div class="spotlight-tag-badge" id="spotlightBadge">New Drop • Arcade Combat</div>
+        </div>
+
+        <div class="spotlight-info">
+          <div>
+            <h2 class="spotlight-title" id="spotlightTitle">Galaxy Strike</h2>
+            <p class="spotlight-desc" id="spotlightDesc">
+              Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters.
+            </p>
+            <div class="spotlight-tags">
+              <span class="spotlight-pill">Space Combat</span>
+              <span class="spotlight-pill">Sci-Fi</span>
+              <span class="spotlight-pill">Arcade</span>
+              <span class="spotlight-pill">Boss Fights</span>
+              <span class="spotlight-pill">Web Audio</span>
+            </div>
+          </div>
+
+          <div class="spotlight-cta-row">
+            <span class="spotlight-price">FREE TO PLAY</span>
+            <a href="Games/GalaxyShooter/GalaxyShooter.html" class="steam-btn-green" id="spotlightPlayBtn">
+              <span>▶ Play Game</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STEAM LIBRARY GRID (Game Capsules) -->
+    <section class="steam-library-section" id="library">
+      <div class="steam-section-heading">
+        <span>Browse Game Library (7)</span>
+        <span class="badge" id="visibleCountBadge">Showing 7 Games</span>
+      </div>
+
+      <div class="steam-capsule-grid" id="libraryGrid">
+        
+        <!-- Game 1: Galaxy Strike -->
+        <a class="steam-capsule-card" href="Games/GalaxyShooter/GalaxyShooter.html" data-category="action" data-title="Galaxy Strike Space Shooter">
+          <div class="capsule-media">
+            <img src="Games/GalaxyShooter/GalaxyBanner.svg" alt="Galaxy Strike poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">Galaxy Strike</div>
+            <div class="capsule-sub">Retro Laser Combat • Alien Armada</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Action • Space</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game 2: Turbo Drift -->
+        <a class="steam-capsule-card" href="Games/TurboDrift2D/TurboDrift.html" data-category="racing" data-title="Turbo Drift Racing">
+          <div class="capsule-media">
+            <img src="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg" alt="Turbo Drift poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">Turbo Drift</div>
+            <div class="capsule-sub">High-Octane Precision 2D Drift</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Racing • City Tracks</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game 3: Lane Rush -->
+        <a class="steam-capsule-card" href="Games/LaneRushV1/LaneRushV1.html" data-category="racing action" data-title="Lane Rush Highway">
+          <div class="capsule-media">
+            <img src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp" alt="Lane Rush poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">Lane Rush</div>
+            <div class="capsule-sub">Highway Reflex & Collision Survival</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Arcade • Highway</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game 4: Keycraft Typing -->
+        <a class="steam-capsule-card" href="Games/Keycraft%20TypingV1/KeycraftTypingV1.html" data-category="typing" data-title="Keycraft Typing Java Edition">
+          <div class="capsule-media">
+            <img src="Games/Keycraft%20TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg" alt="Keycraft Typing poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">Keycraft Typing</div>
+            <div class="capsule-sub">Java Edition Code Velocity Practice</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Typing • Syntax Mastery</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game 5: Snake Arcade -->
+        <a class="steam-capsule-card" href="Games/SnakeGameV1/SnakeGameV1.html" data-category="action" data-title="Snake Arcade Cyber">
+          <div class="capsule-media">
+            <img src="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg" alt="Snake Arcade poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">Snake Arcade</div>
+            <div class="capsule-sub">Cyber Retro Survival & Global Rank</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Classic • Leaderboards</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game 6: XO Tic Tac Toe -->
+        <a class="steam-capsule-card" href="Games/XOV1/XOV1.html" data-category="multiplayer" data-title="XO Tic Tac Toe Online">
+          <div class="capsule-media">
+            <img src="Games/XOV1/Assets/IconsAndBanners/XOXBanner1.jpg" alt="XO Tic Tac Toe poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">XO Tic Tac Toe</div>
+            <div class="capsule-sub">Online Realtime 1v1 & Pass-Play</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Multiplayer • Strategy</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Game 7: Kenny Adventure -->
+        <a class="steam-capsule-card" href="Games/KennyAdventureV1/KennyAdventure.html" data-category="action" data-title="Kenny Adventure Platformer">
+          <div class="capsule-media">
+            <img src="Games/KennyAdventureV1/Assets/kenney_new-platformer-pack-1.1/Sample A.png" alt="Kenny Adventure poster" loading="lazy" />
+            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
+          </div>
+          <div class="capsule-meta">
+            <div class="capsule-title">Kenny Adventure</div>
+            <div class="capsule-sub">Sunny Meadow 2D Platformer Quest</div>
+            <div class="capsule-footer">
+              <span class="capsule-genre">Platformer • Single Player</span>
+              <span class="capsule-free-badge">FREE</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- 5. STEAM COMMUNITY & LEADERBOARD PANEL -->
+    <section class="steam-community-section">
+      <div class="homeScores">
+        <div class="homeScoresHeader">
+          <div>
+            <div class="homeScoresEyebrow">Steam Community Leaderboard</div>
+            <h2 id="leaderboardSectionTitle">☕ Keycraft Typing high scores</h2>
+          </div>
+          <a class="homeScoresFullLink" href="HighScoreBoard.html">View Global Standings 🏆</a>
+        </div>
+
+        <div class="homeGameSwitcher" role="tablist" aria-label="Select Game Leaderboard">
+          <button type="button" class="homeGameSwitchBtn active" data-game="typewriter" role="tab" aria-selected="true">
+            <span>☕</span> Keycraft Typing
+          </button>
+          <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
+            <span>🐍</span> Snake game
+          </button>
+        </div>
+
+        <div class="homePlayerState" id="homePlayerState" data-state="loading" aria-live="polite">Checking Steam player state…</div>
+        
+        <div class="homeSignInPrompt" id="homeSignInPrompt" hidden>
+          <span id="homePromptText">Sign in to save your game scores and claim your rank on global leaderboards.</span>
+          <a href="AccSettings.html">Sign In</a>
+        </div>
+
+        <ol class="homeScoresList" id="homeScoresList" aria-label="Top scores">
+          <li class="homeScoresEmpty">Loading live Steam scores…</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 6. STEAM BOTTOM DOCK / FRIENDS DRAWER -->
+    <footer class="steam-dock">
+      <div class="steam-dock-left">
+        <a class="steam-dock-link active" href="#store">Store</a>
+        <a class="steam-dock-link" href="#library">Library</a>
+        <a class="steam-dock-link" href="HighScoreBoard.html">High Scores</a>
+        <a class="steam-dock-link" href="AccSettings.html">Settings</a>
+      </div>
+
+      <div class="steam-dock-right">
+        <a href="FriendManagementPage.html" class="steam-friends-pill" title="View Steam Friends">
+          <span class="steam-friends-dot" aria-hidden="true"></span>
+          <span>Friends & Chat</span>
+        </a>
+        <a href="ChatPage.html" class="steam-chat-pill" title="Instant Chat">
+          <span>💬 Chat</span>
+        </a>
+      </div>
+    </footer>
+
+    <!-- GUEST REMINDER DIALOG -->
+    <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
+      <h2 id="loginReminderTitle">Steam Profile Access</h2>
+      <p id="loginReminderMessage">You are currently exploring as a guest. Log in with your account to unlock friends matchmaking, cloud stats, and leaderboard rankings!</p>
+      <div class="loginReminderActions">
+        <a class="loginReminderSignIn" href="AccSettings.html">Sign In</a>
+        <button class="loginReminderDismiss" id="dismissLoginReminder" type="button">Guest Mode</button>
+      </div>
+    </dialog>
+  </div>
+
+  <!-- FIREBASE & STEAM ENGINE SCRIPT -->
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getDatabase, ref, set, onValue, onDisconnect, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
   window.addEventListener("DOMContentLoaded", () => {
+    // 1. Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
       authDomain: "pocketconsole-cde70.firebaseapp.com",
@@ -923,7 +1231,6 @@
       storageBucket: "pocketconsole-cde70.firebasestorage.app",
       messagingSenderId: "85026527206",
       appId: "1:85026527206:web:67bffb25c7f7e059fc2827",
-      // IMPORTANT: required for RTDB presence
       databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
 
@@ -934,29 +1241,22 @@
 
     const avatarEl = document.getElementById("userAvatar");
     const onlineDotEl = document.querySelector(".onlineDot");
+    const topUserName = document.getElementById("topUserName");
     const loginReminder = document.getElementById("loginReminder");
     const dismissLoginReminder = document.getElementById("dismissLoginReminder");
     const homePlayerState = document.getElementById("homePlayerState");
     const homeSignInPrompt = document.getElementById("homeSignInPrompt");
     const homeScoresList = document.getElementById("homeScoresList");
 
-    // Change this to control behavior:
-    // false = Home works for guests (recommended for instant games)
-    // true  = Home requires login (redirect when signed out)
-    const REQUIRE_AUTH_FOR_HOME = false;
-
-    // Where to send users if login is required
-    const AUTH_REDIRECT_URL = "https://sapocketconsole.blogspot.com/p/accountsettings.html";
-
     dismissLoginReminder?.addEventListener("click", () => {
       sessionStorage.setItem("pc_dismissed_guest_prompt", "true");
       loginReminder?.close();
     });
 
-    // Immediate optimistic session check to prevent logged-out popup on return
     const hasLocalSession = localStorage.getItem("pc_logged_in") === "true";
     if (hasLocalSession) {
       const savedName = localStorage.getItem("pc_custom_name") || "Player";
+      if (topUserName) topUserName.textContent = savedName;
       if (homePlayerState) {
         homePlayerState.dataset.state = "signed-in";
         homePlayerState.textContent = "Signed in as " + savedName;
@@ -966,151 +1266,89 @@
       if (cachedAvatar) setAvatar(cachedAvatar);
     }
 
-    function maybeShowLoginReminder() {
-      if (!loginReminder || loginReminder.open) return;
-      if (auth.currentUser || localStorage.getItem("pc_logged_in") === "true") return;
-      if (sessionStorage.getItem("pc_dismissed_guest_prompt") === "true") return;
-      loginReminder.showModal();
-    }
-
     const placeholder =
       "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==";
 
     function setAvatar(url) {
       if (!avatarEl) return;
       const photo = url || placeholder;
-
       const img = new Image();
       img.onload = () => (avatarEl.style.backgroundImage = `url("${photo}")`);
       img.onerror = () => (avatarEl.style.backgroundImage = `url("${placeholder}")`);
       img.src = photo;
     }
 
-    // Optional: hide online dot when signed out
     function setOnlineDotVisible(visible) {
       if (!onlineDotEl) return;
       onlineDotEl.style.opacity = visible ? "1" : "0";
     }
 
-    // --- PRESENCE (ONLINE/OFFLINE) ---
     function enablePresenceForThisPage(uid) {
       const statusRef = ref(rtdb, `/status/${uid}`);
       const connectedRef = ref(rtdb, ".info/connected");
 
       onValue(connectedRef, (snap) => {
         if (snap.val() !== true) return;
-
         onDisconnect(statusRef)
           .set({ state: "offline", lastChanged: Date.now() })
           .then(() => set(statusRef, { state: "online", lastChanged: Date.now() }))
           .catch((e) => console.error("[Presence]", e));
       });
 
-      // Update the dot based on *your own* status (optional)
       onValue(statusRef, (snap) => {
         const val = snap.val();
         const isOnline = val?.state === "online";
         if (onlineDotEl) {
           onlineDotEl.style.opacity = isOnline ? "1" : "0.35";
-          onlineDotEl.style.filter = isOnline ? "" : "grayscale(1)";
         }
       });
-
-      // Best effort when leaving the page
-      window.addEventListener("beforeunload", () => {
-        try { set(statusRef, { state: "offline", lastChanged: Date.now() }); } catch {}
-      }, { once: true });
     }
-    // --- END PRESENCE ---
-
-    let displayedAuthUid;
 
     function updateAuthState(user) {
-      const uid = user?.uid || null;
-      const authStateChanged = uid !== displayedAuthUid;
-      displayedAuthUid = uid;
-
       if (!user) {
         localStorage.removeItem("pc_logged_in");
         localStorage.removeItem("pc_cached_avatar");
-        if (!authStateChanged) return;
-
-        // Signed out
         setAvatar(null);
         setOnlineDotVisible(false);
+        if (topUserName) topUserName.textContent = "Guest";
         if (homePlayerState) {
           homePlayerState.dataset.state = "guest";
-          homePlayerState.textContent = "Guest player · scores are read-only";
+          homePlayerState.textContent = "Guest Player · Cloud scores are read-only";
         }
         if (homeSignInPrompt) homeSignInPrompt.hidden = false;
-
-        if (REQUIRE_AUTH_FOR_HOME) {
-          window.location.href = AUTH_REDIRECT_URL;
-          return;
-        }
-        maybeShowLoginReminder();
         return;
       }
 
-      // Signed in
       localStorage.setItem("pc_logged_in", "true");
       if (user.photoURL) localStorage.setItem("pc_cached_avatar", user.photoURL);
       if (loginReminder?.open) loginReminder.close();
       setAvatar(user.photoURL);
       setOnlineDotVisible(true);
       const name = localStorage.getItem("pc_custom_name") || user.displayName || "Player";
+      if (topUserName) topUserName.textContent = name;
       if (homePlayerState) {
         homePlayerState.dataset.state = "signed-in";
         homePlayerState.textContent = `Signed in as ${name}`;
       }
       if (homeSignInPrompt) homeSignInPrompt.hidden = true;
 
-      if (!authStateChanged) return;
-
-      // Start presence on this page (THIS is what makes you online here)
       enablePresenceForThisPage(user.uid);
-
-      // Re-query leaderboards now that user is authenticated
       initTypeWriterQuery();
       initSnakeQuery();
     }
 
-    onAuthStateChanged(auth, updateAuthState, (error) => {
-      console.error("[Home leaderboard] Authentication state failed.", error);
-      if (homePlayerState) {
-        homePlayerState.dataset.state = "error";
-        homePlayerState.textContent = "Could not check player state.";
-      }
-    });
+    onAuthStateChanged(auth, updateAuthState);
 
-    function refreshAuthState() {
-      auth.authStateReady()
-        .then(() => updateAuthState(auth.currentUser))
-        .catch((error) => {
-          console.error("[Home leaderboard] Could not refresh authentication state.", error);
-        });
-    }
-
-    window.addEventListener("pageshow", (event) => {
-      if (event.persisted) {
-        // Page was restored from Back-Forward Cache (bfcache).
-        // Reload to sync fresh login state without showing stale guest state.
-        window.location.reload();
-        return;
-      }
-      refreshAuthState();
-    });
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") refreshAuthState();
-    });
-
-    let selectedGame = "typewriter"; // Default to TypeWriter
+    // ==========================================
+    // 2. Leaderboard Logic
+    // ==========================================
+    let selectedGame = "typewriter";
     let typewriterScores = [];
     let snakeScores = [];
     let typewriterLoaded = false;
     let snakeLoaded = false;
     let autoSwitchTimer = null;
-    const AUTO_SWITCH_INTERVAL = 5000; // Switch every 5 seconds
+    const AUTO_SWITCH_INTERVAL = 6000;
 
     const leaderboardSectionTitle = document.getElementById("leaderboardSectionTitle");
     const homePromptText = document.getElementById("homePromptText");
@@ -1126,7 +1364,7 @@
       if (!isLoaded) {
         const loadingItem = document.createElement("li");
         loadingItem.className = "homeScoresEmpty";
-        loadingItem.textContent = isTW ? "Loading Keycraft Typing scores…" : "Loading Snake scores…";
+        loadingItem.textContent = isTW ? "Loading Keycraft Typing Steam scores…" : "Loading Snake scores…";
         homeScoresList.append(loadingItem);
         return;
       }
@@ -1142,46 +1380,16 @@
       }
 
       const currentUid = auth.currentUser?.uid;
-      const currentName = auth.currentUser?.displayName || "You";
-
-      // Find player position in the full list
-      let playerRank = -1;
-      let playerEntry = null;
-
-      if (currentUid) {
-        const pIdx = scores.findIndex(s => s.uid === currentUid);
-        if (pIdx !== -1) {
-          playerRank = pIdx + 1;
-          playerEntry = scores[pIdx];
-        }
-      }
-
-      // Check if user has a local best if not on online leaderboard
-      let localBestScore = null;
-      if (playerRank === -1) {
-        try {
-          if (isTW) {
-            const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
-            if (stats.highWpm && stats.highWpm > 0) localBestScore = stats.highWpm;
-          } else {
-            const saved = Number(localStorage.getItem("snakeHigh"));
-            if (Number.isSafeInteger(saved) && saved > 0) localBestScore = saved;
-          }
-        } catch (_) {}
-      }
-
-      // 1. Render ONLY first 3 like 1, 2, 3
-      const medals = ["🥇", "🥈", "🥉"];
       const top3 = scores.slice(0, 3);
+      const medals = ["🥇", "🥈", "🥉"];
+
       top3.forEach((entry, index) => {
         const row = document.createElement("li");
         const rankNum = index + 1;
         row.className = `homeScoresRow rank-${rankNum}`;
 
         const isCurrentPlayer = (currentUid && entry.uid === currentUid);
-        if (isCurrentPlayer) {
-          row.classList.add("isPlayer");
-        }
+        if (isCurrentPlayer) row.classList.add("isPlayer");
 
         const rank = document.createElement("span");
         const name = document.createElement("span");
@@ -1212,83 +1420,10 @@
         row.append(rank, name, score);
         homeScoresList.append(row);
       });
-
-      // 2. Render Player Position if outside Top 3 or local score
-      if (playerRank > 3 && playerEntry) {
-        const divider = document.createElement("li");
-        divider.className = "homeScoresDivider";
-        divider.textContent = "Your rank";
-        homeScoresList.append(divider);
-
-        const pRow = document.createElement("li");
-        pRow.className = "homeScoresRow homeScoresPlayerRow isPlayer";
-
-        const rank = document.createElement("span");
-        const name = document.createElement("span");
-        const score = document.createElement("span");
-
-        rank.className = "homeScoresRank";
-        name.className = "homeScoresName";
-        score.className = "homeScoresScore";
-
-        rank.textContent = `#${playerRank}`;
-        name.textContent = playerEntry.name;
-        const youBadge = document.createElement("span");
-        youBadge.className = "homeScoresYouBadge";
-        youBadge.textContent = "You";
-        name.appendChild(youBadge);
-
-        if (isTW) {
-          score.style.color = "#ffc66d";
-          score.textContent = `${playerEntry.score} WPM`;
-        } else {
-          score.style.color = "#00ffcc";
-          score.textContent = `${playerEntry.score.toLocaleString()} pts`;
-        }
-
-        pRow.append(rank, name, score);
-        homeScoresList.append(pRow);
-      } else if (playerRank === -1 && localBestScore !== null) {
-        const divider = document.createElement("li");
-        divider.className = "homeScoresDivider";
-        divider.textContent = "Your standing";
-        homeScoresList.append(divider);
-
-        const pRow = document.createElement("li");
-        pRow.className = "homeScoresRow homeScoresPlayerRow";
-
-        const rank = document.createElement("span");
-        const name = document.createElement("span");
-        const score = document.createElement("span");
-
-        rank.className = "homeScoresRank";
-        name.className = "homeScoresName";
-        score.className = "homeScoresScore";
-
-        rank.textContent = "#—";
-        name.textContent = currentUid ? `${currentName}` : "You (Local)";
-        const youBadge = document.createElement("span");
-        youBadge.className = "homeScoresYouBadge";
-        youBadge.textContent = "Local";
-        name.appendChild(youBadge);
-
-        if (isTW) {
-          score.style.color = "#ffc66d";
-          score.textContent = `${localBestScore} WPM`;
-        } else {
-          score.style.color = "#00ffcc";
-          score.textContent = `${localBestScore.toLocaleString()} pts`;
-        }
-
-        pRow.append(rank, name, score);
-        homeScoresList.append(pRow);
-      }
     }
 
     function switchGame(game, resetTimer = true) {
-      if (game === selectedGame && !resetTimer) return;
       selectedGame = game;
-
       switchButtons.forEach((b) => {
         const isActive = (b.dataset.game === game);
         b.classList.toggle("active", isActive);
@@ -1297,62 +1432,29 @@
 
       if (game === "typewriter") {
         if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "☕ Keycraft Typing high scores";
-        if (homePromptText) {
-          homePromptText.textContent = "Sign in to save your Keycraft Typing scores and appear on the global leaderboard.";
-        }
+        if (homePromptText) homePromptText.textContent = "Sign in to save your Keycraft Typing scores and appear on the global leaderboard.";
       } else {
         if (leaderboardSectionTitle) leaderboardSectionTitle.textContent = "🐍 Snake high scores";
-        if (homePromptText) {
-          homePromptText.textContent = "Sign in to save your Snake high scores and appear on the global leaderboard.";
-        }
+        if (homePromptText) homePromptText.textContent = "Sign in to save your Snake high scores and appear on the global leaderboard.";
       }
 
       renderCurrentScores();
-
       if (resetTimer) {
-        restartAutoSwitchTimer();
+        clearInterval(autoSwitchTimer);
+        autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
       }
     }
 
-    // Switcher click handlers
-    switchButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const game = btn.dataset.game;
-        switchGame(game, true);
-      });
-    });
-
-    // 5-second Auto-Switching between Keycraft Typing and Snake
     function autoSwitchNext() {
       const next = (selectedGame === "typewriter") ? "snake" : "typewriter";
       switchGame(next, false);
     }
+    autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
 
-    function startAutoSwitchTimer() {
-      stopAutoSwitchTimer();
-      autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
-    }
+    switchButtons.forEach((btn) => {
+      btn.addEventListener("click", () => switchGame(btn.dataset.game, true));
+    });
 
-    function stopAutoSwitchTimer() {
-      if (autoSwitchTimer) {
-        clearInterval(autoSwitchTimer);
-        autoSwitchTimer = null;
-      }
-    }
-
-    function restartAutoSwitchTimer() {
-      startAutoSwitchTimer();
-    }
-
-    const homeScoresCard = document.querySelector(".homeScores");
-    if (homeScoresCard) {
-      homeScoresCard.addEventListener("mouseenter", stopAutoSwitchTimer);
-      homeScoresCard.addEventListener("mouseleave", startAutoSwitchTimer);
-    }
-
-    startAutoSwitchTimer();
-
-    // 1. Listen to typewriterLeaderboard (Robust direct ref, memory sort + local fallback)
     function initTypeWriterQuery() {
       const typewriterRef = ref(rtdb, "typewriterLeaderboard");
       onValue(typewriterRef, (snapshot) => {
@@ -1372,33 +1474,13 @@
         scores.sort((a, b) => b.score - a.score || b.accuracy - a.accuracy);
         typewriterScores = scores;
         typewriterLoaded = true;
-
-        if (selectedGame === "typewriter") {
-          renderCurrentScores();
-        }
-      }, (error) => {
-        console.warn("[Home leaderboard] Keycraft Typing global scores not accessible (check Data/Index/database.rules.json):", error);
+        if (selectedGame === "typewriter") renderCurrentScores();
+      }, () => {
         typewriterLoaded = true;
-
-        try {
-          const stats = JSON.parse(localStorage.getItem("typewriter_stats") || "{}");
-          if (stats.highWpm && stats.highWpm > 0 && typewriterScores.length === 0) {
-            typewriterScores = [{
-              uid: auth.currentUser?.uid || "local",
-              name: (auth.currentUser?.displayName || "You") + " (Local)",
-              score: stats.highWpm,
-              accuracy: 96
-            }];
-          }
-        } catch (_) {}
-
-        if (selectedGame === "typewriter") {
-          renderCurrentScores();
-        }
+        if (selectedGame === "typewriter") renderCurrentScores();
       });
     }
 
-    // 2. Listen to snakeLeaderboard (Robust direct ref, memory sort + local fallback)
     function initSnakeQuery() {
       const snakeRef = ref(rtdb, "snakeLeaderboard");
       onValue(snakeRef, (snapshot) => {
@@ -1417,35 +1499,17 @@
         scores.sort((a, b) => b.score - a.score);
         snakeScores = scores;
         snakeLoaded = true;
-
-        if (selectedGame === "snake") {
-          renderCurrentScores();
-        }
-      }, (error) => {
-        console.warn("[Home leaderboard] Snake global scores not accessible (check Data/Index/database.rules.json):", error);
+        if (selectedGame === "snake") renderCurrentScores();
+      }, () => {
         snakeLoaded = true;
-
-        try {
-          const savedScore = Number(localStorage.getItem("snakeHigh"));
-          if (Number.isSafeInteger(savedScore) && savedScore > 0 && snakeScores.length === 0) {
-            snakeScores = [{
-              uid: auth.currentUser?.uid || "local",
-              name: (auth.currentUser?.displayName || "You") + " (Local)",
-              score: savedScore
-            }];
-          }
-        } catch (_) {}
-
-        if (selectedGame === "snake") {
-          renderCurrentScores();
-        }
+        if (selectedGame === "snake") renderCurrentScores();
       });
     }
 
     initTypeWriterQuery();
     initSnakeQuery();
 
-    // Time update
+    // Time Clock
     function updateTime() {
       const timeEl = document.getElementById("bottomTime");
       if (!timeEl) return;
@@ -1455,63 +1519,103 @@
     updateTime();
     setInterval(updateTime, 1000);
 
-    // Featured scroll buttons
-    const featured = document.getElementById("featured");
-    const leftBtn = document.getElementById("scrollLeft");
-    const rightBtn = document.getElementById("scrollRight");
+    // ==========================================
+    // 3. Steam Real-Time Filter & Search
+    // ==========================================
+    const searchInput = document.getElementById("gameSearchInput");
+    const filterButtons = document.querySelectorAll("#categoryFilters .steam-pill-btn");
+    const cards = Array.from(document.querySelectorAll("#libraryGrid .steam-capsule-card"));
+    const countBadge = document.getElementById("visibleCountBadge");
 
-    function scrollByCard(dir) {
-      if (!featured) return;
-      const first = featured.querySelector(".tile");
-      const cardW = first ? (first.getBoundingClientRect().width + 14) : 320;
-      const maxScroll = featured.scrollWidth - featured.clientWidth;
-      if (dir > 0 && featured.scrollLeft >= maxScroll - 2) {
-        featured.scrollTo({ left: 0, behavior: "smooth" });
-      } else if (dir < 0 && featured.scrollLeft <= 2) {
-        featured.scrollTo({ left: maxScroll, behavior: "smooth" });
-      } else {
-        featured.scrollBy({ left: dir * cardW, behavior: "smooth" });
+    let currentCategory = "all";
+    let searchQuery = "";
+
+    function filterLibrary() {
+      let visible = 0;
+      cards.forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const cat = card.dataset.category || "";
+        const matchesSearch = !searchQuery || title.includes(searchQuery);
+        const matchesCategory = (currentCategory === "all") || cat.includes(currentCategory);
+
+        if (matchesSearch && matchesCategory) {
+          card.style.display = "flex";
+          visible++;
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      if (countBadge) {
+        countBadge.textContent = `Showing ${visible} of ${cards.length} Games`;
       }
     }
 
-    leftBtn?.addEventListener("click", () => scrollByCard(-1));
-    rightBtn?.addEventListener("click", () => scrollByCard(1));
+    searchInput?.addEventListener("input", (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      filterLibrary();
+    });
 
-    // Auto-scroll featured carousel tab by tab (simulate right button)
-    const prefersReducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const AUTO_SCROLL_MS = 4000;
-
-    if (!prefersReducedMotion && rightBtn) {
-      setInterval(() => {
-        rightBtn.click();
-      }, AUTO_SCROLL_MS);
-    }
-
-    // Hover tilt (desktop only)
-    const tiles = Array.from(document.querySelectorAll(".tile, .gameCard"));
-    const canHover = matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-    if (canHover) {
-      tiles.forEach((el) => {
-        el.addEventListener("mousemove", (e) => {
-          const r = el.getBoundingClientRect();
-          const x = (e.clientX - r.left) / r.width;
-          const y = (e.clientY - r.top) / r.height;
-          const rx = (y - 0.5) * -6;
-          const ry = (x - 0.5) * 8;
-          el.style.transform = `translateY(-4px) rotateX(${rx}deg) rotateY(${ry}deg)`;
-        });
-        el.addEventListener("mouseleave", () => {
-          el.style.transform = "";
-        });
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filterButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentCategory = btn.dataset.cat;
+        filterLibrary();
       });
-    }
+    });
+
+    // ==========================================
+    // 4. Steam Hero Spotlight Cycler
+    // ==========================================
+    const spotlightGames = [
+      {
+        title: "Galaxy Strike",
+        desc: "Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters.",
+        img: "Games/GalaxyShooter/GalaxyBanner.svg",
+        badge: "New Drop • Arcade Combat",
+        link: "Games/GalaxyShooter/GalaxyShooter.html"
+      },
+      {
+        title: "Turbo Drift",
+        desc: "Precision 2D top-down drift racer with city & desert circuits. Master acute hairpins, lay down rubber streaks, and challenge high speeds with responsive arcade handling.",
+        img: "Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg",
+        badge: "Top Rated • Racing",
+        link: "Games/TurboDrift2D/TurboDrift.html"
+      },
+      {
+        title: "Keycraft Typing",
+        desc: "Monkeytype-inspired Java syntax velocity trainer. Sharpen your typing velocity on real object-oriented classes, loops, brackets, and syntax with Google ranking.",
+        img: "Games/Keycraft%20TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg",
+        badge: "Community Favorite • Syntax",
+        link: "Games/Keycraft%20TypingV1/KeycraftTypingV1.html"
+      },
+      {
+        title: "Lane Rush",
+        desc: "High-octane 3-lane highway traffic survival. Weave through congestion with dynamic synthesizer engine sounds, near-miss points, and explosive crashes.",
+        img: "Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp",
+        badge: "Adrenaline • Highway",
+        link: "Games/LaneRushV1/LaneRushV1.html"
+      }
+    ];
+
+    let spotIdx = 0;
+    const sTitle = document.getElementById("spotlightTitle");
+    const sDesc = document.getElementById("spotlightDesc");
+    const sImg = document.getElementById("spotlightImg");
+    const sBadge = document.getElementById("spotlightBadge");
+    const sBtn = document.getElementById("spotlightPlayBtn");
+
+    setInterval(() => {
+      spotIdx = (spotIdx + 1) % spotlightGames.length;
+      const g = spotlightGames[spotIdx];
+      if (sTitle) sTitle.textContent = g.title;
+      if (sDesc) sDesc.textContent = g.desc;
+      if (sImg) sImg.src = g.img;
+      if (sBadge) sBadge.textContent = g.badge;
+      if (sBtn) sBtn.href = g.link;
+    }, 7000);
   });
-
-</script>
-
-
-
-</div>
+  </script>
 </body>
 </html>
