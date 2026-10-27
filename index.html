@@ -1427,8 +1427,59 @@
 
     /* PlayStation Trophy Showcase Modal */
     .trophyModal {
-      max-width: 620px;
+      max-width: 640px;
       width: 92vw;
+    }
+    .trophy-user-summary {
+      font-size: 13px;
+      color: var(--ps-cyan);
+      font-weight: 750;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .trophy-item-card.unlocked {
+      background: rgba(0, 112, 209, 0.16);
+      border-color: rgba(0, 242, 254, 0.55);
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.15);
+    }
+    .trophy-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .trophy-status-tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .trophy-status-tag.unlocked {
+      background: #00c853;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0, 200, 83, 0.4);
+    }
+    .trophy-status-tag.in-progress {
+      background: rgba(0, 242, 254, 0.15);
+      border: 1px solid var(--ps-cyan);
+      color: var(--ps-cyan);
+    }
+    .trophy-status-tag.locked {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-sub);
+    }
+    .trophy-metric-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ps-plus-gold);
+      font-family: 'JetBrains Mono', monospace;
     }
     .trophy-stats-bar {
       display: grid;
@@ -1882,11 +1933,11 @@
         <p style="font-size: 13.5px; color: var(--text-sub);">Add upcoming titles to your wishlist to receive instant launch notifications.</p>
       </div>
 
-      <!-- Upcoming Teaser Cards Grid -->
+      <!-- Upcoming Teaser Cards Grid (Live Firebase Store) -->
       <div class="store-upcoming-grid">
         
         <!-- Teaser 1 -->
-        <div class="store-teaser-card">
+        <div class="store-teaser-card" data-game-id="shadow_ninja" data-game-title="Shadow Ninja: Cyber Quest">
           <div class="teaser-media">
             <svg viewBox="0 0 400 240" width="100%" height="100%">
               <defs>
@@ -1906,13 +1957,15 @@
             <p class="teaser-desc">Fast-paced cyberpunk stealth action. Wall-run, deflect laser blasts with plasma katanas, and defeat megacorp sentinels.</p>
             <div class="teaser-footer">
               <span class="teaser-date">🗓️ Expected Q1 2027</span>
-              <button class="wishlist-btn" type="button">❤️ Wishlist (<span class="wl-count">142</span>)</button>
+              <button class="wishlist-btn" type="button" data-game-id="shadow_ninja" data-game-title="Shadow Ninja: Cyber Quest">
+                <span>❤️ Wishlist</span> (<span class="wl-count" id="wlCount_shadow_ninja">0</span>)
+              </button>
             </div>
           </div>
         </div>
 
         <!-- Teaser 2 -->
-        <div class="store-teaser-card">
+        <div class="store-teaser-card" data-game-id="cyber_drift_2" data-game-title="Cyber Drift 2: Tokyo Nights">
           <div class="teaser-media">
             <svg viewBox="0 0 400 240" width="100%" height="100%">
               <defs>
@@ -1932,13 +1985,15 @@
             <p class="teaser-desc">WebGL 3D arcade racing with ray-traced neon wet asphalt, custom tuner cars, and synthwave soundtrack.</p>
             <div class="teaser-footer">
               <span class="teaser-date">🗓️ Expected Q2 2027</span>
-              <button class="wishlist-btn" type="button">❤️ Wishlist (<span class="wl-count">289</span>)</button>
+              <button class="wishlist-btn" type="button" data-game-id="cyber_drift_2" data-game-title="Cyber Drift 2: Tokyo Nights">
+                <span>❤️ Wishlist</span> (<span class="wl-count" id="wlCount_cyber_drift_2">0</span>)
+              </button>
             </div>
           </div>
         </div>
 
         <!-- Teaser 3 -->
-        <div class="store-teaser-card">
+        <div class="store-teaser-card" data-game-id="cosmic_odyssey" data-game-title="Cosmic Odyssey VR">
           <div class="teaser-media">
             <svg viewBox="0 0 400 240" width="100%" height="100%">
               <defs>
@@ -1958,7 +2013,9 @@
             <p class="teaser-desc">Interstellar space survival and planet terraforming. Mine exotic crystals, trade with alien merchants, and build star bases.</p>
             <div class="teaser-footer">
               <span class="teaser-date">🗓️ Expected Q3 2027</span>
-              <button class="wishlist-btn" type="button">❤️ Wishlist (<span class="wl-count">318</span>)</button>
+              <button class="wishlist-btn" type="button" data-game-id="cosmic_odyssey" data-game-title="Cosmic Odyssey VR">
+                <span>❤️ Wishlist</span> (<span class="wl-count" id="wlCount_cosmic_odyssey">0</span>)
+              </button>
             </div>
           </div>
         </div>
@@ -2035,83 +2092,33 @@
           <span style="font-size:26px;">🏆</span>
           <div>
             <h2 class="hubModalTitle" style="margin:0; font-size:20px;">PlayStation Trophies Showcase</h2>
-            <div style="font-size:12px; color:var(--ps-cyan);">Pocket Console Achievement Network</div>
+            <div style="font-size:12px; color:var(--ps-cyan);" id="trophyUserSubtitle">Live Firebase Cloud Sync</div>
           </div>
         </div>
         <button class="hubCloseBtn" id="btnCloseTrophies" type="button" aria-label="Close">✕</button>
       </div>
 
       <div class="trophy-stats-bar">
-        <div class="trophy-stat-pill platinum"><span>💎 Platinum</span> <strong>1</strong></div>
-        <div class="trophy-stat-pill gold"><span>🥇 Gold</span> <strong>4</strong></div>
-        <div class="trophy-stat-pill silver"><span>🥈 Silver</span> <strong>6</strong></div>
-        <div class="trophy-stat-pill bronze"><span>🥉 Bronze</span> <strong>9</strong></div>
+        <div class="trophy-stat-pill platinum"><span>💎 Platinum</span> <strong id="trophyCountPlatinum">0</strong></div>
+        <div class="trophy-stat-pill gold"><span>🥇 Gold</span> <strong id="trophyCountGold">0</strong></div>
+        <div class="trophy-stat-pill silver"><span>🥈 Silver</span> <strong id="trophyCountSilver">0</strong></div>
+        <div class="trophy-stat-pill bronze"><span>🥉 Bronze</span> <strong id="trophyCountBronze">0</strong></div>
       </div>
 
-      <div class="trophy-list-scroll">
-        <div class="trophy-item-card">
-          <div class="trophy-badge-icon">🚀</div>
-          <div class="trophy-item-info">
-            <div class="trophy-item-name">Galaxy Strike • Dreadnought Slayer</div>
-            <div class="trophy-item-desc">Survive wave 5 and eliminate the alien mothership boss.</div>
-            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 80%;"></div></div>
-          </div>
-          <span class="trophy-tier gold">Gold</span>
-        </div>
+      <div class="trophy-user-summary">
+        <span id="trophyPlayerTitle">Checking player trophies...</span>
+        <span id="trophyUnlockedRatio" style="color:var(--ps-plus-gold);">0 of 8 Unlocked</span>
+      </div>
 
-        <div class="trophy-item-card">
-          <div class="trophy-badge-icon">🏎️</div>
-          <div class="trophy-item-info">
-            <div class="trophy-item-name">Turbo Drift • Asphalt Drifter</div>
-            <div class="trophy-item-desc">Lay down 500m of continuous drift smoke on the Neon Circuit.</div>
-            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 100%;"></div></div>
-          </div>
-          <span class="trophy-tier platinum">Platinum</span>
-        </div>
-
-        <div class="trophy-item-card">
-          <div class="trophy-badge-icon">🏎️</div>
-          <div class="trophy-item-info">
-            <div class="trophy-item-name">Lane Rush • Traffic Phantom</div>
-            <div class="trophy-item-desc">Dodge 40 consecutive oncoming vehicles without collision.</div>
-            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 65%;"></div></div>
-          </div>
-          <span class="trophy-tier silver">Silver</span>
-        </div>
-
-        <div class="trophy-item-card">
-          <div class="trophy-badge-icon">⌨️</div>
-          <div class="trophy-item-info">
-            <div class="trophy-item-name">Keycraft Typing • Syntax Mastermind</div>
-            <div class="trophy-item-desc">Achieve 80+ words per minute in Java OOP syntax test.</div>
-            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 90%;"></div></div>
-          </div>
-          <span class="trophy-tier gold">Gold</span>
-        </div>
-
-        <div class="trophy-item-card">
-          <div class="trophy-badge-icon">🐍</div>
-          <div class="trophy-item-info">
-            <div class="trophy-item-name">Snake Arcade • Ouroboros Master</div>
-            <div class="trophy-item-desc">Grow snake past 45 apples and set a top 3 global score.</div>
-            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 70%;"></div></div>
-          </div>
-          <span class="trophy-tier gold">Gold</span>
-        </div>
-
-        <div class="trophy-item-card">
-          <div class="trophy-badge-icon">👥</div>
-          <div class="trophy-item-info">
-            <div class="trophy-item-name">XO Duel • Grandmaster Tactician</div>
-            <div class="trophy-item-desc">Win 3 online matchmaking duels in a row on PlayStation Network.</div>
-            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 50%;"></div></div>
-          </div>
-          <span class="trophy-tier bronze">Bronze</span>
+      <div class="trophy-list-scroll" id="trophyListContainer">
+        <div style="text-align:center; padding:30px; color:var(--text-sub);">
+          Connecting to PlayStation Cloud Network…
         </div>
       </div>
 
-      <div style="margin-top:16px; text-align:right;">
-        <a href="HighScoreBoard.html" class="ps-play-btn" style="padding:10px 24px; font-size:13px;">View Full Global Leaderboards 🏆</a>
+      <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <span style="font-size:12px; color:var(--text-sub);">Synced per-user via Firebase Cloud</span>
+        <a href="HighScoreBoard.html" class="ps-play-btn" style="padding:10px 24px; font-size:13px;">View Global Leaderboards 🏆</a>
       </div>
     </dialog>
 
@@ -2124,6 +2131,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
   import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, getDocs, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
   // ==========================================
   // PS5 UI ACOUSTIC AUDIO SYNTHESIS
@@ -2345,6 +2353,7 @@
           homePlayerState.textContent = "Guest Player · Cloud scores are read-only";
         }
         if (homeSignInPrompt) homeSignInPrompt.hidden = false;
+        syncAndLoadUserData(null);
         return;
       }
 
@@ -2364,6 +2373,7 @@
       enablePresenceForThisPage(user.uid);
       initTypeWriterQuery();
       initSnakeQuery();
+      syncAndLoadUserData(user);
     }
 
     onAuthStateChanged(auth, updateAuthState);
@@ -2400,6 +2410,7 @@
       if (heroDesc) heroDesc.textContent = desc;
       if (heroTrophy) heroTrophy.textContent = trophy;
       if (heroPlayBtn) heroPlayBtn.href = link;
+      updateHeroTrophyBadge(auth.currentUser);
 
       if (dynamicBackdrop && art) {
         dynamicBackdrop.style.backgroundImage = `url("${art}")`;
@@ -2674,14 +2685,254 @@
     });
 
     // ==========================================
-    // 10. PlayStation Trophies Modal
+    // 10. REAL-TIME PER-USER STATS & TROPHY ENGINE
     // ==========================================
+    const fs = getFirestore(app);
+
+    const DEFAULT_USER_SCORES = {
+      typewriterWpm: 0,
+      typewriterAcc: 0,
+      snakeScore: 0,
+      galaxyScore: 0,
+      carScore: 0,
+      kennyScore: 0,
+      turboCompleted: false,
+      xoMatches: 0
+    };
+
+    let currentUserScores = { ...DEFAULT_USER_SCORES };
+    let currentUserWishlist = [];
+    let currentUserVIP = false;
+
+    // The 7 Pocket Console Trophies
+    const TROPHY_DEFS = [
+      {
+        id: "galaxy_slayer",
+        title: "Galaxy Strike • Dreadnought Slayer",
+        desc: "Defeat alien fleets and reach 5,000 points in Galaxy Strike.",
+        icon: "🚀",
+        tier: "gold",
+        target: 5000,
+        calc: (s) => ({
+          unlocked: (s.galaxyScore >= 5000),
+          progress: Math.min(100, Math.round((s.galaxyScore / 5000) * 100)),
+          metric: `${s.galaxyScore.toLocaleString()} / 5,000 pts`
+        })
+      },
+      {
+        id: "drift_king",
+        title: "Turbo Drift • Asphalt Legend",
+        desc: "Master high-speed cornering and log a complete circuit lap.",
+        icon: "🏎️",
+        tier: "silver",
+        target: 1,
+        calc: (s) => ({
+          unlocked: s.turboCompleted,
+          progress: s.turboCompleted ? 100 : 0,
+          metric: s.turboCompleted ? "Lap Record Logged" : "0 / 1 Lap Complete"
+        })
+      },
+      {
+        id: "traffic_phantom",
+        title: "Lane Rush • Traffic Phantom",
+        desc: "Dodge 30 oncoming highway vehicles without collision.",
+        icon: "🏎️",
+        tier: "silver",
+        target: 30,
+        calc: (s) => ({
+          unlocked: (s.carScore >= 30),
+          progress: Math.min(100, Math.round((s.carScore / 30) * 100)),
+          metric: `${s.carScore} / 30 cars dodged`
+        })
+      },
+      {
+        id: "syntax_master",
+        title: "Keycraft Typing • Syntax Mastermind",
+        desc: "Achieve 60+ Words Per Minute velocity in Java syntax tests.",
+        icon: "⌨️",
+        tier: "gold",
+        target: 60,
+        calc: (s) => ({
+          unlocked: (s.typewriterWpm >= 60),
+          progress: Math.min(100, Math.round((s.typewriterWpm / 60) * 100)),
+          metric: `${s.typewriterWpm} / 60 WPM (${s.typewriterAcc}% acc)`
+        })
+      },
+      {
+        id: "snake_ouroboros",
+        title: "Snake Arcade • Ouroboros Master",
+        desc: "Grow the retro neon cyber snake and score 200+ points.",
+        icon: "🐍",
+        tier: "gold",
+        target: 200,
+        calc: (s) => ({
+          unlocked: (s.snakeScore >= 200),
+          progress: Math.min(100, Math.round((s.snakeScore / 200) * 100)),
+          metric: `${s.snakeScore.toLocaleString()} / 200 pts`
+        })
+      },
+      {
+        id: "meadow_hero",
+        title: "Kenny Adventure • Meadow Explorer",
+        desc: "Collect coins and sapphire gems to surpass 1,000 points.",
+        icon: "🏃",
+        tier: "bronze",
+        target: 1000,
+        calc: (s) => ({
+          unlocked: (s.kennyScore >= 1000),
+          progress: Math.min(100, Math.round((s.kennyScore / 1000) * 100)),
+          metric: `${s.kennyScore.toLocaleString()} / 1,000 pts`
+        })
+      },
+      {
+        id: "xo_grandmaster",
+        title: "XO Duel • Tactical Strategist",
+        desc: "Compete in 3 online multiplayer duels on PlayStation Network.",
+        icon: "👥",
+        tier: "bronze",
+        target: 3,
+        calc: (s) => ({
+          unlocked: (s.xoMatches >= 3),
+          progress: Math.min(100, Math.round((s.xoMatches / 3) * 100)),
+          metric: `${s.xoMatches} / 3 matches played`
+        })
+      }
+    ];
+
+    function calculatePlatinum(regularResults) {
+      const unlockedCount = regularResults.filter(r => r.unlocked).length;
+      const totalRegular = regularResults.length;
+      return {
+        id: "platinum_legend",
+        title: "Pocket Console • Platinum Legend",
+        desc: "Unlock all 7 Pocket Console game trophies on your account.",
+        icon: "💎",
+        tier: "platinum",
+        unlocked: (unlockedCount === totalRegular),
+        progress: Math.round((unlockedCount / totalRegular) * 100),
+        metric: `${unlockedCount} / ${totalRegular} Trophies Unlocked`
+      };
+    }
+
+    function updateHeroTrophyBadge(user) {
+      if (!heroTrophy || !selectedActiveCard) return;
+      const gameTitle = selectedActiveCard.dataset.title || "";
+
+      if (!user) {
+        heroTrophy.textContent = "🏆 Sign in to record trophies";
+        return;
+      }
+
+      if (gameTitle.includes("Galaxy")) {
+        const score = currentUserScores.galaxyScore;
+        heroTrophy.textContent = score >= 5000 ? "🏆 Dreadnought Slayer (Unlocked!)" : (score > 0 ? `🏆 Personal Best: ${score.toLocaleString()} pts` : "🏆 Record: 0 pts (Target: 5,000)");
+      } else if (gameTitle.includes("Snake")) {
+        const score = currentUserScores.snakeScore;
+        heroTrophy.textContent = score >= 200 ? "🏆 Ouroboros Master (Unlocked!)" : (score > 0 ? `🏆 Personal Best: ${score.toLocaleString()} pts` : "🏆 Record: 0 pts (Target: 200)");
+      } else if (gameTitle.includes("Keycraft")) {
+        const wpm = currentUserScores.typewriterWpm;
+        heroTrophy.textContent = wpm >= 60 ? `🏆 Syntax Master (${wpm} WPM Unlocked!)` : (wpm > 0 ? `🏆 Personal Best: ${wpm} WPM` : "🏆 Record: 0 WPM (Target: 60)");
+      } else if (gameTitle.includes("Lane Rush")) {
+        const cars = currentUserScores.carScore;
+        heroTrophy.textContent = cars >= 30 ? "🏆 Traffic Phantom (Unlocked!)" : (cars > 0 ? `🏆 Personal Best: ${cars} cars` : "🏆 Record: 0 cars (Target: 30)");
+      } else if (gameTitle.includes("Turbo Drift")) {
+        heroTrophy.textContent = currentUserScores.turboCompleted ? "🏆 Asphalt Legend (Unlocked!)" : "🏆 Drift Record: Incomplete";
+      } else if (gameTitle.includes("Kenny")) {
+        const score = currentUserScores.kennyScore;
+        heroTrophy.textContent = score >= 1000 ? "🏆 Meadow Explorer (Unlocked!)" : (score > 0 ? `🏆 Personal Best: ${score.toLocaleString()} pts` : "🏆 Record: 0 pts (Target: 1,000)");
+      } else if (gameTitle.includes("XO")) {
+        const m = currentUserScores.xoMatches;
+        heroTrophy.textContent = m >= 3 ? "🏆 Tactical Strategist (Unlocked!)" : (m > 0 ? `🏆 Duels: ${m} / 3 played` : "🏆 Duel Record: 0 / 3 played");
+      }
+    }
+
+    function renderUserTrophies(user) {
+      const listContainer = document.getElementById("trophyListContainer");
+      const platCountEl = document.getElementById("trophyCountPlatinum");
+      const goldCountEl = document.getElementById("trophyCountGold");
+      const silverCountEl = document.getElementById("trophyCountSilver");
+      const bronzeCountEl = document.getElementById("trophyCountBronze");
+      const playerTitleEl = document.getElementById("trophyPlayerTitle");
+      const ratioEl = document.getElementById("trophyUnlockedRatio");
+      const userSubEl = document.getElementById("trophyUserSubtitle");
+
+      if (!user) {
+        if (platCountEl) platCountEl.textContent = "0";
+        if (goldCountEl) goldCountEl.textContent = "0";
+        if (silverCountEl) silverCountEl.textContent = "0";
+        if (bronzeCountEl) bronzeCountEl.textContent = "0";
+        if (playerTitleEl) playerTitleEl.textContent = "Guest Player (Offline)";
+        if (ratioEl) ratioEl.textContent = "0 of 8 Unlocked";
+        if (userSubEl) userSubEl.textContent = "Sign in to record trophies";
+
+        if (listContainer) {
+          listContainer.innerHTML = `
+            <div style="text-align:center; padding:36px 16px;">
+              <div style="font-size:36px; margin-bottom:10px;">🔒</div>
+              <div style="font-size:15px; font-weight:800; color:#fff; margin-bottom:6px;">PlayStation Cloud Trophies Locked</div>
+              <p style="font-size:13px; color:var(--text-sub); margin-bottom:18px;">Sign in with your account to unlock, track, and sync individual trophies across all 7 games.</p>
+              <a href="AccSettings.html" class="ps-play-btn" style="padding:8px 24px; font-size:13px; display:inline-block;">Sign In Now</a>
+            </div>
+          `;
+        }
+        updateHeroTrophyBadge(null);
+        return;
+      }
+
+      const results = TROPHY_DEFS.map(def => ({ ...def, ...def.calc(currentUserScores) }));
+      const platinumRes = calculatePlatinum(results);
+      const allTrophies = [platinumRes, ...results];
+
+      let platC = platinumRes.unlocked ? 1 : 0;
+      let goldC = results.filter(r => r.tier === "gold" && r.unlocked).length;
+      let silverC = results.filter(r => r.tier === "silver" && r.unlocked).length;
+      let bronzeC = results.filter(r => r.tier === "bronze" && r.unlocked).length;
+      let totalUnlocked = (platinumRes.unlocked ? 1 : 0) + results.filter(r => r.unlocked).length;
+
+      if (platCountEl) platCountEl.textContent = platC;
+      if (goldCountEl) goldCountEl.textContent = goldC;
+      if (silverCountEl) silverCountEl.textContent = silverC;
+      if (bronzeCountEl) bronzeCountEl.textContent = bronzeC;
+
+      const userName = localStorage.getItem("pc_custom_name") || user.displayName || "Player";
+      if (playerTitleEl) playerTitleEl.textContent = `${userName}'s PlayStation Showcase`;
+      if (ratioEl) ratioEl.textContent = `${totalUnlocked} of 8 Unlocked`;
+      if (userSubEl) userSubEl.textContent = `Synced for UID: ${user.uid.slice(0, 8)}...`;
+
+      if (listContainer) {
+        listContainer.innerHTML = allTrophies.map(t => `
+          <div class="trophy-item-card ${t.unlocked ? 'unlocked' : ''}">
+            <div class="trophy-badge-icon">${t.icon}</div>
+            <div class="trophy-item-info">
+              <div class="trophy-header-row">
+                <div class="trophy-item-name">${t.title}</div>
+                <div class="trophy-metric-val">${t.metric}</div>
+              </div>
+              <div class="trophy-item-desc">${t.desc}</div>
+              <div class="trophy-progress-bar">
+                <div class="trophy-progress-fill" style="width: ${t.progress}%;"></div>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+              <span class="trophy-tier ${t.tier}">${t.tier}</span>
+              <span class="trophy-status-tag ${t.unlocked ? 'unlocked' : t.progress > 0 ? 'in-progress' : 'locked'}">
+                ${t.unlocked ? '✓ Unlocked' : t.progress > 0 ? `${t.progress}%` : 'Locked'}
+              </span>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      updateHeroTrophyBadge(user);
+    }
+
     const trophyDialog = document.getElementById("trophyDialog");
     const btnOpenTrophies = document.getElementById("btnOpenTrophies");
     const btnCloseTrophies = document.getElementById("btnCloseTrophies");
 
     function openTrophiesModal() {
       consoleAudio.play("trophy");
+      renderUserTrophies(auth.currentUser);
       trophyDialog?.showModal();
     }
     btnOpenTrophies?.addEventListener("click", openTrophiesModal);
@@ -2696,59 +2947,193 @@
     });
 
     // ==========================================
-    // 11. Wishlist Persistence & VIP Registration
+    // 11. REAL FIREBASE WISHLIST & STORE ENGINE
     // ==========================================
-    const savedWishlist = JSON.parse(localStorage.getItem("pc_store_wishlist") || "[]");
-    const wishlistBtns = document.querySelectorAll(".wishlist-btn");
-    wishlistBtns.forEach((btn, idx) => {
-      const card = btn.closest(".store-teaser-card");
-      const title = card?.querySelector(".teaser-title")?.textContent?.trim() || `Item ${idx}`;
-      const countEl = btn.querySelector(".wl-count");
-      let count = parseInt(countEl?.textContent || "0");
+    async function loadGlobalWishlistCounts() {
+      try {
+        const usersSnap = await getDocs(collection(fs, "users"));
+        const counts = { shadow_ninja: 0, cyber_drift_2: 0, cosmic_odyssey: 0 };
+        usersSnap.forEach((docSnap) => {
+          const wl = docSnap.data()?.wishlist;
+          if (Array.isArray(wl)) {
+            wl.forEach((id) => {
+              if (counts[id] !== undefined) counts[id]++;
+            });
+          }
+        });
 
-      if (savedWishlist.includes(title)) {
-        btn.classList.add("wishlisted");
-        if (countEl) countEl.textContent = count + 1;
+        Object.keys(counts).forEach((id) => {
+          const el = document.getElementById(`wlCount_${id}`);
+          if (el) el.textContent = counts[id];
+        });
+      } catch (e) {
+        console.warn("[Store] Error querying global wishlists:", e);
       }
+    }
 
-      btn.addEventListener("click", () => {
-        let currentWishlist = JSON.parse(localStorage.getItem("pc_store_wishlist") || "[]");
-        let currentCount = parseInt(countEl?.textContent || "0");
-        if (btn.classList.contains("wishlisted")) {
-          btn.classList.remove("wishlisted");
-          countEl.textContent = Math.max(0, currentCount - 1);
-          currentWishlist = currentWishlist.filter(t => t !== title);
-          localStorage.setItem("pc_store_wishlist", JSON.stringify(currentWishlist));
+    function refreshWishlistUI() {
+      const btns = document.querySelectorAll(".wishlist-btn");
+      btns.forEach((btn) => {
+        const gameId = btn.dataset.gameId;
+        const isWishlisted = currentUserWishlist.includes(gameId);
+        btn.classList.toggle("wishlisted", isWishlisted);
+      });
+      loadGlobalWishlistCounts();
+    }
+
+    function refreshVIPUI(user) {
+      const btnNotifyMe = document.getElementById("btnNotifyMe");
+      const notifyMsg = document.getElementById("notifyMsg");
+      if (!btnNotifyMe) return;
+
+      if (user && currentUserVIP) {
+        btnNotifyMe.textContent = "✓ VIP Launch Pass Active (" + (user.displayName || user.email || "Account Linked") + ")";
+        btnNotifyMe.style.background = "#00c853";
+        if (notifyMsg) notifyMsg.textContent = "Your PlayStation account is enrolled for day-1 beta drop notifications.";
+      } else {
+        btnNotifyMe.textContent = "🔔 Get Notified at Launch";
+        btnNotifyMe.style.background = "#0070d1";
+        if (notifyMsg) notifyMsg.textContent = user ? "" : "Sign in to activate your cloud VIP notification.";
+      }
+    }
+
+    const wishlistBtns = document.querySelectorAll(".wishlist-btn");
+    wishlistBtns.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          showToast("🔒 Sign In Required", "Log in with PlayStation Network to save your wishlist to the cloud.", "🔒");
+          loginReminder?.showModal();
+          return;
+        }
+
+        const gameId = btn.dataset.gameId;
+        const gameTitle = btn.dataset.gameTitle || "Game";
+        const isAlready = currentUserWishlist.includes(gameId);
+
+        if (isAlready) {
+          currentUserWishlist = currentUserWishlist.filter(id => id !== gameId);
           consoleAudio.play("tick");
-          showToast("💔 Wishlist Removed", `Removed ${title} from your wishlist.`);
+          showToast("💔 Wishlist Removed", `Removed ${gameTitle} from your cloud wishlist.`);
         } else {
-          btn.classList.add("wishlisted");
-          countEl.textContent = currentCount + 1;
-          currentWishlist.push(title);
-          localStorage.setItem("pc_store_wishlist", JSON.stringify(currentWishlist));
+          currentUserWishlist.push(gameId);
           consoleAudio.play("heart");
-          showToast("❤️ Added to Wishlist", `${title} added! You'll be notified on launch day.`);
+          showToast("❤️ Added to Wishlist", `${gameTitle} synced to your PlayStation account!`);
+        }
+
+        refreshWishlistUI();
+
+        try {
+          await setDoc(doc(fs, "users", currentUser.uid), {
+            wishlist: currentUserWishlist,
+            lastActiveAt: serverTimestamp()
+          }, { merge: true });
+          loadGlobalWishlistCounts();
+        } catch (e) {
+          console.error("[Wishlist] Save error:", e);
         }
       });
     });
 
     const btnNotifyMe = document.getElementById("btnNotifyMe");
-    const notifyMsg = document.getElementById("notifyMsg");
-    if (localStorage.getItem("pc_store_notified") === "true") {
-      if (btnNotifyMe) {
-        btnNotifyMe.textContent = "✓ You are on the VIP Launch List";
-        btnNotifyMe.style.background = "#00c853";
+    btnNotifyMe?.addEventListener("click", async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        showToast("🔒 Sign In Required", "Sign in with your account to activate VIP launch alerts.", "🔒");
+        loginReminder?.showModal();
+        return;
       }
-      if (notifyMsg) notifyMsg.textContent = "We will alert your console the second the Store goes live.";
-    }
-    btnNotifyMe?.addEventListener("click", () => {
+
       consoleAudio.play("select");
-      localStorage.setItem("pc_store_notified", "true");
-      btnNotifyMe.textContent = "✓ You are on the VIP Launch List";
-      btnNotifyMe.style.background = "#00c853";
-      if (notifyMsg) notifyMsg.textContent = "We will alert your console the second the Store goes live.";
-      showToast("🚀 VIP Launch Pass Activated", "Your account will get day-1 beta store access and drops!", "🎉");
+      currentUserVIP = true;
+      refreshVIPUI(currentUser);
+
+      try {
+        await setDoc(doc(fs, "users", currentUser.uid), {
+          notifiedVIP: true,
+          vipRegisteredAt: Date.now(),
+          vipEmail: currentUser.email || null
+        }, { merge: true });
+        showToast("🚀 VIP Launch Pass Activated", "Your account is enrolled for day-1 beta store drops!", "🎉");
+      } catch (e) {
+        console.error("[VIP] Save error:", e);
+      }
     });
+
+    // ==========================================
+    // 12. SYNC REAL SCORES & LOAD USER DATA
+    // ==========================================
+    async function syncAndLoadUserData(user) {
+      if (!user) {
+        currentUserScores = { ...DEFAULT_USER_SCORES };
+        currentUserWishlist = [];
+        currentUserVIP = false;
+        renderUserTrophies(null);
+        refreshWishlistUI();
+        refreshVIPUI(null);
+        return;
+      }
+
+      const localGalaxy = Number(localStorage.getItem("galaxy_best") || 0);
+      const localCar = Number(localStorage.getItem("car_best") || 0);
+      const localKenny = Number(localStorage.getItem("kenny_best") || localStorage.getItem("final-score") || 0);
+      const localSnake = Number(localStorage.getItem("snakeHigh") || 0);
+      const localTurbo = (localStorage.getItem("td2d_played") === "true" || !!Object.keys(localStorage).find(k => k.startsWith("td2d_bestlap")));
+      const localXO = Number(localStorage.getItem("xo_matches_played") || 0);
+
+      const userRef = doc(fs, "users", user.uid);
+      try {
+        const snap = await getDoc(userRef);
+        const data = snap.exists() ? snap.data() : {};
+
+        currentUserWishlist = Array.isArray(data.wishlist) ? data.wishlist : [];
+        currentUserVIP = !!data.notifiedVIP;
+
+        const dbScores = data.gameStats || {};
+        currentUserScores = {
+          galaxyScore: Math.max(localGalaxy, Number(dbScores.galaxyScore || 0)),
+          carScore: Math.max(localCar, Number(dbScores.carScore || 0)),
+          kennyScore: Math.max(localKenny, Number(dbScores.kennyScore || 0)),
+          snakeScore: Math.max(localSnake, Number(dbScores.snakeScore || 0)),
+          typewriterWpm: Number(dbScores.typewriterWpm || 0),
+          typewriterAcc: Number(dbScores.typewriterAcc || 0),
+          turboCompleted: localTurbo || !!dbScores.turboCompleted,
+          xoMatches: Math.max(localXO, Number(dbScores.xoMatches || 0))
+        };
+
+        if (currentUserScores.galaxyScore > localGalaxy) localStorage.setItem("galaxy_best", String(currentUserScores.galaxyScore));
+        if (currentUserScores.carScore > localCar) localStorage.setItem("car_best", String(currentUserScores.carScore));
+        if (currentUserScores.snakeScore > localSnake) localStorage.setItem("snakeHigh", String(currentUserScores.snakeScore));
+
+        setDoc(userRef, {
+          gameStats: currentUserScores,
+          lastActiveAt: serverTimestamp()
+        }, { merge: true }).catch(() => {});
+      } catch (err) {
+        console.warn("[Firebase] Could not sync user doc:", err);
+      }
+
+      onValue(ref(rtdb, `typewriterLeaderboard/${user.uid}`), (snap) => {
+        const val = snap.val();
+        if (val && Number(val.wpm) > 0) {
+          currentUserScores.typewriterWpm = Number(val.wpm);
+          currentUserScores.typewriterAcc = Number(val.accuracy || 100);
+          renderUserTrophies(user);
+        }
+      });
+
+      onValue(ref(rtdb, `snakeLeaderboard/${user.uid}`), (snap) => {
+        const val = snap.val();
+        if (val && Number(val.score) > 0) {
+          currentUserScores.snakeScore = Math.max(currentUserScores.snakeScore, Number(val.score));
+          renderUserTrophies(user);
+        }
+      });
+
+      renderUserTrophies(user);
+      refreshWishlistUI();
+      refreshVIPUI(user);
+    }
 
     // Countdown Ticker
     let secCounter = 20;
