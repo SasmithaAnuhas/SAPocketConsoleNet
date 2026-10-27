@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Pocket Console | PlayStation 5 & Steam Edition</title>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>Pocket Console OS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
@@ -2888,6 +2890,28 @@
   const consoleAudio = new ConsoleAudioEngine();
 
   // PlayStation Toast System
+    // ==========================================
+    // SECURITY: XSS Sanitization & Input Validation
+    // ==========================================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function sanitizeUrl(url) {
+      if (!url || typeof url !== "string") return "";
+      const trimmed = url.trim();
+      if (/^(https?:|\/|Games\/|Assets\/)/i.test(trimmed)) {
+        return trimmed;
+      }
+      return "";
+    }
+
   function showToast(title, msg, icon = "🔔") {
     const container = document.getElementById("psToastContainer");
     if (!container) return;
@@ -3751,12 +3775,16 @@
       }
     }
 
+    let lastWishlistClickTime = 0;
     const wishlistBtns = document.querySelectorAll(".wishlist-btn");
     wishlistBtns.forEach((btn) => {
       btn.addEventListener("click", async () => {
+        const now = Date.now();
+        if (now - lastWishlistClickTime < 1200) return; // Prevent spamming Firestore increment
+        lastWishlistClickTime = now;
         const currentUser = auth.currentUser;
         if (!currentUser) {
-          showToast("🔒 Sign In Required", "Log in with PlayStation Network to save your wishlist to the cloud.", "🔒");
+          showToast("🔒 Sign In Required", "Sign in to your Pocket Console account to save your wishlist to the cloud.", "🔒");
           loginReminder?.showModal();
           return;
         }
@@ -4058,9 +4086,17 @@
       });
     });
 
-    // Rating Submit Handler
+    // Rating Submit Handler (Secured with Rate Limiting)
+    let lastRatingSubmitTimestamp = 0;
     const btnSubmitRating = document.getElementById("btnSubmitRating");
     btnSubmitRating?.addEventListener("click", async () => {
+      const now = Date.now();
+      if (now - lastRatingSubmitTimestamp < 1500) {
+        showToast("⏳ Please Wait", "Rating request is on cooldown", "⏳");
+        return;
+      }
+      lastRatingSubmitTimestamp = now;
+
       const currentUser = auth.currentUser;
       if (!currentUser) {
         showToast("🔒 Sign In Required", "Log in to submit and sync your game ratings.", "🔒");
@@ -4414,7 +4450,7 @@
     async function sendFriendRequestFromFeed(targetUid, targetName, targetPublicId, targetPhoto) {
       const currentUser = auth.currentUser;
       if (!currentUser) {
-        showToast("🔒 Sign In Required", "Log in with PlayStation Network to add friends.", "🔒");
+        showToast("🔒 Sign In Required", "Sign in to your Pocket Console account to add friends.", "🔒");
         loginReminder?.showModal();
         return false;
       }
@@ -4510,25 +4546,29 @@
             const pId = u.publicId || ("PC-" + u.uid.slice(0, 8).toUpperCase());
             const name = u.displayName || "Console Gamer";
             const photo = u.photoURL || "";
-            const avatarStyle = photo ? `background-image: url('${photo}');` : "";
+            const safeUid = escapeHtml(u.uid);
+            const safeName = escapeHtml(name);
+            const safePid = escapeHtml(pId);
+            const safePhoto = sanitizeUrl(photo);
+            const safeAvatarStyle = safePhoto ? `background-image: url('${safePhoto}');` : "";
 
             return `
-              <div class="suggestion-card" data-uid="${u.uid}">
+              <div class="suggestion-card" data-uid="${safeUid}">
                 <div class="suggestion-avatar-wrap">
-                  <div class="suggestion-avatar" style="${avatarStyle}"></div>
-                  <span class="suggestion-status-dot" id="presDot_${u.uid}"></span>
+                  <div class="suggestion-avatar" style="${safeAvatarStyle}"></div>
+                  <span class="suggestion-status-dot" id="presDot_${safeUid}"></span>
                 </div>
                 <div class="suggestion-info">
-                  <div class="suggestion-name">${name}</div>
-                  <div class="suggestion-id">${pId}</div>
-                  <div class="suggestion-status-text" id="presText_${u.uid}">Checking status…</div>
+                  <div class="suggestion-name">${safeName}</div>
+                  <div class="suggestion-id">${safePid}</div>
+                  <div class="suggestion-status-text" id="presText_${safeUid}">Checking status...</div>
                 </div>
                 <div class="suggestion-actions">
-                  <button type="button" class="btn-add-friend" 
-                          data-uid="${u.uid}" 
-                          data-name="${name}" 
-                          data-pid="${pId}" 
-                          data-photo="${photo}">
+                  <button type="button" class="btn-add-friend"
+                          data-uid="${safeUid}"
+                          data-name="${safeName}"
+                          data-pid="${safePid}"
+                          data-photo="${safePhoto}">
                     <span>➕ Add Friend</span>
                   </button>
                 </div>
@@ -4623,24 +4663,26 @@
         if (friendsGrid) {
           friendsGrid.innerHTML = friends.map(f => {
             const photo = f.photoURL || "";
-            const avatarStyle = photo ? `background-image: url('${photo}');` : "";
-            const name = f.displayName || "Friend";
-            const pId = f.publicId || ("PC-" + f.uid.slice(0, 8).toUpperCase());
+            const safePhoto = sanitizeUrl(photo);
+            const avatarStyle = safePhoto ? `background-image: url('${safePhoto}');` : "";
+            const safeName = escapeHtml(f.displayName || "Friend");
+            const safePid = escapeHtml(f.publicId || ("PC-" + f.uid.slice(0, 8).toUpperCase()));
+            const safeUid = escapeHtml(f.uid);
 
             return `
-              <div class="suggestion-card" id="friendCard_${f.uid}">
+              <div class="suggestion-card" id="friendCard_${safeUid}">
                 <div class="suggestion-avatar-wrap">
                   <div class="suggestion-avatar" style="${avatarStyle}"></div>
-                  <span class="suggestion-status-dot" id="fDot_${f.uid}"></span>
+                  <span class="suggestion-status-dot" id="fDot_${safeUid}"></span>
                 </div>
                 <div class="suggestion-info">
-                  <div class="suggestion-name">${name}</div>
-                  <div class="suggestion-id">${pId}</div>
-                  <div class="suggestion-status-text" id="fText_${f.uid}">Checking…</div>
+                  <div class="suggestion-name">${safeName}</div>
+                  <div class="suggestion-id">${safePid}</div>
+                  <div class="suggestion-status-text" id="fText_${safeUid}">Checking...</div>
                 </div>
                 <div class="friend-quick-actions">
-                  <a href="ChatPage.html?friendUid=${f.uid}" class="feed-icon-action" title="Open Chat">💬 Chat</a>
-                  <a href="Games/XOV1/XOV1.html" class="feed-icon-action duel" title="Invite 1v1">⚔️ Duel</a>
+                  <a href="ChatPage.html?friendUid=${safeUid}" class="feed-icon-action" title="Chat">💬</a>
+                  <a href="Games/XOV1/XOV1.html" class="feed-icon-action duel" title="Invite Duel">⚔️</a>
                 </div>
               </div>
             `;
