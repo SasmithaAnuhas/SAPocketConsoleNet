@@ -190,7 +190,9 @@
       getAuth,
       onAuthStateChanged,
       signOut,
-      updateProfile
+      updateProfile,
+      setPersistence,
+      browserLocalPersistence
     } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
     import {
@@ -401,6 +403,21 @@
     const myFriends = new Set();   // friendUid
     const outgoingReqTo = new Set(); // toUid
     const incomingReqFrom = new Set(); // fromUid
+    let currentSearchResultsData = null;
+    let currentSearchQuery = "";
+
+    function updateRequestsBadge() {
+      const tabBtn = document.querySelector('[data-tab="tabRequests"]');
+      if (tabBtn) {
+        tabBtn.textContent = incomingReqFrom.size > 0 ? `Requests (${incomingReqFrom.size})` : "Requests";
+      }
+    }
+
+    function refreshSearchResultsUI() {
+      if (currentSearchResultsData) {
+        renderSearchResults(currentSearchResultsData, currentSearchQuery);
+      }
+    }
 
     async function ensureMyProfile(user) {
       const uid = user.uid;
@@ -411,7 +428,7 @@
       const existingData = snap?.exists() ? snap.data() : null;
 
       const displayName = existingData?.displayName || localStorage.getItem("pc_custom_name") || user.displayName || "Google User";
-      const photoURL = user.photoURL || null;
+      const photoURL = user.photoURL || existingData?.photoURL || localStorage.getItem("pc_cached_avatar") || null;
 
       await setDoc(uref, {
         uid,
@@ -496,10 +513,31 @@
         try {
           const exactSnap = await getDocs(query(collection(fs, "publicUsers"), where("publicId", "==", withPC)));
           exactSnap.forEach(d => {
-            if (!allPublic.some(x => x.uid === d.id)) {
+            if (!allPublic.some(x => x.uid === d.id || x.uid === d.data()?.uid)) {
               allPublic.push(d.data());
             }
           });
+        } catch (_) {}
+
+        // Fallback: search users collection if not yet in publicUsers
+        try {
+          const userSnap = await getDocs(query(collection(fs, "users"), where("publicId", "==", withPC)));
+          userSnap.forEach(d => {
+            const data = d.data();
+            if (data && !allPublic.some(x => x.uid === d.id || x.uid === data.uid)) {
+              allPublic.push(data);
+            }
+          });
+        } catch (_) {}
+      }
+
+      // Direct UID lookup if query looks like UID
+      if (queryStr.length >= 20) {
+        try {
+          const uidSnap = await getDoc(doc(fs, "users", queryStr));
+          if (uidSnap.exists() && !allPublic.some(x => x.uid === uidSnap.id)) {
+            allPublic.push(uidSnap.data());
+          }
         } catch (_) {}
       }
 
@@ -522,7 +560,7 @@
     }
 
     async function sendFriendRequest(targetProfile) {
-      if (!me || !myProfile) return;
+      if (!me) return;
 
       if (targetProfile.uid === me.uid) {
         statusEl.textContent = "Status: You cannot add yourself.";
@@ -535,89 +573,104 @@
         return;
       }
 
-      const rid = requestId(me.uid, targetProfile.uid);
-      const rref = doc(fs, "friendRequests", rid);
-      const existing = await getDoc(rref);
-      if (existing.exists()) {
-        // Clear stale request so a fresh one can be sent.
-        await deleteDoc(rref);
-      }
-      await setDoc(rref, {
-        fromUid: me.uid,
-        toUid: targetProfile.uid,
-        fromPublicId: myProfile.publicId,
-        toPublicId: targetProfile.publicId,
-        fromName: myProfile.displayName || "User",
-        fromPhoto: myProfile.photoURL || null,
-        toName: targetProfile.displayName || "User",
-        toPhoto: targetProfile.photoURL || null,
-        createdAt: serverTimestamp()
-      }, { merge: false });
-
-      statusEl.textContent = "Status: Friend request sent.";
-    }
-
-    async function sendResyncRequest(targetProfile) {
-      if (!me || !myProfile) return;
-      const rid = requestId(me.uid, targetProfile.uid);
-      const rref = doc(fs, "friendRequests", rid);
-      const existing = await getDoc(rref);
-      if (existing.exists()) {
-        statusEl.textContent = "Status: Request already pending.";
+      // If they already sent a request to me, accept it immediately!
+      if (incomingReqFrom.has(targetProfile.uid)) {
+        statusEl.textContent = "Status: Accepting incoming request...";
+        await acceptIncoming(targetProfile.uid);
         return;
       }
 
+      const myPublicId = myProfile?.publicId || makePublicId(me.uid);
+      const myDisplayName = myProfile?.displayName || localStorage.getItem("pc_custom_name") || me.displayName || "User";
+      const myPhoto = myProfile?.photoURL || me.photoURL || null;
+
+      const targetPublicId = targetProfile.publicId || makePublicId(targetProfile.uid);
+      const targetDisplayName = targetProfile.displayName || "User";
+      const targetPhoto = targetProfile.photoURL || null;
+
+      const rid = requestId(me.uid, targetProfile.uid);
+      const rref = doc(fs, "friendRequests", rid);
+
       await setDoc(rref, {
         fromUid: me.uid,
         toUid: targetProfile.uid,
-        fromPublicId: myProfile.publicId,
-        toPublicId: targetProfile.publicId || null,
-        fromName: myProfile.displayName || "User",
-        fromPhoto: myProfile.photoURL || null,
+        fromPublicId: myPublicId,
+        toPublicId: targetPublicId,
+        fromName: myDisplayName,
+        fromPhoto: myPhoto,
+        toName: targetDisplayName,
+        toPhoto: targetPhoto,
+        createdAt: serverTimestamp()
+      }, { merge: true });
+
+      outgoingReqTo.add(targetProfile.uid);
+      statusEl.textContent = "Status: Friend request sent to " + targetDisplayName + ".";
+      refreshSearchResultsUI();
+    }
+
+    async function sendResyncRequest(targetProfile) {
+      if (!me) return;
+      const rid = requestId(me.uid, targetProfile.uid);
+      const rref = doc(fs, "friendRequests", rid);
+
+      const myPublicId = myProfile?.publicId || makePublicId(me.uid);
+      const myDisplayName = myProfile?.displayName || localStorage.getItem("pc_custom_name") || me.displayName || "User";
+      const myPhoto = myProfile?.photoURL || me.photoURL || null;
+
+      await setDoc(rref, {
+        fromUid: me.uid,
+        toUid: targetProfile.uid,
+        fromPublicId: myPublicId,
+        toPublicId: targetProfile.publicId || makePublicId(targetProfile.uid),
+        fromName: myDisplayName,
+        fromPhoto: myPhoto,
         toName: targetProfile.displayName || "User",
         toPhoto: targetProfile.photoURL || null,
         createdAt: serverTimestamp()
-      }, { merge: false });
+      }, { merge: true });
 
+      outgoingReqTo.add(targetProfile.uid);
       statusEl.textContent = "Status: Sync request sent.";
+      refreshSearchResultsUI();
     }
 
     async function cancelOutgoing(toUid) {
       if (!me) return;
       await deleteDoc(doc(fs, "friendRequests", requestId(me.uid, toUid)));
+      outgoingReqTo.delete(toUid);
       statusEl.textContent = "Status: Request cancelled.";
+      refreshSearchResultsUI();
     }
 
     async function rejectIncoming(fromUid) {
       if (!me) return;
       await deleteDoc(doc(fs, "friendRequests", requestId(fromUid, me.uid)));
+      incomingReqFrom.delete(fromUid);
+      updateRequestsBadge();
       statusEl.textContent = "Status: Request rejected.";
+      refreshSearchResultsUI();
     }
 
     async function acceptIncoming(fromUid) {
-      if (!me || !myProfile) return;
+      if (!me) return;
 
       const reqRef = doc(fs, "friendRequests", requestId(fromUid, me.uid));
       const reverseReqRef = doc(fs, "friendRequests", requestId(me.uid, fromUid));
 
       if (myFriends.has(fromUid)) {
-        await Promise.allSettled([deleteDoc(reqRef), deleteDoc(reverseReqRef)]);
+        await Promise.allSettled([deleteDoc(reqRef).catch(() => {}), deleteDoc(reverseReqRef).catch(() => {})]);
         statusEl.textContent = "Status: Already friends (cleared request).";
         return;
       }
 
-      const reqSnap = await getDoc(reqRef);
-      if (!reqSnap.exists()) {
-        statusEl.textContent = "Status: Request not found (maybe already handled).";
-        return;
-      }
+      const reqSnap = await getDoc(reqRef).catch(() => null);
+      const req = reqSnap?.exists() ? reqSnap.data() : {};
 
-      const req = reqSnap.data() || {};
       let other = {
-        uid: req.fromUid || fromUid,
-        publicId: req.fromPublicId || null,
-        displayName: req.fromName || "User",
-        photoURL: req.fromPhoto || null
+        uid: req?.fromUid || fromUid,
+        publicId: req?.fromPublicId || null,
+        displayName: req?.fromName || "User",
+        photoURL: req?.fromPhoto || null
       };
 
       const needsPublicFetch = !other.publicId || !other.displayName || !other.photoURL;
@@ -628,59 +681,63 @@
             const p = publicSnap.data() || {};
             other = {
               uid: fromUid,
-              publicId: p.publicId || other.publicId,
-              displayName: p.displayName || other.displayName,
-              photoURL: p.photoURL || other.photoURL
+              publicId: p.publicId || other.publicId || makePublicId(fromUid),
+              displayName: p.displayName || other.displayName || "User",
+              photoURL: p.photoURL || other.photoURL || null
             };
           }
         } catch (e) {
           showError("Public profile lookup", e);
         }
       }
+      if (!other.publicId) other.publicId = makePublicId(fromUid);
+
+      const myPublicId = myProfile?.publicId || makePublicId(me.uid);
+      const myDisplayName = myProfile?.displayName || localStorage.getItem("pc_custom_name") || me.displayName || "User";
+      const myPhoto = myProfile?.photoURL || me.photoURL || null;
 
       const myFriendRef = doc(fs, `users/${me.uid}/friends/${fromUid}`);
-      try {
-        const myFriendSnap = await getDoc(myFriendRef);
-        if (myFriendSnap.exists()) {
-          await deleteDoc(myFriendRef);
-        }
-      } catch (e) {
-        showError("Cleanup existing friend", e);
-      }
+      const theirFriendRef = doc(fs, `users/${fromUid}/friends/${me.uid}`);
 
       const batch = writeBatch(fs);
 
       // add to my friends
       batch.set(myFriendRef, {
         uid: fromUid,
-        publicId: other.publicId || null,
-        displayName: other.displayName || "User",
-        photoURL: other.photoURL || null,
+        publicId: other.publicId,
+        displayName: other.displayName,
+        photoURL: other.photoURL,
         createdAt: serverTimestamp()
-      }, { merge: false });
+      }, { merge: true });
 
       // add to their friends
-      batch.set(doc(fs, `users/${fromUid}/friends/${me.uid}`), {
+      batch.set(theirFriendRef, {
         uid: me.uid,
-        publicId: myProfile.publicId || null,
-        displayName: myProfile.displayName || "User",
-        photoURL: myProfile.photoURL || null,
+        publicId: myPublicId,
+        displayName: myDisplayName,
+        photoURL: myPhoto,
         createdAt: serverTimestamp()
-      }, { merge: false });
+      }, { merge: true });
 
       // delete request
       batch.delete(reqRef);
 
       await batch.commit();
+
       try {
-        const reverseSnap = await getDoc(reverseReqRef);
-        if (reverseSnap.exists()) {
-          await deleteDoc(reverseReqRef);
+        const reverseSnap = await getDoc(reverseReqRef).catch(() => null);
+        if (reverseSnap?.exists()) {
+          await deleteDoc(reverseReqRef).catch(() => {});
         }
       } catch (e) {
         showError("Cleanup reverse request", e);
       }
+
+      myFriends.add(fromUid);
+      incomingReqFrom.delete(fromUid);
+      updateRequestsBadge();
       statusEl.textContent = "Status: Friend request accepted.";
+      refreshSearchResultsUI();
     }
 
     async function removeFriend(friendUid) {
@@ -692,7 +749,6 @@
       statusEl.textContent = "Status: Friend removed.";
     }
 
-
     function renderIncoming(reqs) {
       incomingList.innerHTML = "";
       if (!reqs.length) { renderEmpty(incomingList, "No incoming requests."); return; }
@@ -701,7 +757,7 @@
         const photo = normalizeGooglePhoto(r.fromPhoto || fallbackAvatar);
         incomingList.insertAdjacentHTML("beforeend", `
           <div class="item">
-            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" onerror="this.onerror=null; this.src='${fallbackAvatar}';" />
             <div class="itemMeta">
               <p class="itemTitle">${escapeHtml(r.fromName || "User")}</p>
               <div class="mono">From: ${escapeHtml(r.fromPublicId || "-")}</div>
@@ -744,7 +800,7 @@
         const photo = normalizeGooglePhoto(r.toPhoto || fallbackAvatar);
         outgoingList.insertAdjacentHTML("beforeend", `
           <div class="item">
-            <img class="avatar" alt="User" src="${escapeHtml(photo)}" />
+            <img class="avatar" alt="User" src="${escapeHtml(photo)}" onerror="this.onerror=null; this.src='${fallbackAvatar}';" />
             <div class="itemMeta">
               <p class="itemTitle">${escapeHtml(r.toName || "User")}</p>
               <div class="mono">To: ${escapeHtml(r.toPublicId || "-")}</div>
@@ -771,6 +827,8 @@
     function renderSearchResults(data, queryStr = "") {
       searchResults.innerHTML = "";
       const { isSuggested, list } = (Array.isArray(data) ? { isSuggested: false, list: data } : data);
+      currentSearchResultsData = { isSuggested, list };
+      currentSearchQuery = queryStr !== undefined ? queryStr : currentSearchQuery;
 
       if (isSuggested) {
         searchResults.insertAdjacentHTML("beforeend", `
@@ -793,7 +851,7 @@
       }
 
       list.forEach(p => {
-        const isMe = p.uid === me.uid;
+        const isMe = p.uid === me?.uid;
         const isFriend = myFriends.has(p.uid);
         const outgoing = outgoingReqTo.has(p.uid);
         const incoming = incomingReqFrom.has(p.uid);
@@ -804,7 +862,7 @@
         } else if (isFriend) {
           actionHtml = `<button disabled type="button">Already friends</button>`;
         } else if (incoming) {
-          actionHtml = `<button disabled type="button">They requested you</button>`;
+          actionHtml = `<button class="primary" data-accept="${escapeHtml(p.uid)}" type="button">Accept request</button>`;
         } else if (outgoing) {
           actionHtml = `<button class="danger" data-cancel="${escapeHtml(p.uid)}" type="button">Cancel request</button>`;
         } else {
@@ -817,7 +875,7 @@
             <img class="avatar" alt="User" src="${escapeHtml(photo)}" onerror="this.onerror=null; this.src='${fallbackAvatar}';" />
             <div class="itemMeta">
               <p class="itemTitle">${escapeHtml(p.displayName || "User")}</p>
-              <div class="mono">Public ID: ${escapeHtml(p.publicId || "-")}</div>
+              <div class="mono">Public ID: ${escapeHtml(p.publicId || makePublicId(p.uid))}</div>
               <div class="mono">UID: ${escapeHtml(p.uid || "-")}</div>
             </div>
             <div class="rightActions">
@@ -831,7 +889,7 @@
       searchResults.querySelectorAll("[data-add]").forEach(btn => {
         btn.addEventListener("click", async () => {
           const uid = btn.getAttribute("data-add");
-          const target = results.find(x => x.uid === uid);
+          const target = list.find(x => x.uid === uid);
           if (!target) return;
           btn.disabled = true;
           try { await sendFriendRequest(target); }
@@ -846,6 +904,16 @@
           btn.disabled = true;
           try { await cancelOutgoing(uid); }
           catch (e) { showError("Cancel request", e); statusEl.textContent = "Status: Failed to cancel request."; }
+          finally { btn.disabled = false; }
+        });
+      });
+
+      searchResults.querySelectorAll("[data-accept]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const uid = btn.getAttribute("data-accept");
+          btn.disabled = true;
+          try { await acceptIncoming(uid); }
+          catch (e) { showError("Accept request", e); statusEl.textContent = "Status: Failed to accept request."; }
           finally { btn.disabled = false; }
         });
       });
@@ -926,9 +994,22 @@
       });
     }
 
+    let unsubFriends = null;
+    let unsubIncoming = null;
+    let unsubOutgoing = null;
+
+    function stopRealtimeListeners() {
+      if (unsubFriends) { try { unsubFriends(); } catch {} unsubFriends = null; }
+      if (unsubIncoming) { try { unsubIncoming(); } catch {} unsubIncoming = null; }
+      if (unsubOutgoing) { try { unsubOutgoing(); } catch {} unsubOutgoing = null; }
+    }
+
     function wireRealtimeListeners() {
+      stopRealtimeListeners();
+      if (!me) return;
+
       // friends subcollection
-      onSnapshot(collection(fs, `users/${me.uid}/friends`), (snap) => {
+      unsubFriends = onSnapshot(collection(fs, `users/${me.uid}/friends`), (snap) => {
         myFriends.clear();
         const friends = [];
         snap.forEach(d => {
@@ -939,10 +1020,11 @@
         });
         renderFriends(friends);
         cleanupStaleRequests();
+        refreshSearchResultsUI();
       }, (e) => showError("Friends onSnapshot", e));
 
       // incoming requests (toUid == me)
-      onSnapshot(query(collection(fs, "friendRequests"), where("toUid", "==", me.uid)), (snap) => {
+      unsubIncoming = onSnapshot(query(collection(fs, "friendRequests"), where("toUid", "==", me.uid)), (snap) => {
         incomingReqFrom.clear();
         const reqs = [];
         snap.forEach(d => {
@@ -950,11 +1032,13 @@
           if (r?.fromUid) incomingReqFrom.add(r.fromUid);
           reqs.push(r);
         });
+        updateRequestsBadge();
         renderIncoming(reqs);
+        refreshSearchResultsUI();
       }, (e) => showError("Incoming onSnapshot", e));
 
       // outgoing requests (fromUid == me)
-      onSnapshot(query(collection(fs, "friendRequests"), where("fromUid", "==", me.uid)), (snap) => {
+      unsubOutgoing = onSnapshot(query(collection(fs, "friendRequests"), where("fromUid", "==", me.uid)), (snap) => {
         outgoingReqTo.clear();
         const reqs = [];
         snap.forEach(d => {
@@ -963,6 +1047,7 @@
           reqs.push(r);
         });
         renderOutgoing(reqs);
+        refreshSearchResultsUI();
       }, (e) => showError("Outgoing onSnapshot", e));
     }
 
@@ -992,6 +1077,12 @@
     }
 
     searchBtn.addEventListener("click", triggerSearch);
+    publicSearchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        triggerSearch();
+      }
+    });
     publicSearchInput.addEventListener("input", () => {
       if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
       searchDebounceTimer = setTimeout(triggerSearch, 220);
@@ -1053,7 +1144,9 @@
       renderEmpty(outgoingList, "Sign in to see outgoing requests.");
       renderEmpty(friendsList, "Sign in to see friends.");
 
+      stopRealtimeListeners();
       stopAllFriendPresence();
+      updateRequestsBadge();
     }
 
     async function setLoggedInUI(user) {

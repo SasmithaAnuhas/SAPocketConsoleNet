@@ -27,7 +27,7 @@ service cloud.firestore {
         // Create friend doc either by:
         // - owner (uid) creating it
         // - or the other side (friendUid) creating it ONLY when a friendRequest exists
-        allow create: if signedIn()
+        allow create, update: if signedIn()
           && (
             me() == uid
             || (
@@ -38,7 +38,6 @@ service cloud.firestore {
           && request.resource.data.uid == friendUid;
 
         allow delete: if signedIn() && (me() == uid || me() == friendUid);
-        allow update: if false;
       }
 
       // Inbox items (per-user chat list)
@@ -82,13 +81,11 @@ service cloud.firestore {
             || resource.data.fromUid == me()
             || resource.data.toUid == me());
 
-      allow create: if signedIn()
+      allow create, update: if signedIn()
         && request.resource.data.fromUid == me();
 
       allow delete: if signedIn()
         && (resource.data.fromUid == me() || resource.data.toUid == me());
-
-      allow update: if false;
     }
 
     // -----------------------------
