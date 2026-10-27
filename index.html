@@ -168,92 +168,255 @@
       50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 10px #00f2fe; }
     }
 
-    /* PS5 Cinematic Boot Loading Screen */
+    /* Dynamic Theme Aura Custom Properties */
+    :root {
+      --theme-accent: #00f2fe;
+      --theme-glow: rgba(0, 242, 254, 0.35);
+      --theme-bg-glow: rgba(0, 112, 209, 0.35);
+    }
+
+    /* Advanced Cinematic PS5 Canvas Wave Boot Screen */
     .ps-boot-screen {
       position: fixed;
       inset: 0;
-      background: #040711;
+      background: #020409;
       z-index: 100000;
       display: flex;
       align-items: center;
       justify-content: center;
       opacity: 1;
       visibility: visible;
-      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.65s;
+      overflow: hidden;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+      cursor: pointer;
     }
     .ps-boot-screen.fade-out {
       opacity: 0;
-      transform: scale(1.02);
+      transform: scale(1.06);
       visibility: hidden;
       pointer-events: none;
     }
+    .boot-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
     .ps-boot-content {
+      position: relative;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      animation: bootContentFade 0.5s ease-out;
+      user-select: none;
+      animation: bootContentRise 0.9s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    @keyframes bootContentFade {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes bootContentRise {
+      from { opacity: 0; transform: translateY(18px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
     .ps-boot-logo-wrap {
       position: relative;
-      width: 64px;
-      height: 64px;
+      width: 76px;
+      height: 76px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       color: #fff;
     }
-    .ps-boot-light-pulse {
+    .ps-boot-ring-halo {
       position: absolute;
-      inset: -10px;
+      inset: -14px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 112, 209, 0.45) 0%, rgba(0, 242, 254, 0.12) 50%, transparent 70%);
-      animation: consoleLightPulse 2.2s ease-in-out infinite alternate;
-      filter: blur(8px);
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.3) 0%, rgba(0, 112, 209, 0.15) 50%, transparent 72%);
+      animation: haloBreath 3s ease-in-out infinite alternate;
+      filter: blur(10px);
     }
-    @keyframes consoleLightPulse {
+    .ps-boot-ring-outer {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0, 242, 254, 0.4);
+      animation: ringRotate 16s linear infinite;
+    }
+    @keyframes haloBreath {
       0% { transform: scale(0.9); opacity: 0.5; }
-      100% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1.3); opacity: 0.95; }
+    }
+    @keyframes ringRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
     .ps-boot-brand {
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: 6px;
+      color: #f8fafc;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+    .ps-boot-prompt {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      animation: promptPulse 2.2s infinite ease-in-out;
+      transition: all 0.25s ease;
+    }
+    @keyframes promptPulse {
+      0%, 100% { opacity: 0.6; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.02); border-color: rgba(0, 242, 254, 0.5); color: #fff; box-shadow: 0 0 16px rgba(0, 242, 254, 0.3); }
+    }
+
+    /* Game Activity Bar under Hero */
+    .ps-game-activity-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    .activity-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+    .activity-chip.highlight {
+      background: rgba(0, 242, 254, 0.08);
+      border-color: rgba(0, 242, 254, 0.3);
+      color: var(--theme-accent);
+    }
+    .activity-chip-icon {
+      font-size: 12px;
+    }
+
+    /* PS5 Control Center Quick Menu Drawer */
+    .ps-quick-menu-drawer {
+      position: fixed;
+      bottom: 74px;
+      right: 24px;
+      width: min(92vw, 360px);
+      background: rgba(10, 15, 27, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--theme-glow);
+      z-index: 9999;
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: drawerSlideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ps-quick-menu-drawer.open {
+      display: flex;
+    }
+    @keyframes drawerSlideUp {
+      from { opacity: 0; transform: translateY(16px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+    .drawer-title {
       font-size: 14px;
       font-weight: 850;
-      letter-spacing: 4px;
-      color: #f1f5f9;
-      text-transform: uppercase;
-      margin-bottom: 22px;
-      text-shadow: 0 0 16px rgba(0, 112, 209, 0.4);
-    }
-    .ps-boot-bar-track {
-      width: 170px;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 12px;
-    }
-    .ps-boot-bar-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #0070d1, #00f2fe);
-      border-radius: 999px;
-      box-shadow: 0 0 10px #00f2fe;
-      transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .ps-boot-status {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 600;
       letter-spacing: 0.8px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       text-transform: uppercase;
-      color: #64748b;
-      min-height: 16px;
+    }
+    .drawer-close-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .drawer-close-btn:hover { color: #fff; }
+    .drawer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+    .drawer-toggle-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .drawer-toggle-btn.active {
+      background: var(--theme-accent);
+      color: #040814;
+      border-color: var(--theme-accent);
+      box-shadow: 0 0 12px var(--theme-glow);
+    }
+    .drawer-spec-pill {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Screen Flash for Screenshot */
+    .screen-flash-overlay {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 99999;
+      transition: opacity 0.4s ease-out;
+    }
+    .screen-flash-overlay.flashing {
+      opacity: 0.65;
+      transition: none;
     }
 
     /* Main Console Tabs */
@@ -1793,12 +1956,14 @@
   </style>
 </head>
 <body>
-  <!-- CINEMATIC PS5-STYLE CONSOLE BOOT OVERLAY -->
-  <div class="ps-boot-screen" id="psBootScreen" aria-hidden="true">
+  <!-- ADVANCED CINEMATIC PS5 CANVAS WAVE BOOT OVERLAY -->
+  <div class="ps-boot-screen" id="psBootScreen" aria-label="Console Boot Sequence" role="banner">
+    <canvas id="bootParticleCanvas" class="boot-canvas"></canvas>
     <div class="ps-boot-content">
       <div class="ps-boot-logo-wrap">
-        <div class="ps-boot-light-pulse"></div>
-        <svg class="ps-boot-svg-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="ps-boot-ring-halo"></div>
+        <div class="ps-boot-ring-outer"></div>
+        <svg class="ps-boot-svg-icon" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="6" width="20" height="12" rx="4"></rect>
           <line x1="6" y1="12" x2="10" y2="12"></line>
           <line x1="8" y1="10" x2="8" y2="14"></line>
@@ -1807,12 +1972,14 @@
         </svg>
       </div>
       <div class="ps-boot-brand">POCKET CONSOLE</div>
-      <div class="ps-boot-bar-track">
-        <div class="ps-boot-bar-fill" id="psBootBarFill"></div>
+      <div class="ps-boot-prompt" id="bootActionPrompt">
+        <span>PRESS ANY KEY TO START</span>
       </div>
-      <div class="ps-boot-status" id="psBootStatus">System Ready</div>
     </div>
   </div>
+
+  <!-- Screen Capture Flash Element -->
+  <div class="screen-flash-overlay" id="screenFlash" aria-hidden="true"></div>
 
   <!-- 1. DYNAMIC FULL-BLEED BACKDROP -->
   <div class="ps-backdrop-wrap" aria-hidden="true">
@@ -1873,7 +2040,7 @@
 
           <div class="ps-time-clock" id="bottomTime">00:00</div>
           
-          <a href="AccSettings.html" class="ps-user-pill" title="PlayStation Network Account">
+          <a href="AccSettings.html" class="ps-user-pill" title="Pocket Console Account">
             <div class="ps-avatar-wrap">
               <div id="userAvatar" class="userAvatar"></div>
               <span class="onlineDot" aria-hidden="true"></span>
@@ -1912,6 +2079,22 @@
             <button type="button" class="ps-hub-btn" id="btnOpenGameHub">
               <span>📋 Details & Trophies</span>
             </button>
+          </div>
+
+          <!-- Dynamic Game Activity Specs Bar -->
+          <div class="ps-game-activity-bar" id="heroActivityBar">
+            <div class="activity-chip highlight">
+              <span class="activity-chip-icon">⚡</span>
+              <span class="activity-chip-text" id="chipSpecs">60 FPS • DualSense Haptics</span>
+            </div>
+            <div class="activity-chip">
+              <span class="activity-chip-icon">🎮</span>
+              <span class="activity-chip-text" id="chipMode">Space Arcade Combat</span>
+            </div>
+            <div class="activity-chip">
+              <span class="activity-chip-icon">🏆</span>
+              <span class="activity-chip-text" id="chipTrophyCount">5 Trophies Available</span>
+            </div>
           </div>
         </div>
       </section>
@@ -2020,7 +2203,7 @@
                data-cat-group="action"
                data-game-id="snake_arcade" data-title="Snake Arcade"
                data-cat="🐍 Retro Arcade • Global Leaderboard"
-               data-desc="Classic cyber retro snake survival with power apples and global high score competition on the live PlayStation / Firebase leaderboard."
+               data-desc="Classic cyber retro snake survival with power apples and global high score competition on the Pocket Console leaderboard."
                data-trophy="🏆 Longest Tail Record"
                data-art="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg"
                data-link="Games/SnakeGameV1/SnakeGameV1.html">
@@ -2039,7 +2222,7 @@
                data-cat-group="multiplayer"
                data-game-id="xo_duel" data-title="XO Tic Tac Toe"
                data-cat="👥 1v1 Online • Pass & Play"
-               data-desc="Multiplayer tactical duel with real-time Firebase online matchmaking against friends, live presence indicators, and offline pass-and-play."
+               data-desc="Multiplayer tactical duel with online matchmaking against friends, live presence indicators, and offline pass-and-play."
                data-trophy="🏆 Grandmaster Strategist"
                data-art="Games/XOV1/Assets/IconsAndBanners/XOXBanner1.jpg"
                data-link="Games/XOV1/XOV1.html">
@@ -2154,7 +2337,7 @@
         <p style="font-size: 13.5px; color: var(--text-sub);">Add upcoming titles to your wishlist to receive instant launch notifications.</p>
       </div>
 
-      <!-- Upcoming Teaser Cards Grid (Live Firebase Store) -->
+      <!-- Upcoming Teaser Cards Grid (Pocket Store) -->
       <div class="store-upcoming-grid">
         
         <!-- Teaser 1 -->
@@ -2302,18 +2485,24 @@
           <span class="hint-item"><kbd>Enter</kbd> Launch</span>
           <span class="hint-item"><kbd>H</kbd> Details</span>
           <span class="hint-item"><kbd>/</kbd> Search</span>
+          <span class="hint-item"><kbd>C</kbd> Quick Menu</span>
         </div>
-        <div class="ps-gamepad-status" id="gamepadStatus" title="Gamepad Controller Status">
+        <!-- Controller badge ONLY shown when physical controller is active -->
+        <div class="ps-gamepad-status" id="gamepadStatus" style="display:none;" title="Gamepad Controller Status">
           <span class="gp-dot"></span>
-          <span class="gp-text" id="gamepadText">Gamepad API Ready</span>
+          <span class="gp-text" id="gamepadText">Wireless Controller</span>
         </div>
       </div>
 
       <div class="ps-dock-right">
-        <button type="button" class="ps-quick-btn" id="btnOpenTrophies" title="PlayStation Trophies Showcase">
+        <button type="button" class="ps-quick-btn" id="btnQuickMenu" title="Console Control Center (Press C)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Control Center</span>
+        </button>
+        <button type="button" class="ps-quick-btn" id="btnOpenTrophies" title="Console Trophies">
           <span>🏆 Trophies</span>
         </button>
-        <a href="FriendManagementPage.html" class="ps-quick-friends" title="PlayStation Network Friends">
+        <a href="FriendManagementPage.html" class="ps-quick-friends" title="Friends Network">
           <span style="color:#00ffaa;">●</span>
           <span>Friends Online</span>
         </a>
@@ -2322,6 +2511,43 @@
         </a>
       </div>
     </footer>
+    <!-- PS5 QUICK CONTROL CENTER DRAWER -->
+    <div class="ps-quick-menu-drawer" id="quickControlDrawer" role="dialog" aria-label="Quick Settings">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Control Center</span>
+        </div>
+        <button type="button" class="drawer-close-btn" id="btnCloseQuickDrawer" aria-label="Close">✕</button>
+      </div>
+
+      <div class="drawer-row">
+        <span>Audio Sound Effects</span>
+        <button type="button" class="drawer-toggle-btn active" id="btnToggleAudioFx">ON</button>
+      </div>
+
+      <div class="drawer-row">
+        <span>Console Ambient Music</span>
+        <button type="button" class="drawer-toggle-btn" id="btnToggleAmbient">OFF</button>
+      </div>
+
+      <div class="drawer-row">
+        <span>Display Performance</span>
+        <span class="drawer-spec-pill">60 FPS • WebGL</span>
+      </div>
+
+      <div class="drawer-row">
+        <span>Controller Profile</span>
+        <span class="drawer-spec-pill" id="drawerControllerStatus">Keyboard & Mouse</span>
+      </div>
+
+      <div class="drawer-row" style="margin-top:6px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
+        <button type="button" class="drawer-toggle-btn" id="btnTakeScreenshot" style="width:100%; padding:9px; background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.18);">
+          📸 Capture Screenshot
+        </button>
+      </div>
+    </div>
+
 
     <!-- GAME HUB DETAIL DIALOG -->
     <dialog class="gameHubModal" id="gameHubDialog">
@@ -2406,7 +2632,7 @@
 
     <!-- GUEST MODAL -->
     <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
-      <h2 id="loginReminderTitle">PlayStation Network Access</h2>
+      <h2 id="loginReminderTitle">Pocket Console Network Access</h2>
       <p id="loginReminderMessage">Log in with your account to unlock friends matchmaking, cloud score saving, and trophy leaderboards!</p>
       <div class="loginReminderActions">
         <a class="loginReminderSignIn" href="AccSettings.html">Log In</a>
@@ -2421,7 +2647,7 @@
           <span style="font-size:26px;">🏆</span>
           <div>
             <h2 class="hubModalTitle" style="margin:0; font-size:20px;">PlayStation Trophies Showcase</h2>
-            <div style="font-size:12px; color:var(--ps-cyan);" id="trophyUserSubtitle">Live Firebase Cloud Sync</div>
+            <div style="font-size:12px; color:var(--ps-cyan);" id="trophyUserSubtitle">Cloud Profile Synced</div>
           </div>
         </div>
         <button class="hubCloseBtn" id="btnCloseTrophies" type="button" aria-label="Close">✕</button>
@@ -2446,7 +2672,7 @@
       </div>
 
       <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <span style="font-size:12px; color:var(--text-sub);">Synced per-user via Firebase Cloud</span>
+        <span style="font-size:12px; color:var(--text-sub);">Live Cloud Profile Synced</span>
         <a href="HighScoreBoard.html" class="ps-play-btn" style="padding:10px 24px; font-size:13px;">View Global Leaderboards 🏆</a>
       </div>
     </dialog>
@@ -2476,6 +2702,47 @@
         if (AC) this.ctx = new AC();
       }
       if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+    }
+    startAmbient() {
+      if (this.ambientPlaying || this.muted) return;
+      this.init();
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      this.ambientGain = this.ctx.createGain();
+      this.ambientGain.gain.setValueAtTime(0.001, t);
+      this.ambientGain.gain.linearRampToValueAtTime(0.025, t + 2);
+      this.ambientGain.connect(this.ctx.destination);
+
+      this.ambientOscs = [130.81, 196.00, 261.63, 329.63].map(freq => {
+        const osc = this.ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, t);
+        osc.connect(this.ambientGain);
+        osc.start(t);
+        return osc;
+      });
+      this.ambientPlaying = true;
+    }
+    stopAmbient() {
+      if (!this.ambientPlaying || !this.ambientGain) return;
+      const t = this.ctx.currentTime;
+      this.ambientGain.gain.linearRampToValueAtTime(0.001, t + 0.8);
+      setTimeout(() => {
+        if (this.ambientOscs) {
+          this.ambientOscs.forEach(o => { try { o.stop(); o.disconnect(); } catch (_) {} });
+          this.ambientOscs = null;
+        }
+        this.ambientPlaying = false;
+      }, 900);
+    }
+    toggleAmbient() {
+      if (this.ambientPlaying) {
+        this.stopAmbient();
+        return false;
+      } else {
+        this.startAmbient();
+        return true;
+      }
     }
     play(type) {
       if (this.muted) return;
@@ -2539,21 +2806,65 @@
             osc.stop(t + idx * 0.08 + 0.35);
           });
         } else if (type === "boot") {
-          // Subtle acoustic console startup chime
-          const notes = [261.63, 392.00, 523.25, 783.99];
-          notes.forEach((freq, idx) => {
+          // Cinematic next-gen PS5 spatial startup soundscape
+          // 1. Deep Sub-Bass Rumble
+          const subOsc = this.ctx.createOscillator();
+          const subGain = this.ctx.createGain();
+          subOsc.type = "sine";
+          subOsc.frequency.setValueAtTime(110, t);
+          subOsc.frequency.exponentialRampToValueAtTime(55, t + 1.2);
+          subGain.gain.setValueAtTime(0.14, t);
+          subGain.gain.exponentialRampToValueAtTime(0.001, t + 1.6);
+          subOsc.connect(subGain);
+          subGain.connect(this.ctx.destination);
+          subOsc.start(t);
+          subOsc.stop(t + 1.65);
+
+          // 2. Harmonic Resonant Chord (C4, E4, G4, C5, G5)
+          const chord = [261.63, 329.63, 392.00, 523.25, 783.99];
+          chord.forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.type = "sine";
-            osc.frequency.setValueAtTime(freq, t + idx * 0.04);
-            gain.gain.setValueAtTime(0.001, t + idx * 0.04);
-            gain.gain.exponentialRampToValueAtTime(0.08, t + idx * 0.04 + 0.12);
-            gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.04 + 1.2);
+            const noteTime = t + idx * 0.05;
+            osc.frequency.setValueAtTime(freq, noteTime);
+            gain.gain.setValueAtTime(0.001, noteTime);
+            gain.gain.exponentialRampToValueAtTime(0.09, noteTime + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 1.4);
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            osc.start(t + idx * 0.04);
-            osc.stop(t + idx * 0.04 + 1.25);
+            osc.start(noteTime);
+            osc.stop(noteTime + 1.45);
           });
+
+          // 3. Crystalline Shimmer Overtone
+          [1046.5, 1567.98].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "triangle";
+            const noteTime = t + 0.25 + i * 0.08;
+            osc.frequency.setValueAtTime(freq, noteTime);
+            gain.gain.setValueAtTime(0.001, noteTime);
+            gain.gain.exponentialRampToValueAtTime(0.035, noteTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 1.1);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(noteTime);
+            osc.stop(noteTime + 1.15);
+          });
+        } else if (type === "camera") {
+          // Camera shutter click
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(1400, t);
+          osc.frequency.exponentialRampToValueAtTime(400, t + 0.06);
+          gain.gain.setValueAtTime(0.18, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.06);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.06);
         } else if (type === "toast") {
           // Notification chime
           [784, 987.77].forEach((f, i) => {
@@ -2736,6 +3047,59 @@
 
     let selectedActiveCard = gameCards[0];
 
+    // Dynamic Game Aura & Specs Database
+    const GAME_AURAS = {
+      galaxy_strike: {
+        accent: "#00f2fe",
+        glow: "rgba(0, 242, 254, 0.4)",
+        specs: "60 FPS • DualSense Haptics",
+        mode: "Space Arcade Combat",
+        trophies: "5 Waves • Boss Slayer"
+      },
+      turbo_drift: {
+        accent: "#ff9900",
+        glow: "rgba(255, 153, 0, 0.4)",
+        specs: "60 FPS • Precision Drift Physics",
+        mode: "Arcade Circuit Racer",
+        trophies: "High-Speed Drifter"
+      },
+      lane_rush: {
+        accent: "#ff2a5f",
+        glow: "rgba(255, 42, 95, 0.4)",
+        specs: "60 FPS • Highway Traffic Rush",
+        mode: "Endless Reflex Survival",
+        trophies: "Traffic Dodger"
+      },
+      keycraft_typing: {
+        accent: "#00ffaa",
+        glow: "rgba(0, 255, 170, 0.4)",
+        specs: "Live WPM & Accuracy Metrics",
+        mode: "Java Syntax Trainer",
+        trophies: "Master Java Typist"
+      },
+      snake_arcade: {
+        accent: "#39ff14",
+        glow: "rgba(57, 255, 20, 0.4)",
+        specs: "Classic Retro Survival • Global Rank",
+        mode: "Cyber Retro Arcade",
+        trophies: "Longest Tail Record"
+      },
+      xo_duel: {
+        accent: "#a855f7",
+        glow: "rgba(168, 85, 247, 0.4)",
+        specs: "Online Matchmaking • Pass & Play",
+        mode: "1v1 Tactical Duel",
+        trophies: "Grandmaster Strategist"
+      },
+      kenny_adventure: {
+        accent: "#38bdf8",
+        glow: "rgba(56, 189, 248, 0.4)",
+        specs: "Platformer Physics • 60 FPS",
+        mode: "2D Adventure Quest",
+        trophies: "Meadow Explorer"
+      }
+    };
+
     function selectGameCard(card, playAudio = true) {
       if (selectedActiveCard === card && playAudio === false) return;
       selectedActiveCard = card;
@@ -2749,6 +3113,7 @@
       const trophy = card.dataset.trophy;
       const art = card.dataset.art;
       const link = card.dataset.link;
+      const gId = card.dataset.gameId || "galaxy_strike";
 
       if (heroTitle) heroTitle.textContent = title;
       if (heroCategory) heroCategory.textContent = cat;
@@ -2757,11 +3122,24 @@
       if (heroPlayBtn) {
         heroPlayBtn.href = link;
         heroPlayBtn.onclick = () => {
-          const gId = card.dataset.gameId || "galaxy_strike";
           sessionStorage.setItem("pc_pending_rate_game", gId);
           sessionStorage.setItem("pc_pending_rate_title", card.dataset.title || "Game");
         };
       }
+
+      // Update Activity Chips
+      const aura = GAME_AURAS[gId] || GAME_AURAS.galaxy_strike;
+      const chipSpecs = document.getElementById("chipSpecs");
+      const chipMode = document.getElementById("chipMode");
+      const chipTrophyCount = document.getElementById("chipTrophyCount");
+      if (chipSpecs) chipSpecs.textContent = aura.specs;
+      if (chipMode) chipMode.textContent = aura.mode;
+      if (chipTrophyCount) chipTrophyCount.textContent = aura.trophies;
+
+      // Dynamic Reactive Theme Aura Shift
+      document.documentElement.style.setProperty("--theme-accent", aura.accent);
+      document.documentElement.style.setProperty("--theme-glow", aura.glow);
+
       updateHeroTrophyBadge(auth.currentUser);
       updateHeroRatingDisplay();
 
@@ -2989,8 +3367,14 @@
       const gpStatus = document.getElementById("gamepadStatus");
       const gpText = document.getElementById("gamepadText");
       if (activeGp) {
-        if (gpStatus) gpStatus.style.borderColor = "var(--ps-cyan)";
-        if (gpText) gpText.textContent = "🎮 " + (activeGp.id.includes("DualSense") ? "DualSense" : activeGp.id.includes("Xbox") ? "Xbox Controller" : "Controller Ready");
+        if (gpStatus) {
+          gpStatus.style.display = "flex";
+          gpStatus.style.borderColor = "var(--theme-accent)";
+        }
+        const name = activeGp.id.includes("DualSense") ? "DualSense Wireless" : activeGp.id.includes("Xbox") ? "Xbox Wireless" : "Wireless Controller";
+        if (gpText) gpText.textContent = name;
+        const drawerGp = document.getElementById("drawerControllerStatus");
+        if (drawerGp) drawerGp.textContent = name;
         
         const now = Date.now();
         if (now - lastGamepadNavTime > 220) {
@@ -3025,8 +3409,9 @@
           }
         }
       } else {
-        if (gpStatus) gpStatus.style.borderColor = "var(--ps-card-border)";
-        if (gpText) gpText.textContent = "Gamepad API Ready";
+        if (gpStatus) gpStatus.style.display = "none";
+        const drawerGp = document.getElementById("drawerControllerStatus");
+        if (drawerGp) drawerGp.textContent = "Keyboard & Mouse";
       }
 
       requestAnimationFrame(pollGamepads);
@@ -3143,7 +3528,7 @@
       {
         id: "xo_grandmaster",
         title: "XO Duel • Tactical Strategist",
-        desc: "Compete in 3 online multiplayer duels on PlayStation Network.",
+        desc: "Compete in 3 online multiplayer duels on Pocket Network.",
         icon: "👥",
         tier: "bronze",
         target: 3,
@@ -4304,39 +4689,159 @@
     setInterval(updateTime, 1000);
 
     // ==========================================
-    // 15. PS5 CINEMATIC BOOT SEQUENCE
+    // 15. ADVANCED PS5 CANVAS WAVE BOOT & CONTROL CENTER
     // ==========================================
     const psBootScreen = document.getElementById("psBootScreen");
-    const psBootBarFill = document.getElementById("psBootBarFill");
-    const psBootStatus = document.getElementById("psBootStatus");
+    const bootCanvas = document.getElementById("bootParticleCanvas");
+    let bootCompleted = false;
 
-    function runBootSequence() {
-      if (!psBootScreen) return;
-      
-      setTimeout(() => {
-        if (psBootBarFill) psBootBarFill.style.width = "45%";
-        if (psBootStatus) psBootStatus.textContent = "Connecting Network";
-      }, 250);
+    // Canvas Particle Wave Simulation
+    if (bootCanvas) {
+      const ctx = bootCanvas.getContext("2d");
+      let w = bootCanvas.width = window.innerWidth;
+      let h = bootCanvas.height = window.innerHeight;
 
-      setTimeout(() => {
-        if (psBootBarFill) psBootBarFill.style.width = "88%";
-        if (psBootStatus) psBootStatus.textContent = "Loading Profile";
-      }, 600);
+      window.addEventListener("resize", () => {
+        if (bootCompleted) return;
+        w = bootCanvas.width = window.innerWidth;
+        h = bootCanvas.height = window.innerHeight;
+      });
 
-      setTimeout(() => {
-        if (psBootBarFill) psBootBarFill.style.width = "100%";
-        if (psBootStatus) psBootStatus.textContent = "Welcome";
+      const particleCount = 130;
+      const particles = [];
+      const colors = ["#00f2fe", "#0070d1", "#ffd166", "#38bdf8"];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * w,
+          baseY: (h * 0.5) + (Math.random() - 0.5) * 160,
+          y: 0,
+          radius: Math.random() * 2.4 + 0.8,
+          speed: Math.random() * 0.8 + 0.3,
+          freq: Math.random() * 0.005 + 0.002,
+          amp: Math.random() * 45 + 15,
+          phase: Math.random() * Math.PI * 2,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: Math.random() * 0.6 + 0.25
+        });
+      }
+
+      let time = 0;
+      let warpSpeed = 1;
+
+      function renderBootWave() {
+        if (bootCompleted) return;
+        ctx.fillStyle = "rgba(2, 4, 9, 0.25)";
+        ctx.fillRect(0, 0, w, h);
+
+        time += 0.02 * warpSpeed;
+
+        particles.forEach((p) => {
+          p.x += p.speed * warpSpeed;
+          if (p.x > w + 20) p.x = -20;
+          p.y = p.baseY + Math.sin(p.x * p.freq + time + p.phase) * p.amp;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius * (warpSpeed > 1 ? 1.5 : 1), 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.shadowBlur = p.radius * 4;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        });
+
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        requestAnimationFrame(renderBootWave);
+      }
+      requestAnimationFrame(renderBootWave);
+
+      function completeBoot() {
+        if (bootCompleted) return;
+        bootCompleted = true;
+        warpSpeed = 4;
         try { consoleAudio.play("boot"); } catch (_) {}
-      }, 950);
 
+        if (psBootScreen) {
+          psBootScreen.classList.add("fade-out");
+          setTimeout(() => {
+            psBootScreen.style.display = "none";
+          }, 850);
+        }
+      }
+
+      // Trigger on user click / touch / key / gamepad
+      if (psBootScreen) {
+        psBootScreen.addEventListener("click", completeBoot);
+      }
+      window.addEventListener("keydown", (e) => {
+        if (!bootCompleted && psBootScreen?.style.display !== "none") completeBoot();
+      }, { once: true });
+
+      // Auto-complete after brief cinematic duration if untouched
       setTimeout(() => {
-        psBootScreen.classList.add("fade-out");
-        setTimeout(() => {
-          psBootScreen.style.display = "none";
-        }, 700);
-      }, 1300);
+        if (!bootCompleted) completeBoot();
+      }, 1900);
     }
-    runBootSequence();
+
+    // ==========================================
+    // 16. PS5 QUICK CONTROL CENTER ENGINE
+    // ==========================================
+    const quickControlDrawer = document.getElementById("quickControlDrawer");
+    const btnQuickMenu = document.getElementById("btnQuickMenu");
+    const btnCloseQuickDrawer = document.getElementById("btnCloseQuickDrawer");
+    const btnToggleAudioFx = document.getElementById("btnToggleAudioFx");
+    const btnToggleAmbient = document.getElementById("btnToggleAmbient");
+    const btnTakeScreenshot = document.getElementById("btnTakeScreenshot");
+    const screenFlash = document.getElementById("screenFlash");
+
+    function toggleQuickDrawer() {
+      if (!quickControlDrawer) return;
+      const isOpen = quickControlDrawer.classList.toggle("open");
+      consoleAudio.play(isOpen ? "select" : "tick");
+    }
+
+    btnQuickMenu?.addEventListener("click", toggleQuickDrawer);
+    btnCloseQuickDrawer?.addEventListener("click", () => {
+      quickControlDrawer?.classList.remove("open");
+      consoleAudio.play("tick");
+    });
+
+    // Audio FX Toggle
+    btnToggleAudioFx?.addEventListener("click", () => {
+      consoleAudio.muted = !consoleAudio.muted;
+      btnToggleAudioFx.textContent = consoleAudio.muted ? "MUTED" : "ON";
+      btnToggleAudioFx.classList.toggle("active", !consoleAudio.muted);
+      showToast(consoleAudio.muted ? "🔇 Audio Effects Muted" : "🔊 Audio Effects Active", "Sound Settings Updated", "🔊");
+    });
+
+    // Console Ambient Synth Toggle
+    btnToggleAmbient?.addEventListener("click", () => {
+      const isPlaying = consoleAudio.toggleAmbient();
+      btnToggleAmbient.textContent = isPlaying ? "PLAYING" : "OFF";
+      btnToggleAmbient.classList.toggle("active", isPlaying);
+      showToast(isPlaying ? "🎵 Console Ambient: ON" : "🎵 Console Ambient: OFF", "Atmospheric lo-fi synth pad", "🎵");
+    });
+
+    // Screenshot Capture Mode
+    btnTakeScreenshot?.addEventListener("click", () => {
+      consoleAudio.play("camera");
+      if (screenFlash) {
+        screenFlash.classList.add("flashing");
+        setTimeout(() => screenFlash.classList.remove("flashing"), 80);
+      }
+      showToast("📸 Screenshot Captured", "Saved to Pocket Console Media Gallery", "📸");
+      quickControlDrawer?.classList.remove("open");
+    });
+
+    // Keyboard Shortcut 'C' for Control Center
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      if (e.key === "c" || e.key === "C") {
+        e.preventDefault();
+        toggleQuickDrawer();
+      }
+    });
   });
   </script>
 </body>
