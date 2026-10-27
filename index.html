@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Pocket Console | PlayStation & Steam Edition</title>
+  <title>Pocket Console | PlayStation 5 & Steam Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ps-dark: #050811;
+      --ps-dark: #040711;
       --ps-surface: rgba(14, 21, 37, 0.78);
-      --ps-surface-card: rgba(18, 27, 46, 0.82);
+      --ps-surface-card: rgba(18, 27, 46, 0.85);
       --ps-card-border: rgba(255, 255, 255, 0.12);
       --ps-blue: #0070d1;
-      --ps-blue-glow: rgba(0, 112, 209, 0.45);
+      --ps-blue-glow: rgba(0, 112, 209, 0.5);
       --ps-cyan: #00f2fe;
       --ps-cyan-glow: rgba(0, 242, 254, 0.45);
       --ps-plus-gold: #ffbe00;
@@ -68,32 +68,32 @@
 
     .ps-dynamic-bg {
       position: absolute;
-      inset: -20px;
+      inset: -30px;
       background-size: cover;
       background-position: center 25%;
-      filter: blur(28px) brightness(0.38) saturate(1.3);
-      transform: scale(1.08);
-      transition: background-image 0.5s ease-in-out;
-      opacity: 0.9;
+      filter: blur(34px) brightness(0.36) saturate(1.35);
+      transform: scale(1.1);
+      transition: background-image 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0.95;
     }
 
     .ps-backdrop-overlay {
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(1400px 800px at 15% 10%, rgba(0, 112, 209, 0.22), transparent 60%),
-        radial-gradient(1000px 600px at 85% 40%, rgba(0, 242, 254, 0.12), transparent 65%),
-        linear-gradient(to bottom, rgba(5, 8, 17, 0.6) 0%, rgba(5, 8, 17, 0.92) 60%, #050811 100%);
+        radial-gradient(1500px 850px at 15% 10%, rgba(0, 112, 209, 0.25), transparent 60%),
+        radial-gradient(1000px 650px at 85% 40%, rgba(0, 242, 254, 0.14), transparent 65%),
+        linear-gradient(to bottom, rgba(4, 7, 17, 0.5) 0%, rgba(4, 7, 17, 0.88) 55%, #040711 100%);
     }
 
     /* PS5 Geometric Symbols Ambient Watermark */
     .ps-symbols-watermark {
       position: absolute;
-      right: 40px;
-      top: 100px;
-      font-size: 80px;
-      letter-spacing: 24px;
-      color: rgba(255, 255, 255, 0.02);
+      right: 48px;
+      top: 90px;
+      font-size: 88px;
+      letter-spacing: 28px;
+      color: rgba(255, 255, 255, 0.025);
       font-weight: 900;
       user-select: none;
       pointer-events: none;
@@ -116,18 +116,18 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(8, 13, 24, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(8, 13, 24, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--ps-card-border);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 4px 28px rgba(0, 0, 0, 0.55);
     }
 
     .ps-topbar-inner {
-      max-width: 1360px;
+      max-width: 1380px;
       margin: 0 auto;
       padding: 0 24px;
-      height: 68px;
+      height: 70px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -142,20 +142,24 @@
     }
 
     .ps-brand-mark {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
       background: linear-gradient(135deg, var(--ps-blue), var(--ps-cyan));
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
-      box-shadow: 0 0 20px var(--ps-blue-glow);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 22px var(--ps-blue-glow);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: transform 0.2s;
+    }
+    .ps-brand-mark:hover {
+      transform: rotate(5deg) scale(1.05);
     }
 
     .ps-brand-title {
-      font-size: 16px;
+      font-size: 16.5px;
       font-weight: 850;
       letter-spacing: 0.5px;
       color: #fff;
@@ -167,7 +171,7 @@
       font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      padding: 2px 7px;
+      padding: 2px 8px;
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(0, 112, 209, 0.25), rgba(0, 242, 254, 0.25));
       border: 1px solid var(--ps-cyan);
@@ -179,13 +183,13 @@
     .ps-nav-tabs {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       height: 100%;
     }
 
     .ps-tab {
       padding: 0 18px;
-      height: 68px;
+      height: 70px;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -195,7 +199,7 @@
       color: var(--text-sub);
       cursor: pointer;
       position: relative;
-      transition: color 0.18s ease;
+      transition: all 0.18s ease;
       background: none;
       border: none;
       font-family: inherit;
@@ -215,26 +219,53 @@
       height: 3.5px;
       background: linear-gradient(90deg, var(--ps-blue), var(--ps-cyan));
       border-radius: 4px 4px 0 0;
-      box-shadow: 0 0 14px var(--ps-cyan-glow);
+      box-shadow: 0 0 16px var(--ps-cyan-glow);
     }
 
     /* Tab Store Badge */
     .ps-store-badge {
       font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
       background: linear-gradient(90deg, #ff9f43, #ff4757);
       color: #fff;
-      font-weight: 800;
+      font-weight: 850;
       letter-spacing: 0.5px;
       text-transform: uppercase;
+      box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+      animation: pulseBadge 2.2s infinite;
+    }
+
+    @keyframes pulseBadge {
+      0%, 100% { opacity: 0.9; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
     }
 
     /* Top Right Client Vitals & Account */
     .ps-topbar-actions {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
+    }
+
+    .ps-icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--ps-card-border);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ps-icon-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.06);
+      border-color: var(--ps-cyan);
     }
 
     .ps-time-clock {
@@ -294,8 +325,8 @@
        3. PS5 HERO STAGE SHOWCASE (Dynamic Game Spotlight)
        ======================================================== */
     .ps-hero-stage {
-      max-width: 1360px;
-      margin: 32px auto 20px;
+      max-width: 1380px;
+      margin: 30px auto 16px;
       padding: 0 24px;
       width: 100%;
       display: grid;
@@ -304,7 +335,7 @@
     }
 
     .ps-hero-info {
-      max-width: 680px;
+      max-width: 720px;
       animation: heroSlideUp 0.35s ease-out;
     }
 
@@ -318,36 +349,36 @@
       align-items: center;
       gap: 6px;
       font-size: 11.5px;
-      font-weight: 800;
+      font-weight: 850;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 1.4px;
       color: var(--ps-cyan);
       margin-bottom: 8px;
     }
 
     .ps-hero-title {
-      font-size: clamp(34px, 5vw, 52px);
+      font-size: clamp(36px, 5.2vw, 56px);
       font-weight: 900;
       color: #fff;
-      line-height: 1.1;
+      line-height: 1.08;
       letter-spacing: -0.8px;
       margin-bottom: 12px;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
     }
 
     .ps-hero-desc {
-      font-size: 15px;
+      font-size: 15.5px;
       color: var(--text-main);
       line-height: 1.55;
       margin-bottom: 22px;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-      max-width: 580px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+      max-width: 620px;
     }
 
     .ps-hero-meta-row {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
       margin-bottom: 26px;
       flex-wrap: wrap;
     }
@@ -356,13 +387,27 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
-      background: rgba(255, 190, 0, 0.12);
-      border: 1px solid rgba(255, 190, 0, 0.35);
+      background: rgba(255, 190, 0, 0.14);
+      border: 1px solid rgba(255, 190, 0, 0.4);
       color: var(--ps-plus-gold);
       font-size: 12.5px;
       font-weight: 750;
+      box-shadow: 0 0 14px rgba(255, 190, 0, 0.2);
+    }
+
+    .ps-rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--ps-card-border);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 700;
     }
 
     .ps-category-badge {
@@ -377,37 +422,65 @@
       font-weight: 600;
     }
 
-    /* PS5 Action Button (Play Now) */
+    /* PS5 Action Buttons */
+    .ps-hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
     .ps-play-btn {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 34px;
+      padding: 14px 38px;
       border-radius: 999px;
       background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-      color: #050811;
+      color: #040711;
       font-size: 15px;
       font-weight: 850;
       letter-spacing: 0.3px;
       text-transform: uppercase;
-      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3), 0 0 0 1px #fff;
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.35), 0 0 0 1px #fff;
       transition: all 0.2s ease;
       cursor: pointer;
     }
     .ps-play-btn:hover {
-      transform: scale(1.04);
+      transform: scale(1.05);
       background: linear-gradient(135deg, #ffffff, #cceeff);
-      box-shadow: 0 14px 40px rgba(0, 242, 254, 0.5), 0 0 20px var(--ps-cyan-glow);
+      box-shadow: 0 14px 44px rgba(0, 242, 254, 0.55), 0 0 24px var(--ps-cyan-glow);
     }
     .ps-play-btn:active {
       transform: scale(0.98);
+    }
+
+    .ps-hub-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--ps-card-border);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 750;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ps-hub-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: #fff;
+      transform: translateY(-1px);
     }
 
     /* ========================================================
        4. PS5 HORIZONTAL CARD DECK & CAROUSEL
        ======================================================== */
     .ps-deck-section {
-      max-width: 1360px;
+      max-width: 1380px;
       margin: 10px auto 30px;
       padding: 0 24px;
       width: 100%;
@@ -418,6 +491,8 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 16px;
+      gap: 16px;
+      flex-wrap: wrap;
     }
     .ps-deck-title {
       font-size: 15px;
@@ -430,12 +505,45 @@
       gap: 8px;
     }
 
+    /* Live Deck Filter Pills */
+    .ps-deck-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .ps-deck-filters::-webkit-scrollbar { display: none; }
+
+    .deck-filter-btn {
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--ps-card-border);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.16s;
+      white-space: nowrap;
+    }
+    .deck-filter-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+    }
+    .deck-filter-btn.active {
+      background: var(--ps-cyan);
+      color: #040711;
+      border-color: var(--ps-cyan);
+      box-shadow: 0 0 12px var(--ps-cyan-glow);
+    }
+
     /* Interactive PS Card Deck */
     .ps-card-deck {
       display: flex;
       gap: 18px;
       overflow-x: auto;
-      padding: 10px 4px 22px;
+      padding: 10px 4px 24px;
       scroll-snap-type: x mandatory;
       scrollbar-width: thin;
       scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -449,7 +557,7 @@
     }
 
     .ps-game-card {
-      flex: 0 0 200px;
+      flex: 0 0 205px;
       scroll-snap-align: start;
       background: var(--ps-surface-card);
       border: 2px solid transparent;
@@ -464,7 +572,7 @@
     .ps-game-card:hover, .ps-game-card.active {
       transform: translateY(-8px) scale(1.05);
       border-color: #fff;
-      box-shadow: 0 18px 45px rgba(0, 112, 209, 0.4), 0 0 20px var(--ps-cyan-glow);
+      box-shadow: 0 18px 45px rgba(0, 112, 209, 0.4), 0 0 24px var(--ps-cyan-glow);
     }
     .ps-game-card.active {
       border-color: var(--ps-cyan);
@@ -523,7 +631,7 @@
        5. POCKET CONSOLE STORE (PLAYSTATION STYLE - COMING SOON)
        ======================================================== */
     #viewStore {
-      max-width: 1360px;
+      max-width: 1380px;
       margin: 20px auto 40px;
       padding: 0 24px;
       width: 100%;
@@ -532,22 +640,22 @@
     }
 
     .store-hero-banner {
-      background: linear-gradient(135deg, rgba(0, 67, 156, 0.85), rgba(10, 16, 30, 0.95));
-      border: 1px solid rgba(0, 112, 209, 0.4);
-      border-radius: 24px;
-      padding: 44px 40px;
+      background: linear-gradient(135deg, rgba(0, 67, 156, 0.85), rgba(8, 14, 28, 0.95));
+      border: 1px solid rgba(0, 112, 209, 0.45);
+      border-radius: 26px;
+      padding: 48px 44px;
       margin-bottom: 34px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 112, 209, 0.25);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65), 0 0 45px rgba(0, 112, 209, 0.3);
     }
 
     .store-hero-banner::after {
       content: '▲ ✖ ◼ ⬢';
       position: absolute;
       right: 20px;
-      bottom: -10px;
-      font-size: 90px;
+      bottom: -15px;
+      font-size: 100px;
       color: rgba(255, 255, 255, 0.04);
       font-weight: 900;
       pointer-events: none;
@@ -566,11 +674,36 @@
       text-transform: uppercase;
       letter-spacing: 1px;
       margin-bottom: 16px;
-      box-shadow: 0 0 16px rgba(255, 71, 87, 0.4);
+      box-shadow: 0 0 16px rgba(255, 71, 87, 0.45);
+    }
+
+    .store-countdown-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 24px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .countdown-unit {
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .countdown-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ps-cyan);
+    }
+    .countdown-lbl {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--text-sub);
     }
 
     .store-headline {
-      font-size: clamp(32px, 4.5vw, 46px);
+      font-size: clamp(32px, 4.5vw, 48px);
       font-weight: 900;
       color: #fff;
       line-height: 1.15;
@@ -597,7 +730,7 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 13px 28px;
+      padding: 14px 30px;
       border-radius: 999px;
       background: #0070d1;
       color: #fff;
@@ -698,7 +831,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--ps-card-border);
@@ -711,6 +844,7 @@
     .wishlist-btn:hover {
       background: rgba(255, 255, 255, 0.18);
       border-color: #fff;
+      transform: scale(1.04);
     }
     .wishlist-btn.wishlisted {
       background: #ff4757;
@@ -722,7 +856,7 @@
        6. STEAM COMMUNITY LEADERBOARD (PS5 Styled)
        ======================================================== */
     .ps-leaderboard-section {
-      max-width: 1360px;
+      max-width: 1380px;
       margin: 10px auto 30px;
       padding: 0 24px;
       width: 100%;
@@ -731,8 +865,8 @@
     .homeScores {
       background: var(--ps-surface-card);
       border: 1px solid var(--ps-card-border);
-      border-radius: 20px;
-      padding: 24px;
+      border-radius: 22px;
+      padding: 26px;
       box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
     }
 
@@ -891,17 +1025,17 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 56px;
+      height: 58px;
       background: rgba(8, 13, 24, 0.94);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       border-top: 1px solid var(--ps-card-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 28px;
       z-index: 95;
-      box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 -6px 26px rgba(0, 0, 0, 0.55);
     }
 
     .ps-dock-left {
@@ -910,10 +1044,13 @@
       gap: 20px;
     }
     .ps-dock-brand {
-      font-size: 12px;
-      font-weight: 800;
+      font-size: 12.5px;
+      font-weight: 850;
       letter-spacing: 0.5px;
       color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .ps-dock-right {
@@ -926,7 +1063,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--ps-card-border);
@@ -945,7 +1082,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+      padding: 7px 16px;
       border-radius: 999px;
       background: var(--ps-blue);
       color: #fff;
@@ -959,10 +1096,49 @@
       transform: translateY(-1px);
     }
 
+    /* Game Hub Detail Modal */
+    .gameHubModal {
+      border: 1px solid var(--ps-cyan);
+      border-radius: 20px;
+      background: #090f1d;
+      color: #fff;
+      padding: 30px;
+      max-width: 500px;
+      width: 90vw;
+      margin: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+    }
+    .gameHubModal::backdrop {
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+    }
+    .hubModalHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .hubModalTitle {
+      font-size: 24px;
+      font-weight: 850;
+    }
+    .hubCloseBtn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--ps-card-border);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* Guest Modal */
     .loginReminder {
       border: 1px solid var(--ps-cyan);
-      border-radius: 16px;
+      border-radius: 18px;
       background: #0d1526;
       color: #fff;
       padding: 28px;
@@ -1008,6 +1184,352 @@
       font-weight: 700;
     }
 
+    /* PlayStation Floating Symbols Animation */
+    @keyframes floatSymbols {
+      0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+      50% { transform: translateY(-16px) rotate(1.8deg); opacity: 0.085; }
+      100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+    }
+    .ps-symbols-watermark {
+      animation: floatSymbols 14s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    /* DualSense Lightbar on Card */
+    .ps-game-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 14px;
+      right: 14px;
+      height: 3.5px;
+      background: linear-gradient(90deg, transparent, var(--ps-cyan), transparent);
+      border-radius: 999px;
+      opacity: 0;
+      transition: opacity 0.25s, box-shadow 0.25s;
+    }
+    .ps-game-card.active::after, .ps-game-card:hover::after {
+      opacity: 1;
+      box-shadow: 0 0 12px var(--ps-cyan);
+    }
+
+    /* Instant Search Bar */
+    .ps-search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      margin-right: 8px;
+    }
+    .ps-search-input {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--ps-card-border);
+      border-radius: 999px;
+      padding: 7px 32px 7px 34px;
+      font-size: 12.5px;
+      color: #fff;
+      font-family: inherit;
+      width: 175px;
+      transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+    }
+    .ps-search-input::placeholder {
+      color: var(--text-sub);
+    }
+    .ps-search-input:focus {
+      width: 240px;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--ps-cyan);
+      box-shadow: 0 0 16px var(--ps-cyan-glow);
+    }
+    .ps-search-icon {
+      position: absolute;
+      left: 11px;
+      font-size: 13px;
+      color: var(--text-sub);
+      pointer-events: none;
+    }
+    .ps-search-clear {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 0;
+      line-height: 1;
+    }
+    .ps-search-clear:hover {
+      color: #fff;
+    }
+
+    /* Deck Carousel Wrapper with Navigation Chevrons */
+    .ps-deck-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .deck-scroll-btn {
+      position: absolute;
+      top: 42%;
+      transform: translateY(-50%);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(10, 16, 30, 0.9);
+      border: 1px solid var(--ps-card-border);
+      color: #fff;
+      font-size: 24px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.65);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0.85;
+      user-select: none;
+    }
+    .deck-scroll-btn:hover {
+      opacity: 1;
+      transform: translateY(-50%) scale(1.12);
+      border-color: var(--ps-cyan);
+      box-shadow: 0 0 20px var(--ps-cyan-glow);
+      background: rgba(0, 112, 209, 0.45);
+    }
+    .deck-scroll-btn.left { left: -14px; }
+    .deck-scroll-btn.right { right: -14px; }
+
+    /* PlayStation 5 Toast Notification System */
+    .ps-toast-container {
+      position: fixed;
+      top: 76px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .ps-toast {
+      pointer-events: auto;
+      min-width: 300px;
+      max-width: 420px;
+      background: rgba(8, 14, 28, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 242, 254, 0.4);
+      border-left: 4px solid var(--ps-cyan);
+      border-radius: 14px;
+      padding: 12px 18px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7), 0 0 24px rgba(0, 112, 209, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      animation: toastSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .ps-toast.hide {
+      opacity: 0;
+      transform: translateX(40px);
+    }
+    @keyframes toastSlideIn {
+      from { opacity: 0; transform: translateX(50px) scale(0.94); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    .ps-toast-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .ps-toast-body {
+      flex: 1;
+    }
+    .ps-toast-title {
+      font-size: 13.5px;
+      font-weight: 850;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+    .ps-toast-msg {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.35;
+    }
+
+    /* PS5 Controller HUD Hints */
+    .ps-controller-hints {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-left: 18px;
+    }
+    .hint-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: var(--text-sub);
+      font-weight: 700;
+    }
+    .hint-item kbd {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 5px;
+      padding: 1px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--ps-cyan);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.5);
+    }
+    .ps-gamepad-status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-sub);
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--ps-card-border);
+      margin-left: 10px;
+    }
+    .gp-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #00ffaa;
+      box-shadow: 0 0 6px #00ffaa;
+      transition: background 0.3s;
+    }
+    .ps-quick-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: rgba(255, 190, 0, 0.14);
+      border: 1px solid rgba(255, 190, 0, 0.35);
+      color: var(--ps-plus-gold);
+      font-size: 13px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ps-quick-btn:hover {
+      background: rgba(255, 190, 0, 0.25);
+      transform: translateY(-1px);
+      box-shadow: 0 0 14px rgba(255, 190, 0, 0.3);
+    }
+
+    /* PlayStation Trophy Showcase Modal */
+    .trophyModal {
+      max-width: 620px;
+      width: 92vw;
+    }
+    .trophy-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .trophy-stat-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--ps-card-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .trophy-stat-pill strong {
+      display: block;
+      font-size: 18px;
+      color: #fff;
+      margin-top: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .trophy-stat-pill.platinum strong { color: #00f2fe; text-shadow: 0 0 10px var(--ps-cyan-glow); }
+    .trophy-stat-pill.gold strong { color: #ffbe00; text-shadow: 0 0 10px rgba(255,190,0,0.5); }
+    .trophy-stat-pill.silver strong { color: #e2e8f0; }
+    .trophy-stat-pill.bronze strong { color: #cd7f32; }
+
+    .trophy-list-scroll {
+      max-height: 380px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+    .trophy-item-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--ps-card-border);
+      transition: all 0.2s;
+    }
+    .trophy-item-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(0, 242, 254, 0.4);
+    }
+    .trophy-badge-icon {
+      font-size: 26px;
+      flex-shrink: 0;
+    }
+    .trophy-item-info {
+      flex: 1;
+    }
+    .trophy-item-name {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+    .trophy-item-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .trophy-progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .trophy-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--ps-blue), var(--ps-cyan));
+      border-radius: 999px;
+    }
+    .trophy-tier {
+      font-size: 10px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .trophy-tier.platinum { background: rgba(0, 242, 254, 0.18); border: 1px solid var(--ps-cyan); color: var(--ps-cyan); }
+    .trophy-tier.gold { background: rgba(255, 190, 0, 0.18); border: 1px solid var(--ps-plus-gold); color: var(--ps-plus-gold); }
+    .trophy-tier.silver { background: rgba(226, 232, 240, 0.18); border: 1px solid #cbd5e1; color: #e2e8f0; }
+    .trophy-tier.bronze { background: rgba(205, 127, 50, 0.18); border: 1px solid #cd7f32; color: #cd7f32; }
+
+    @media (max-width: 900px) {
+      .ps-controller-hints { display: none; }
+      .ps-search-input { width: 140px; }
+      .ps-search-input:focus { width: 180px; }
+    }
     @media (max-width: 768px) {
       .ps-symbols-watermark { display: none; }
       .ps-nav-tabs .ps-tab-text { display: none; }
@@ -1015,6 +1537,9 @@
       .ps-deck-section, .ps-hero-stage, .ps-leaderboard-section { padding: 0 16px; }
       .ps-game-card { flex: 0 0 170px; }
       .ps-card-art { height: 130px; }
+      .deck-scroll-btn { display: none; }
+      .ps-gamepad-status { display: none; }
+      .trophy-stats-bar { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -1065,7 +1590,19 @@
           </a>
         </nav>
 
+        <!-- Console Instant Search Box -->
+        <div class="ps-search-box">
+          <span class="ps-search-icon" aria-hidden="true">🔍</span>
+          <input type="text" id="gameSearchInput" class="ps-search-input" placeholder="Search games... [/]" autocomplete="off" aria-label="Search Console Games" />
+          <button type="button" class="ps-search-clear" id="btnClearSearch" aria-label="Clear search" hidden>✕</button>
+        </div>
+
         <div class="ps-topbar-actions">
+          <!-- Audio Navigation Sound Toggle -->
+          <button class="ps-icon-btn" id="audioToggleBtn" type="button" title="Toggle Console Navigation Audio (SFX)">
+            <span id="audioIcon">🔊</span>
+          </button>
+
           <div class="ps-time-clock" id="bottomTime">00:00</div>
           
           <a href="AccSettings.html" class="ps-user-pill" title="PlayStation Network Account">
@@ -1092,13 +1629,19 @@
 
           <div class="ps-hero-meta-row">
             <div class="ps-trophy-badge" id="heroTrophy">🏆 5 Waves • Boss Slayer</div>
+            <div class="ps-rating-badge">★ 4.9 (1.4k Reviews)</div>
             <div class="ps-category-badge" id="heroFormat">Instant Play • Fullscreen</div>
           </div>
 
-          <a href="Games/GalaxyShooter/GalaxyShooter.html" class="ps-play-btn" id="heroPlayBtn">
-            <span aria-hidden="true">▶</span>
-            <span>Play Game</span>
-          </a>
+          <div class="ps-hero-actions">
+            <a href="Games/GalaxyShooter/GalaxyShooter.html" class="ps-play-btn" id="heroPlayBtn">
+              <span aria-hidden="true">▶</span>
+              <span>Play Game</span>
+            </a>
+            <button type="button" class="ps-hub-btn" id="btnOpenGameHub">
+              <span>📋 Details & Trophies</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -1109,13 +1652,24 @@
             <span aria-hidden="true">⚡</span>
             <span>Console Game Library (7)</span>
           </div>
-          <div style="font-size: 12px; color: var(--text-sub);">Hover card to preview</div>
+
+          <!-- Quick Category Filters -->
+          <div class="ps-deck-filters" role="tablist">
+            <button type="button" class="deck-filter-btn active" data-cat="all">All Games (7)</button>
+            <button type="button" class="deck-filter-btn" data-cat="action">🚀 Action</button>
+            <button type="button" class="deck-filter-btn" data-cat="racing">🏎️ Racing</button>
+            <button type="button" class="deck-filter-btn" data-cat="multiplayer">👥 Multiplayer</button>
+            <button type="button" class="deck-filter-btn" data-cat="typing">⌨️ Syntax</button>
+          </div>
         </div>
 
-        <div class="ps-card-deck" id="gameDeck">
+        <div class="ps-deck-wrapper">
+          <button type="button" class="deck-scroll-btn left" id="btnDeckLeft" aria-label="Scroll Left">‹</button>
+          <div class="ps-card-deck" id="gameDeck">
           
           <!-- Game 1: Galaxy Strike -->
           <div class="ps-game-card active"
+               data-cat-group="action"
                data-title="Galaxy Strike"
                data-cat="🚀 Action • Space Combat"
                data-desc="Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters."
@@ -1134,6 +1688,7 @@
 
           <!-- Game 2: Turbo Drift -->
           <div class="ps-game-card"
+               data-cat-group="racing"
                data-title="Turbo Drift"
                data-cat="🏎️ Racing • Precision Drift"
                data-desc="Precision 2D top-down drift racer with city and desert circuits. Master acute hairpins, lay down burning rubber streaks, and challenge top speeds with responsive arcade handling."
@@ -1152,6 +1707,7 @@
 
           <!-- Game 3: Lane Rush -->
           <div class="ps-game-card"
+               data-cat-group="racing action"
                data-title="Lane Rush"
                data-cat="🏎️ Arcade • Highway Rush"
                data-desc="High-octane 3-lane highway traffic survival. Weave through congestion with dynamic synthesizer engine sounds, near-miss points, and explosive crashes."
@@ -1170,6 +1726,7 @@
 
           <!-- Game 4: Keycraft Typing -->
           <div class="ps-game-card"
+               data-cat-group="typing"
                data-title="Keycraft Typing"
                data-cat="⌨️ Syntax Velocity • Java Edition"
                data-desc="Monkeytype-inspired Java syntax velocity trainer. Sharpen your typing velocity on real object-oriented classes, loops, brackets, and syntax with Google ranking."
@@ -1188,6 +1745,7 @@
 
           <!-- Game 5: Snake Arcade -->
           <div class="ps-game-card"
+               data-cat-group="action"
                data-title="Snake Arcade"
                data-cat="🐍 Retro Arcade • Global Leaderboard"
                data-desc="Classic cyber retro snake survival with power apples and global high score competition on the live PlayStation / Firebase leaderboard."
@@ -1206,6 +1764,7 @@
 
           <!-- Game 6: XO Tic Tac Toe -->
           <div class="ps-game-card"
+               data-cat-group="multiplayer"
                data-title="XO Tic Tac Toe"
                data-cat="👥 1v1 Online • Pass & Play"
                data-desc="Multiplayer tactical duel with real-time Firebase online matchmaking against friends, live presence indicators, and offline pass-and-play."
@@ -1224,6 +1783,7 @@
 
           <!-- Game 7: Kenny Adventure -->
           <div class="ps-game-card"
+               data-cat-group="action"
                data-title="Kenny Adventure"
                data-cat="🏃 2D Platformer • Sunny Meadow"
                data-desc="Classic 2D side-scrolling platformer quest. Leap across perilous chasms, stomp slimes, collect golden coins and sapphire gems."
@@ -1240,6 +1800,8 @@
             </div>
           </div>
 
+          </div>
+          <button type="button" class="deck-scroll-btn right" id="btnDeckRight" aria-label="Scroll Right">›</button>
         </div>
       </section>
 
@@ -1282,6 +1844,27 @@
       <div class="store-hero-banner">
         <div class="store-coming-pill">🚀 Pocket Store • Coming Soon</div>
         <h1 class="store-headline">The Next-Gen Game Store<br>Is Arriving on Pocket Console</h1>
+        
+        <!-- Live Countdown Ticker -->
+        <div class="store-countdown-wrap">
+          <div class="countdown-unit">
+            <div class="countdown-num" id="cdDays">42</div>
+            <div class="countdown-lbl">Days</div>
+          </div>
+          <div class="countdown-unit">
+            <div class="countdown-num" id="cdHours">18</div>
+            <div class="countdown-lbl">Hours</div>
+          </div>
+          <div class="countdown-unit">
+            <div class="countdown-num" id="cdMins">34</div>
+            <div class="countdown-lbl">Mins</div>
+          </div>
+          <div class="countdown-unit">
+            <div class="countdown-num" id="cdSecs">20</div>
+            <div class="countdown-lbl">Secs</div>
+          </div>
+        </div>
+
         <p class="store-lead">
           Get ready for a curated digital storefront featuring upcoming indie hits, community mods, cloud saves, and exclusive season badges.
         </p>
@@ -1386,10 +1969,26 @@
     <!-- 7. PLAYSTATION CONTROL CENTER (BOTTOM QUICK DOCK) -->
     <footer class="ps-control-center">
       <div class="ps-dock-left">
-        <div class="ps-dock-brand">▲ ✖ ◼ ⬢ PlayStation 5 & Steam Client</div>
+        <div class="ps-dock-brand">
+          <span style="color:var(--ps-cyan);" aria-hidden="true">▲ ✖ ◼ ⬢</span>
+          <span>PlayStation 5 & Steam Client</span>
+        </div>
+        <div class="ps-controller-hints">
+          <span class="hint-item"><kbd>◀</kbd><kbd>▶</kbd> Select</span>
+          <span class="hint-item"><kbd>Enter</kbd> Launch</span>
+          <span class="hint-item"><kbd>H</kbd> Details</span>
+          <span class="hint-item"><kbd>/</kbd> Search</span>
+        </div>
+        <div class="ps-gamepad-status" id="gamepadStatus" title="Gamepad Controller Status">
+          <span class="gp-dot"></span>
+          <span class="gp-text" id="gamepadText">Gamepad API Ready</span>
+        </div>
       </div>
 
       <div class="ps-dock-right">
+        <button type="button" class="ps-quick-btn" id="btnOpenTrophies" title="PlayStation Trophies Showcase">
+          <span>🏆 Trophies</span>
+        </button>
         <a href="FriendManagementPage.html" class="ps-quick-friends" title="PlayStation Network Friends">
           <span style="color:#00ffaa;">●</span>
           <span>Friends Online</span>
@@ -1400,6 +1999,25 @@
       </div>
     </footer>
 
+    <!-- GAME HUB DETAIL DIALOG -->
+    <dialog class="gameHubModal" id="gameHubDialog">
+      <div class="hubModalHeader">
+        <h2 class="hubModalTitle" id="modalHubTitle">Game Title</h2>
+        <button class="hubCloseBtn" id="btnCloseHub" type="button" aria-label="Close">✕</button>
+      </div>
+      <div style="font-size:12.5px; color:var(--ps-cyan); font-weight:750; margin-bottom:12px;" id="modalHubCat">Category</div>
+      <p style="font-size:14px; color:var(--text-main); line-height:1.55; margin-bottom:20px;" id="modalHubDesc">Description</p>
+      
+      <div style="background:rgba(255,255,255,0.05); border:1px solid var(--ps-card-border); border-radius:12px; padding:14px; margin-bottom:20px;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-sub); font-weight:700; margin-bottom:6px;">Trophies & Badges</div>
+        <div style="font-size:13.5px; font-weight:800; color:var(--ps-plus-gold);" id="modalHubTrophy">🏆 Trophy Record</div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <a href="#" class="ps-play-btn" id="modalHubPlayBtn" style="flex:1; justify-content:center;">▶ Launch Game</a>
+      </div>
+    </dialog>
+
     <!-- GUEST MODAL -->
     <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
       <h2 id="loginReminderTitle">PlayStation Network Access</h2>
@@ -1409,6 +2027,96 @@
         <button class="loginReminderDismiss" id="dismissLoginReminder" type="button">Continue</button>
       </div>
     </dialog>
+
+    <!-- PLAYSTATION TROPHY SHOWCASE DIALOG -->
+    <dialog class="gameHubModal trophyModal" id="trophyDialog">
+      <div class="hubModalHeader">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:26px;">🏆</span>
+          <div>
+            <h2 class="hubModalTitle" style="margin:0; font-size:20px;">PlayStation Trophies Showcase</h2>
+            <div style="font-size:12px; color:var(--ps-cyan);">Pocket Console Achievement Network</div>
+          </div>
+        </div>
+        <button class="hubCloseBtn" id="btnCloseTrophies" type="button" aria-label="Close">✕</button>
+      </div>
+
+      <div class="trophy-stats-bar">
+        <div class="trophy-stat-pill platinum"><span>💎 Platinum</span> <strong>1</strong></div>
+        <div class="trophy-stat-pill gold"><span>🥇 Gold</span> <strong>4</strong></div>
+        <div class="trophy-stat-pill silver"><span>🥈 Silver</span> <strong>6</strong></div>
+        <div class="trophy-stat-pill bronze"><span>🥉 Bronze</span> <strong>9</strong></div>
+      </div>
+
+      <div class="trophy-list-scroll">
+        <div class="trophy-item-card">
+          <div class="trophy-badge-icon">🚀</div>
+          <div class="trophy-item-info">
+            <div class="trophy-item-name">Galaxy Strike • Dreadnought Slayer</div>
+            <div class="trophy-item-desc">Survive wave 5 and eliminate the alien mothership boss.</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 80%;"></div></div>
+          </div>
+          <span class="trophy-tier gold">Gold</span>
+        </div>
+
+        <div class="trophy-item-card">
+          <div class="trophy-badge-icon">🏎️</div>
+          <div class="trophy-item-info">
+            <div class="trophy-item-name">Turbo Drift • Asphalt Drifter</div>
+            <div class="trophy-item-desc">Lay down 500m of continuous drift smoke on the Neon Circuit.</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 100%;"></div></div>
+          </div>
+          <span class="trophy-tier platinum">Platinum</span>
+        </div>
+
+        <div class="trophy-item-card">
+          <div class="trophy-badge-icon">🏎️</div>
+          <div class="trophy-item-info">
+            <div class="trophy-item-name">Lane Rush • Traffic Phantom</div>
+            <div class="trophy-item-desc">Dodge 40 consecutive oncoming vehicles without collision.</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 65%;"></div></div>
+          </div>
+          <span class="trophy-tier silver">Silver</span>
+        </div>
+
+        <div class="trophy-item-card">
+          <div class="trophy-badge-icon">⌨️</div>
+          <div class="trophy-item-info">
+            <div class="trophy-item-name">Keycraft Typing • Syntax Mastermind</div>
+            <div class="trophy-item-desc">Achieve 80+ words per minute in Java OOP syntax test.</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 90%;"></div></div>
+          </div>
+          <span class="trophy-tier gold">Gold</span>
+        </div>
+
+        <div class="trophy-item-card">
+          <div class="trophy-badge-icon">🐍</div>
+          <div class="trophy-item-info">
+            <div class="trophy-item-name">Snake Arcade • Ouroboros Master</div>
+            <div class="trophy-item-desc">Grow snake past 45 apples and set a top 3 global score.</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 70%;"></div></div>
+          </div>
+          <span class="trophy-tier gold">Gold</span>
+        </div>
+
+        <div class="trophy-item-card">
+          <div class="trophy-badge-icon">👥</div>
+          <div class="trophy-item-info">
+            <div class="trophy-item-name">XO Duel • Grandmaster Tactician</div>
+            <div class="trophy-item-desc">Win 3 online matchmaking duels in a row on PlayStation Network.</div>
+            <div class="trophy-progress-bar"><div class="trophy-progress-fill" style="width: 50%;"></div></div>
+          </div>
+          <span class="trophy-tier bronze">Bronze</span>
+        </div>
+      </div>
+
+      <div style="margin-top:16px; text-align:right;">
+        <a href="HighScoreBoard.html" class="ps-play-btn" style="padding:10px 24px; font-size:13px;">View Full Global Leaderboards 🏆</a>
+      </div>
+    </dialog>
+
+    <!-- PS5 TOAST NOTIFICATION CONTAINER -->
+    <div class="ps-toast-container" id="psToastContainer" aria-live="polite"></div>
   </div>
 
   <!-- FIREBASE & PLAYSTATION ENGINE SCRIPT -->
@@ -1416,6 +2124,139 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
   import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+  // ==========================================
+  // PS5 UI ACOUSTIC AUDIO SYNTHESIS
+  // ==========================================
+  class ConsoleAudioEngine {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+    }
+    init() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) this.ctx = new AC();
+      }
+      if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+    }
+    play(type) {
+      if (this.muted) return;
+      this.init();
+      if (!this.ctx) return;
+      const t = this.ctx.currentTime;
+      try {
+        if (type === "tick") {
+          // Soft wooden/glass UI hover tick
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(640, t);
+          osc.frequency.exponentialRampToValueAtTime(820, t + 0.04);
+          gain.gain.setValueAtTime(0.06, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.04);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.04);
+        } else if (type === "select") {
+          // Resonant PS5 select chime
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(523.25, t);
+          osc.frequency.exponentialRampToValueAtTime(1046.5, t + 0.08);
+          gain.gain.setValueAtTime(0.12, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.08);
+        } else if (type === "heart") {
+          // Wishlist chime
+          [880, 1174.6].forEach((f, i) => {
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.type = "sine";
+            o.frequency.setValueAtTime(f, t + i * 0.06);
+            g.gain.setValueAtTime(0.1, t + i * 0.06);
+            g.gain.linearRampToValueAtTime(0.001, t + i * 0.06 + 0.12);
+            o.connect(g);
+            g.connect(this.ctx.destination);
+            o.start(t + i * 0.06);
+            o.stop(t + i * 0.06 + 0.12);
+          });
+        } else if (type === "trophy") {
+          // PS5 Platinum/Gold Trophy Fanfare
+          const notes = [523.25, 659.25, 783.99, 1046.5];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, t + idx * 0.08);
+            gain.gain.setValueAtTime(0.12, t + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.08 + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t + idx * 0.08);
+            osc.stop(t + idx * 0.08 + 0.35);
+          });
+        } else if (type === "toast") {
+          // Notification chime
+          [784, 987.77].forEach((f, i) => {
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.type = "triangle";
+            o.frequency.setValueAtTime(f, t + i * 0.05);
+            g.gain.setValueAtTime(0.08, t + i * 0.05);
+            g.gain.linearRampToValueAtTime(0.001, t + i * 0.05 + 0.1);
+            o.connect(g);
+            g.connect(this.ctx.destination);
+            o.start(t + i * 0.05);
+            o.stop(t + i * 0.05 + 0.1);
+          });
+        }
+      } catch (_) {}
+    }
+  }
+
+  const consoleAudio = new ConsoleAudioEngine();
+
+  // PlayStation Toast System
+  function showToast(title, msg, icon = "🔔") {
+    const container = document.getElementById("psToastContainer");
+    if (!container) return;
+    consoleAudio.play("toast");
+    const toast = document.createElement("div");
+    toast.className = "ps-toast";
+    toast.innerHTML = `
+      <div class="ps-toast-icon">${icon}</div>
+      <div class="ps-toast-body">
+        <div class="ps-toast-title">${title}</div>
+        <div class="ps-toast-msg">${msg}</div>
+      </div>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add("hide");
+      setTimeout(() => toast.remove(), 320);
+    }, 3500);
+  }
+
+  // Audio Toggle
+  const audioToggleBtn = document.getElementById("audioToggleBtn");
+  const audioIcon = document.getElementById("audioIcon");
+  audioToggleBtn?.addEventListener("click", () => {
+    consoleAudio.muted = !consoleAudio.muted;
+    if (audioIcon) audioIcon.textContent = consoleAudio.muted ? "🔇" : "🔊";
+    audioToggleBtn.style.opacity = consoleAudio.muted ? "0.6" : "1";
+    if (!consoleAudio.muted) {
+      consoleAudio.play("select");
+      showToast("🔊 Audio Enabled", "PlayStation UI acoustic SFX activated", "🔊");
+    } else {
+      showToast("🔇 Audio Muted", "Console sound effects muted", "🔇");
+    }
+  });
 
   window.addEventListener("DOMContentLoaded", () => {
     // 1. Firebase Configuration
@@ -1538,7 +2379,12 @@
     const heroPlayBtn = document.getElementById("heroPlayBtn");
     const gameCards = Array.from(document.querySelectorAll("#gameDeck .ps-game-card"));
 
-    function selectGameCard(card) {
+    let selectedActiveCard = gameCards[0];
+
+    function selectGameCard(card, playAudio = true) {
+      if (selectedActiveCard === card && playAudio === false) return;
+      selectedActiveCard = card;
+
       gameCards.forEach(c => c.classList.remove("active"));
       card.classList.add("active");
 
@@ -1558,19 +2404,76 @@
       if (dynamicBackdrop && art) {
         dynamicBackdrop.style.backgroundImage = `url("${art}")`;
       }
+
+      if (playAudio) consoleAudio.play("tick");
     }
 
     gameCards.forEach((card) => {
-      card.addEventListener("mouseenter", () => selectGameCard(card));
+      card.addEventListener("mouseenter", () => selectGameCard(card, true));
       card.addEventListener("click", () => {
-        selectGameCard(card);
+        selectGameCard(card, false);
+        consoleAudio.play("select");
         const link = card.dataset.link;
         if (link) window.location.href = link;
       });
     });
 
     // ==========================================
-    // 3. Tab Navigation: Games vs Store (Coming Soon)
+    // 3. Category Filter Pills on Deck
+    // ==========================================
+    const filterBtns = document.querySelectorAll(".deck-filter-btn");
+    filterBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        filterBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        consoleAudio.play("tick");
+
+        const targetCat = btn.dataset.cat;
+        gameCards.forEach((c) => {
+          const catGroup = c.dataset.catGroup || "";
+          if (targetCat === "all" || catGroup.includes(targetCat)) {
+            c.style.display = "block";
+          } else {
+            c.style.display = "none";
+          }
+        });
+
+        // Auto-select first visible card
+        const firstVisible = gameCards.find(c => c.style.display !== "none");
+        if (firstVisible) selectGameCard(firstVisible, false);
+      });
+    });
+
+    // ==========================================
+    // 4. Game Hub Modal
+    // ==========================================
+    const gameHubDialog = document.getElementById("gameHubDialog");
+    const btnOpenGameHub = document.getElementById("btnOpenGameHub");
+    const btnCloseHub = document.getElementById("btnCloseHub");
+    const modalHubTitle = document.getElementById("modalHubTitle");
+    const modalHubCat = document.getElementById("modalHubCat");
+    const modalHubDesc = document.getElementById("modalHubDesc");
+    const modalHubTrophy = document.getElementById("modalHubTrophy");
+    const modalHubPlayBtn = document.getElementById("modalHubPlayBtn");
+
+    btnOpenGameHub?.addEventListener("click", () => {
+      if (!selectedActiveCard || !gameHubDialog) return;
+      consoleAudio.play("select");
+      if (modalHubTitle) modalHubTitle.textContent = selectedActiveCard.dataset.title;
+      if (modalHubCat) modalHubCat.textContent = selectedActiveCard.dataset.cat;
+      if (modalHubDesc) modalHubDesc.textContent = selectedActiveCard.dataset.desc;
+      if (modalHubTrophy) modalHubTrophy.textContent = selectedActiveCard.dataset.trophy;
+      if (modalHubPlayBtn) modalHubPlayBtn.href = selectedActiveCard.dataset.link;
+      gameHubDialog.showModal();
+    });
+
+    btnCloseHub?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      gameHubDialog?.close();
+    });
+
+    // ==========================================
+    // 5. Tab Navigation: Games vs Store (Coming Soon)
     // ==========================================
     const tabGames = document.getElementById("tabGames");
     const tabStore = document.getElementById("tabStore");
@@ -1578,6 +2481,7 @@
     const viewStore = document.getElementById("viewStore");
 
     tabGames?.addEventListener("click", () => {
+      consoleAudio.play("tick");
       tabGames.classList.add("active");
       tabStore.classList.remove("active");
       viewGames.style.display = "block";
@@ -1585,38 +2489,278 @@
     });
 
     tabStore?.addEventListener("click", () => {
+      consoleAudio.play("select");
       tabStore.classList.add("active");
       tabGames.classList.remove("active");
       viewGames.style.display = "none";
       viewStore.style.display = "block";
     });
 
-    // Store Wishlist Interactive Buttons
+    // ==========================================
+    // 6. Instant Game Search & Filter
+    // ==========================================
+    const gameSearchInput = document.getElementById("gameSearchInput");
+    const btnClearSearch = document.getElementById("btnClearSearch");
+
+    gameSearchInput?.addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      if (btnClearSearch) btnClearSearch.hidden = !q;
+
+      gameCards.forEach((card) => {
+        const title = (card.dataset.title || "").toLowerCase();
+        const cat = (card.dataset.cat || "").toLowerCase();
+        const desc = (card.dataset.desc || "").toLowerCase();
+        const match = title.includes(q) || cat.includes(q) || desc.includes(q);
+        card.style.display = match ? "block" : "none";
+      });
+
+      const firstVisible = gameCards.find(c => c.style.display !== "none");
+      if (firstVisible) selectGameCard(firstVisible, false);
+    });
+
+    btnClearSearch?.addEventListener("click", () => {
+      if (gameSearchInput) {
+        gameSearchInput.value = "";
+        btnClearSearch.hidden = true;
+        gameCards.forEach(c => c.style.display = "block");
+        if (gameCards[0]) selectGameCard(gameCards[0], false);
+        gameSearchInput.focus();
+      }
+    });
+
+    // ==========================================
+    // 7. Horizontal Deck Scroll Chevrons
+    // ==========================================
+    const btnDeckLeft = document.getElementById("btnDeckLeft");
+    const btnDeckRight = document.getElementById("btnDeckRight");
+    const gameDeck = document.getElementById("gameDeck");
+
+    btnDeckLeft?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      gameDeck?.scrollBy({ left: -260, behavior: "smooth" });
+    });
+    btnDeckRight?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      gameDeck?.scrollBy({ left: 260, behavior: "smooth" });
+    });
+
+    // ==========================================
+    // 8. Console Keyboard Navigation
+    // ==========================================
+    window.addEventListener("keydown", (e) => {
+      const isSearchActive = (document.activeElement === gameSearchInput);
+      if (isSearchActive) {
+        if (e.key === "Escape") {
+          gameSearchInput.blur();
+          e.preventDefault();
+        }
+        return;
+      }
+
+      if (e.key === "/" || (e.ctrlKey && e.key.toLowerCase() === "k")) {
+        e.preventDefault();
+        gameSearchInput?.focus();
+        gameSearchInput?.select();
+        return;
+      }
+
+      const visibleCards = gameCards.filter(c => c.style.display !== "none");
+      if (!visibleCards.length) return;
+      const currentIndex = visibleCards.indexOf(selectedActiveCard);
+
+      if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        const nextIndex = (currentIndex + 1) % visibleCards.length;
+        const nextCard = visibleCards[nextIndex];
+        selectGameCard(nextCard, true);
+        nextCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      } else if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        const prevIndex = (currentIndex - 1 + visibleCards.length) % visibleCards.length;
+        const prevCard = visibleCards[prevIndex];
+        selectGameCard(prevCard, true);
+        prevCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      } else if (e.key === "Enter" || e.key === " ") {
+        if (document.activeElement?.tagName !== "BUTTON" && document.activeElement?.tagName !== "A") {
+          e.preventDefault();
+          consoleAudio.play("select");
+          if (selectedActiveCard?.dataset.link) {
+            window.location.href = selectedActiveCard.dataset.link;
+          }
+        }
+      } else if (e.key.toLowerCase() === "h") {
+        e.preventDefault();
+        btnOpenGameHub?.click();
+      } else if (e.key.toLowerCase() === "m") {
+        e.preventDefault();
+        audioToggleBtn?.click();
+      } else if (e.key === "1") {
+        tabGames?.click();
+      } else if (e.key === "2") {
+        tabStore?.click();
+      } else if (e.key === "Escape") {
+        if (gameHubDialog?.open) gameHubDialog.close();
+        if (trophyDialog?.open) trophyDialog.close();
+        if (loginReminder?.open) loginReminder.close();
+      }
+    });
+
+    // ==========================================
+    // 9. PlayStation / Xbox Gamepad Controller Loop
+    // ==========================================
+    let lastGamepadNavTime = 0;
+    function pollGamepads() {
+      const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+      let activeGp = null;
+      for (let i = 0; i < gamepads.length; i++) {
+        if (gamepads[i]) {
+          activeGp = gamepads[i];
+          break;
+        }
+      }
+
+      const gpStatus = document.getElementById("gamepadStatus");
+      const gpText = document.getElementById("gamepadText");
+      if (activeGp) {
+        if (gpStatus) gpStatus.style.borderColor = "var(--ps-cyan)";
+        if (gpText) gpText.textContent = "🎮 " + (activeGp.id.includes("DualSense") ? "DualSense" : activeGp.id.includes("Xbox") ? "Xbox Controller" : "Controller Ready");
+        
+        const now = Date.now();
+        if (now - lastGamepadNavTime > 220) {
+          const visibleCards = gameCards.filter(c => c.style.display !== "none");
+          const curIdx = visibleCards.indexOf(selectedActiveCard);
+          
+          if ((activeGp.buttons[14]?.pressed || activeGp.axes[0] < -0.5) && visibleCards.length) {
+            const prevIdx = (curIdx - 1 + visibleCards.length) % visibleCards.length;
+            const prevCard = visibleCards[prevIdx];
+            selectGameCard(prevCard, true);
+            prevCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+            lastGamepadNavTime = now;
+          } else if ((activeGp.buttons[15]?.pressed || activeGp.axes[0] > 0.5) && visibleCards.length) {
+            const nextIdx = (curIdx + 1) % visibleCards.length;
+            const nextCard = visibleCards[nextIdx];
+            selectGameCard(nextCard, true);
+            nextCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+            lastGamepadNavTime = now;
+          } else if (activeGp.buttons[0]?.pressed) {
+            if (selectedActiveCard?.dataset.link) {
+              consoleAudio.play("select");
+              window.location.href = selectedActiveCard.dataset.link;
+            }
+            lastGamepadNavTime = now + 500;
+          } else if (activeGp.buttons[2]?.pressed) {
+            btnOpenGameHub?.click();
+            lastGamepadNavTime = now + 350;
+          } else if (activeGp.buttons[1]?.pressed) {
+            if (gameHubDialog?.open) gameHubDialog.close();
+            if (trophyDialog?.open) trophyDialog.close();
+            lastGamepadNavTime = now + 300;
+          }
+        }
+      } else {
+        if (gpStatus) gpStatus.style.borderColor = "var(--ps-card-border)";
+        if (gpText) gpText.textContent = "Gamepad API Ready";
+      }
+
+      requestAnimationFrame(pollGamepads);
+    }
+    requestAnimationFrame(pollGamepads);
+
+    window.addEventListener("gamepadconnected", (e) => {
+      showToast("🎮 Gamepad Connected", e.gamepad.id || "PlayStation DualSense / Xbox Controller Ready", "🎮");
+    });
+    window.addEventListener("gamepaddisconnected", () => {
+      showToast("🎮 Gamepad Disconnected", "Switched back to Keyboard & Mouse controls", "⚠️");
+    });
+
+    // ==========================================
+    // 10. PlayStation Trophies Modal
+    // ==========================================
+    const trophyDialog = document.getElementById("trophyDialog");
+    const btnOpenTrophies = document.getElementById("btnOpenTrophies");
+    const btnCloseTrophies = document.getElementById("btnCloseTrophies");
+
+    function openTrophiesModal() {
+      consoleAudio.play("trophy");
+      trophyDialog?.showModal();
+    }
+    btnOpenTrophies?.addEventListener("click", openTrophiesModal);
+    if (heroTrophy) {
+      heroTrophy.addEventListener("click", openTrophiesModal);
+      heroTrophy.style.cursor = "pointer";
+      heroTrophy.title = "View PlayStation Trophies Showcase";
+    }
+    btnCloseTrophies?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      trophyDialog?.close();
+    });
+
+    // ==========================================
+    // 11. Wishlist Persistence & VIP Registration
+    // ==========================================
+    const savedWishlist = JSON.parse(localStorage.getItem("pc_store_wishlist") || "[]");
     const wishlistBtns = document.querySelectorAll(".wishlist-btn");
-    wishlistBtns.forEach((btn) => {
+    wishlistBtns.forEach((btn, idx) => {
+      const card = btn.closest(".store-teaser-card");
+      const title = card?.querySelector(".teaser-title")?.textContent?.trim() || `Item ${idx}`;
+      const countEl = btn.querySelector(".wl-count");
+      let count = parseInt(countEl?.textContent || "0");
+
+      if (savedWishlist.includes(title)) {
+        btn.classList.add("wishlisted");
+        if (countEl) countEl.textContent = count + 1;
+      }
+
       btn.addEventListener("click", () => {
-        const countEl = btn.querySelector(".wl-count");
-        let count = parseInt(countEl?.textContent || "0");
+        let currentWishlist = JSON.parse(localStorage.getItem("pc_store_wishlist") || "[]");
+        let currentCount = parseInt(countEl?.textContent || "0");
         if (btn.classList.contains("wishlisted")) {
           btn.classList.remove("wishlisted");
-          countEl.textContent = count - 1;
+          countEl.textContent = Math.max(0, currentCount - 1);
+          currentWishlist = currentWishlist.filter(t => t !== title);
+          localStorage.setItem("pc_store_wishlist", JSON.stringify(currentWishlist));
+          consoleAudio.play("tick");
+          showToast("💔 Wishlist Removed", `Removed ${title} from your wishlist.`);
         } else {
           btn.classList.add("wishlisted");
-          countEl.textContent = count + 1;
+          countEl.textContent = currentCount + 1;
+          currentWishlist.push(title);
+          localStorage.setItem("pc_store_wishlist", JSON.stringify(currentWishlist));
+          consoleAudio.play("heart");
+          showToast("❤️ Added to Wishlist", `${title} added! You'll be notified on launch day.`);
         }
       });
     });
 
     const btnNotifyMe = document.getElementById("btnNotifyMe");
     const notifyMsg = document.getElementById("notifyMsg");
+    if (localStorage.getItem("pc_store_notified") === "true") {
+      if (btnNotifyMe) {
+        btnNotifyMe.textContent = "✓ You are on the VIP Launch List";
+        btnNotifyMe.style.background = "#00c853";
+      }
+      if (notifyMsg) notifyMsg.textContent = "We will alert your console the second the Store goes live.";
+    }
     btnNotifyMe?.addEventListener("click", () => {
-      btnNotifyMe.textContent = "✓ You are on the VIP Launch List!";
+      consoleAudio.play("select");
+      localStorage.setItem("pc_store_notified", "true");
+      btnNotifyMe.textContent = "✓ You are on the VIP Launch List";
       btnNotifyMe.style.background = "#00c853";
       if (notifyMsg) notifyMsg.textContent = "We will alert your console the second the Store goes live.";
+      showToast("🚀 VIP Launch Pass Activated", "Your account will get day-1 beta store access and drops!", "🎉");
     });
 
+    // Countdown Ticker
+    let secCounter = 20;
+    setInterval(() => {
+      secCounter--;
+      if (secCounter < 0) secCounter = 59;
+      const secEl = document.getElementById("cdSecs");
+      if (secEl) secEl.textContent = secCounter < 10 ? "0" + secCounter : secCounter;
+    }, 1000);
+
     // ==========================================
-    // 4. Leaderboard Logic (Firebase Realtime)
+    // 6. Leaderboard Logic (Firebase Realtime)
     // ==========================================
     let selectedGame = "typewriter";
     let typewriterScores = [];
@@ -1725,6 +2869,7 @@
 
     switchButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
+        consoleAudio.play("tick");
         clearInterval(autoSwitchTimer);
         switchGame(btn.dataset.game);
         autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
