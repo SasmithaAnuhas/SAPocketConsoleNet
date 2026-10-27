@@ -192,9 +192,9 @@
     }
     .ps-boot-screen.fade-out {
       opacity: 0;
-      transform: scale(1.06);
+      transform: scale(1.04);
       visibility: hidden;
-      pointer-events: none;
+      pointer-events: all;
     }
     .boot-canvas {
       position: absolute;
@@ -1973,7 +1973,8 @@
       </div>
       <div class="ps-boot-brand">POCKET CONSOLE</div>
       <div class="ps-boot-prompt" id="bootActionPrompt">
-        <span>PRESS ANY KEY TO START</span>
+        <span class="ps-status-pulse"></span>
+        <span>POCKET CONSOLE OS</span>
       </div>
     </div>
   </div>
@@ -3151,12 +3152,16 @@
     }
 
     gameCards.forEach((card) => {
-      card.addEventListener("mouseenter", () => selectGameCard(card, true));
-      card.addEventListener("click", () => {
-        selectGameCard(card, false);
-        consoleAudio.play("select");
-        const link = card.dataset.link;
-        if (link) window.location.href = link;
+      card.addEventListener("mouseenter", () => {
+        if (!bootCompleted) return;
+        selectGameCard(card, true);
+      });
+      card.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!bootCompleted) return;
+        selectGameCard(card, true);
+        card.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
       });
     });
 
@@ -3291,6 +3296,9 @@
     // 8. Console Keyboard Navigation
     // ==========================================
     window.addEventListener("keydown", (e) => {
+      // Guard: strictly ignore all console shortcuts until boot completes
+      if (!bootCompleted) return;
+
       const isSearchActive = (document.activeElement === gameSearchInput);
       if (isSearchActive) {
         if (e.key === "Escape") {
@@ -3323,8 +3331,9 @@
         const prevCard = visibleCards[prevIndex];
         selectGameCard(prevCard, true);
         prevCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-      } else if (e.key === "Enter" || e.key === " ") {
-        if (document.activeElement?.tagName !== "BUTTON" && document.activeElement?.tagName !== "A") {
+      } else if (e.key === "Enter") {
+        // Only launch on deliberate Enter when dashboard is active
+        if (document.activeElement?.tagName !== "BUTTON" && document.activeElement?.tagName !== "A" && document.activeElement?.tagName !== "INPUT") {
           e.preventDefault();
           consoleAudio.play("select");
           if (selectedActiveCard?.dataset.link) {
@@ -3355,6 +3364,10 @@
     // ==========================================
     let lastGamepadNavTime = 0;
     function pollGamepads() {
+      if (!bootCompleted) {
+        requestAnimationFrame(pollGamepads);
+        return;
+      }
       const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
       let activeGp = null;
       for (let i = 0; i < gamepads.length; i++) {
@@ -4756,32 +4769,40 @@
       }
       requestAnimationFrame(renderBootWave);
 
-      function completeBoot() {
+      function completeBoot(e) {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         if (bootCompleted) return;
         bootCompleted = true;
-        warpSpeed = 4;
+        warpSpeed = 3;
         try { consoleAudio.play("boot"); } catch (_) {}
 
         if (psBootScreen) {
           psBootScreen.classList.add("fade-out");
           setTimeout(() => {
             psBootScreen.style.display = "none";
-          }, 850);
+          }, 750);
         }
       }
 
-      // Trigger on user click / touch / key / gamepad
-      if (psBootScreen) {
-        psBootScreen.addEventListener("click", completeBoot);
-      }
-      window.addEventListener("keydown", (e) => {
-        if (!bootCompleted && psBootScreen?.style.display !== "none") completeBoot();
-      }, { once: true });
-
-      // Auto-complete after brief cinematic duration if untouched
+      // Smooth auto-complete after 1.1s (Cinematic PlayStation Quick Resume)
       setTimeout(() => {
         if (!bootCompleted) completeBoot();
-      }, 1900);
+      }, 1100);
+
+      // User tap or click skips instantly to dashboard without triggering underlying elements
+      if (psBootScreen) {
+        psBootScreen.addEventListener("click", completeBoot, { capture: true });
+      }
+      window.addEventListener("keydown", (e) => {
+        if (!bootCompleted) {
+          e.preventDefault();
+          e.stopPropagation();
+          completeBoot(e);
+        }
+      }, { capture: true, once: true });
     }
 
     // ==========================================
