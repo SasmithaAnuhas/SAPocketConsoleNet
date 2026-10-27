@@ -2,29 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pocket Console | Steam Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Pocket Console | PlayStation & Steam Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
+      --ps-dark: #050811;
+      --ps-surface: rgba(14, 21, 37, 0.78);
+      --ps-surface-card: rgba(18, 27, 46, 0.82);
+      --ps-card-border: rgba(255, 255, 255, 0.12);
+      --ps-blue: #0070d1;
+      --ps-blue-glow: rgba(0, 112, 209, 0.45);
+      --ps-cyan: #00f2fe;
+      --ps-cyan-glow: rgba(0, 242, 254, 0.45);
+      --ps-plus-gold: #ffbe00;
+      --ps-plus-glow: rgba(255, 190, 0, 0.4);
+      --steam-green: #799905;
+      --steam-green-glow: rgba(121, 153, 5, 0.45);
+      --text-main: #f1f5f9;
+      --text-sub: #94a3b8;
+      --ps-font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       color-scheme: dark;
-      --steam-dark: #10141d;
-      --steam-client-bg: #171d25;
-      --steam-panel: #1b2838;
-      --steam-panel-hover: #213247;
-      --steam-card-bg: #16202d;
-      --steam-border: #2a3f5a;
-      --steam-border-glow: #3870a8;
-      --steam-blue: #66c0f4;
-      --steam-blue-deep: #1999e3;
-      --steam-accent-green: #5c7e10;
-      --steam-accent-green-bright: #799905;
-      --steam-text-main: #c7d5e0;
-      --steam-text-sub: #8f98a0;
-      --steam-white: #ffffff;
-      --steam-gold: #ffd166;
     }
 
     * {
@@ -37,9 +37,9 @@
     html, body {
       width: 100%;
       min-height: 100vh;
-      background: var(--steam-dark);
-      color: var(--steam-text-main);
-      font-family: 'Inter', system-ui, -apple-system, Roboto, sans-serif;
+      background: var(--ps-dark);
+      color: var(--text-main);
+      font-family: var(--ps-font);
       overflow-x: hidden;
     }
 
@@ -55,571 +55,685 @@
       object-fit: cover;
     }
 
-    /* Ambient Steam Background Aura */
-    .steam-ambient {
+    /* ========================================================
+       1. PS5 DYNAMIC FULL-BLEED BACKDROP WALLPAPER
+       ======================================================== */
+    .ps-backdrop-wrap {
       position: fixed;
       inset: 0;
       pointer-events: none;
-      background:
-        radial-gradient(1200px 700px at 20% 0%, rgba(25, 153, 227, 0.12), transparent 60%),
-        radial-gradient(1000px 600px at 85% 30%, rgba(102, 192, 244, 0.08), transparent 65%),
-        radial-gradient(800px 500px at 50% 90%, rgba(121, 153, 5, 0.05), transparent 70%);
       z-index: 0;
+      overflow: hidden;
     }
 
+    .ps-dynamic-bg {
+      position: absolute;
+      inset: -20px;
+      background-size: cover;
+      background-position: center 25%;
+      filter: blur(28px) brightness(0.38) saturate(1.3);
+      transform: scale(1.08);
+      transition: background-image 0.5s ease-in-out;
+      opacity: 0.9;
+    }
+
+    .ps-backdrop-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1400px 800px at 15% 10%, rgba(0, 112, 209, 0.22), transparent 60%),
+        radial-gradient(1000px 600px at 85% 40%, rgba(0, 242, 254, 0.12), transparent 65%),
+        linear-gradient(to bottom, rgba(5, 8, 17, 0.6) 0%, rgba(5, 8, 17, 0.92) 60%, #050811 100%);
+    }
+
+    /* PS5 Geometric Symbols Ambient Watermark */
+    .ps-symbols-watermark {
+      position: absolute;
+      right: 40px;
+      top: 100px;
+      font-size: 80px;
+      letter-spacing: 24px;
+      color: rgba(255, 255, 255, 0.02);
+      font-weight: 900;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Main Console Container */
     #consoleContainer {
       position: relative;
       z-index: 5;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      padding-bottom: 90px;
+      padding-bottom: 96px;
     }
 
     /* ========================================================
-       1. STEAM TOP CLIENT BAR (Signature Steam Navigation)
+       2. PS5 & STEAM HYBRID TOP NAVIGATION BAR
        ======================================================== */
-    .steam-topbar {
+    .ps-topbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(23, 29, 37, 0.95);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--steam-border);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      background: rgba(8, 13, 24, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--ps-card-border);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
     }
 
-    .steam-topbar-inner {
-      max-width: 1280px;
+    .ps-topbar-inner {
+      max-width: 1360px;
       margin: 0 auto;
-      padding: 0 20px;
-      height: 64px;
+      padding: 0 24px;
+      height: 68px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 20px;
     }
 
-    .steam-brand {
+    /* Brand Section */
+    .ps-brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      min-width: max-content;
+      gap: 14px;
     }
 
-    .steam-logo-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1999e3, #66c0f4);
+    .ps-brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--ps-blue), var(--ps-cyan));
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 16px rgba(102, 192, 244, 0.4);
-    }
-    .steam-logo-icon svg {
-      width: 22px;
-      height: 22px;
-      fill: #fff;
+      font-size: 20px;
+      box-shadow: 0 0 20px var(--ps-blue-glow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .steam-brand-name {
-      font-size: 15px;
+    .ps-brand-title {
+      font-size: 16px;
       font-weight: 850;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
+      letter-spacing: 0.5px;
       color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .steam-brand-sub {
-      font-size: 10.5px;
-      color: var(--steam-blue);
-      letter-spacing: 0.8px;
+    .ps-brand-badge {
+      font-size: 10px;
+      font-weight: 800;
       text-transform: uppercase;
-      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0, 112, 209, 0.25), rgba(0, 242, 254, 0.25));
+      border: 1px solid var(--ps-cyan);
+      color: var(--ps-cyan);
+      letter-spacing: 0.8px;
     }
 
-    /* Steam Main Tabs */
-    .steam-nav-tabs {
+    /* Main Console Tabs */
+    .ps-nav-tabs {
       display: flex;
       align-items: center;
       gap: 6px;
       height: 100%;
     }
 
-    .steam-tab {
-      padding: 0 16px;
-      height: 64px;
+    .ps-tab {
+      padding: 0 18px;
+      height: 68px;
       display: flex;
       align-items: center;
-      font-size: 13.5px;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      color: var(--steam-text-main);
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: 0.4px;
+      color: var(--text-sub);
+      cursor: pointer;
       position: relative;
       transition: color 0.18s ease;
+      background: none;
+      border: none;
+      font-family: inherit;
     }
-    .steam-tab:hover {
+    .ps-tab:hover {
       color: #fff;
     }
-    .steam-tab.active {
-      color: var(--steam-blue);
+    .ps-tab.active {
+      color: #fff;
     }
-    .steam-tab.active::after {
+    .ps-tab.active::after {
       content: '';
       position: absolute;
       bottom: 0;
-      left: 12px;
-      right: 12px;
-      height: 3px;
-      background: var(--steam-blue);
-      border-radius: 3px 3px 0 0;
-      box-shadow: 0 0 12px var(--steam-blue);
+      left: 14px;
+      right: 14px;
+      height: 3.5px;
+      background: linear-gradient(90deg, var(--ps-blue), var(--ps-cyan));
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 0 14px var(--ps-cyan-glow);
     }
 
-    /* Right Account Controls */
-    .steam-client-actions {
+    /* Tab Store Badge */
+    .ps-store-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #ff9f43, #ff4757);
+      color: #fff;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* Top Right Client Vitals & Account */
+    .ps-topbar-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
     }
 
-    .steam-clock {
+    .ps-time-clock {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--steam-text-sub);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-sub);
     }
 
-    .steam-user-deck {
+    .ps-user-pill {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--steam-border);
+      padding: 5px 14px 5px 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--ps-card-border);
       border-radius: 999px;
-      padding: 4px 12px 4px 5px;
       transition: all 0.2s;
     }
-    .steam-user-deck:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--steam-blue);
+    .ps-user-pill:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--ps-cyan);
     }
 
-    .steam-avatar-ring {
+    .ps-avatar-wrap {
       position: relative;
       width: 32px;
       height: 32px;
     }
-
     .userAvatar {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      background: #2a3f5a url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==") center/cover no-repeat;
-      border: 2px solid #57cbde;
+      background: #19273c center/cover no-repeat;
+      border: 2px solid var(--ps-cyan);
     }
-
     .onlineDot {
       position: absolute;
-      bottom: 0;
-      right: 0;
+      bottom: -1px;
+      right: -1px;
       width: 10px;
       height: 10px;
-      background: #5c7e10;
-      border: 2px solid var(--steam-client-bg);
       border-radius: 50%;
-      box-shadow: 0 0 6px #799905;
+      background: #00ffaa;
+      border: 2px solid var(--ps-dark);
+      box-shadow: 0 0 6px #00ffaa;
       transition: opacity 0.2s;
     }
 
-    .steam-username {
+    .ps-user-name {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: #fff;
     }
 
     /* ========================================================
-       2. STEAM SUB-BAR & SEARCH CATEGORIES
+       3. PS5 HERO STAGE SHOWCASE (Dynamic Game Spotlight)
        ======================================================== */
-    .steam-subbar {
-      background: linear-gradient(180deg, rgba(27, 40, 56, 0.9), rgba(20, 29, 41, 0.95));
-      border-bottom: 1px solid var(--steam-border);
-      padding: 12px 0;
+    .ps-hero-stage {
+      max-width: 1360px;
+      margin: 32px auto 20px;
+      padding: 0 24px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr;
+      position: relative;
     }
 
-    .steam-subbar-inner {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 0 20px;
+    .ps-hero-info {
+      max-width: 680px;
+      animation: heroSlideUp 0.35s ease-out;
+    }
+
+    @keyframes heroSlideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .ps-hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--ps-cyan);
+      margin-bottom: 8px;
+    }
+
+    .ps-hero-title {
+      font-size: clamp(34px, 5vw, 52px);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .ps-hero-desc {
+      font-size: 15px;
+      color: var(--text-main);
+      line-height: 1.55;
+      margin-bottom: 22px;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+      max-width: 580px;
+    }
+
+    .ps-hero-meta-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 16px;
+      margin-bottom: 26px;
       flex-wrap: wrap;
     }
 
-    /* Category Filter Pills */
-    .steam-filter-tags {
+    .ps-trophy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 190, 0, 0.12);
+      border: 1px solid rgba(255, 190, 0, 0.35);
+      color: var(--ps-plus-gold);
+      font-size: 12.5px;
+      font-weight: 750;
+    }
+
+    .ps-category-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--ps-card-border);
+      color: var(--text-sub);
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    /* PS5 Action Button (Play Now) */
+    .ps-play-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 34px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+      color: #050811;
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3), 0 0 0 1px #fff;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .ps-play-btn:hover {
+      transform: scale(1.04);
+      background: linear-gradient(135deg, #ffffff, #cceeff);
+      box-shadow: 0 14px 40px rgba(0, 242, 254, 0.5), 0 0 20px var(--ps-cyan-glow);
+    }
+    .ps-play-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ========================================================
+       4. PS5 HORIZONTAL CARD DECK & CAROUSEL
+       ======================================================== */
+    .ps-deck-section {
+      max-width: 1360px;
+      margin: 10px auto 30px;
+      padding: 0 24px;
+      width: 100%;
+    }
+
+    .ps-deck-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .ps-deck-title {
+      font-size: 15px;
+      font-weight: 850;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #fff;
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    /* Interactive PS Card Deck */
+    .ps-card-deck {
+      display: flex;
+      gap: 18px;
       overflow-x: auto;
-      padding-bottom: 2px;
-      scrollbar-width: none;
+      padding: 10px 4px 22px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }
-    .steam-filter-tags::-webkit-scrollbar { display: none; }
+    .ps-card-deck::-webkit-scrollbar {
+      height: 6px;
+    }
+    .ps-card-deck::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+    }
 
-    .steam-pill-btn {
-      padding: 7px 14px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--steam-text-main);
-      font-size: 12.5px;
-      font-weight: 600;
+    .ps-game-card {
+      flex: 0 0 200px;
+      scroll-snap-align: start;
+      background: var(--ps-surface-card);
+      border: 2px solid transparent;
+      border-radius: 18px;
+      overflow: hidden;
       cursor: pointer;
-      transition: all 0.16s ease;
-      white-space: nowrap;
-    }
-    .steam-pill-btn:hover {
-      background: rgba(255, 255, 255, 0.14);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-    .steam-pill-btn.active {
-      background: var(--steam-blue);
-      color: #0b1a2a;
-      border-color: var(--steam-blue);
-      font-weight: 700;
-      box-shadow: 0 0 12px rgba(102, 192, 244, 0.4);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+      transition: all 0.24s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
     }
 
-    /* Search Bar */
-    .steam-search-wrap {
-      position: relative;
-      width: min(280px, 100%);
+    .ps-game-card:hover, .ps-game-card.active {
+      transform: translateY(-8px) scale(1.05);
+      border-color: #fff;
+      box-shadow: 0 18px 45px rgba(0, 112, 209, 0.4), 0 0 20px var(--ps-cyan-glow);
     }
-    .steam-search-input {
+    .ps-game-card.active {
+      border-color: var(--ps-cyan);
+    }
+
+    .ps-card-art {
       width: 100%;
-      background: #101620;
-      border: 1px solid var(--steam-border);
-      border-radius: 4px;
-      padding: 8px 12px 8px 34px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      height: 155px;
+      background: #0d1624;
+      position: relative;
     }
-    .steam-search-input:focus {
-      border-color: var(--steam-blue);
-      box-shadow: 0 0 10px rgba(102, 192, 244, 0.25);
+    .ps-card-art img {
+      transition: transform 0.4s ease;
     }
-    .steam-search-icon {
+    .ps-game-card:hover .ps-card-art img {
+      transform: scale(1.08);
+    }
+
+    .ps-card-tag {
       position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
+      top: 8px;
+      left: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      backdrop-filter: blur(4px);
+    }
+
+    .ps-card-meta {
+      padding: 12px 14px;
+      background: rgba(14, 21, 35, 0.95);
+    }
+    .ps-card-title {
       font-size: 14px;
-      color: var(--steam-text-sub);
+      font-weight: 750;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+    .ps-card-sub {
+      font-size: 11.5px;
+      color: var(--text-sub);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ========================================================
+       5. POCKET CONSOLE STORE (PLAYSTATION STYLE - COMING SOON)
+       ======================================================== */
+    #viewStore {
+      max-width: 1360px;
+      margin: 20px auto 40px;
+      padding: 0 24px;
+      width: 100%;
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .store-hero-banner {
+      background: linear-gradient(135deg, rgba(0, 67, 156, 0.85), rgba(10, 16, 30, 0.95));
+      border: 1px solid rgba(0, 112, 209, 0.4);
+      border-radius: 24px;
+      padding: 44px 40px;
+      margin-bottom: 34px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 112, 209, 0.25);
+    }
+
+    .store-hero-banner::after {
+      content: '▲ ✖ ◼ ⬢';
+      position: absolute;
+      right: 20px;
+      bottom: -10px;
+      font-size: 90px;
+      color: rgba(255, 255, 255, 0.04);
+      font-weight: 900;
       pointer-events: none;
     }
 
-    /* ========================================================
-       3. STEAM HERO SPOTLIGHT SHOWCASE (Featured & Recommended)
-       ======================================================== */
-    .steam-hero-section {
-      max-width: 1280px;
-      margin: 28px auto 14px;
-      padding: 0 20px;
-      width: 100%;
-    }
-
-    .steam-section-heading {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: #fff;
-      margin-bottom: 12px;
-      display: flex;
+    .store-coming-pill {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-    }
-    .steam-section-heading span.badge {
-      font-size: 11px;
-      color: var(--steam-blue);
-      font-weight: 600;
-    }
-
-    .steam-spotlight-box {
-      background: linear-gradient(135deg, rgba(33, 49, 72, 0.8), rgba(20, 29, 41, 0.95));
-      border: 1px solid var(--steam-border);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6);
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      min-height: 380px;
-    }
-
-    .spotlight-media {
-      position: relative;
-      background: #0b111a;
-      overflow: hidden;
-      min-height: 280px;
-    }
-    .spotlight-media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-    .steam-spotlight-box:hover .spotlight-media img {
-      transform: scale(1.03);
-    }
-
-    .spotlight-tag-badge {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      padding: 4px 10px;
-      background: rgba(0, 0, 0, 0.75);
-      border: 1px solid var(--steam-blue);
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 750;
-      color: var(--steam-blue);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      backdrop-filter: blur(8px);
-    }
-
-    .spotlight-info {
-      padding: 26px 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background: rgba(22, 32, 45, 0.9);
-      border-left: 1px solid var(--steam-border);
-    }
-
-    .spotlight-title {
-      font-size: 26px;
-      font-weight: 850;
-      color: #fff;
-      margin-bottom: 8px;
-      letter-spacing: -0.3px;
-    }
-
-    .spotlight-desc {
-      font-size: 13.5px;
-      color: var(--steam-text-main);
-      line-height: 1.5;
-      margin-bottom: 16px;
-    }
-
-    .spotlight-tags {
-      display: flex;
-      flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 20px;
-    }
-    .spotlight-pill {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 3px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--steam-text-sub);
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #ff9f43, #ff4757);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 16px rgba(255, 71, 87, 0.4);
     }
 
-    .spotlight-cta-row {
+    .store-headline {
+      font-size: clamp(32px, 4.5vw, 46px);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .store-lead {
+      font-size: 16px;
+      color: var(--text-main);
+      max-width: 620px;
+      line-height: 1.6;
+      margin-bottom: 26px;
+    }
+
+    .store-action-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 14px;
-      margin-top: auto;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      flex-wrap: wrap;
     }
 
-    .spotlight-price {
-      font-size: 12px;
-      font-weight: 700;
-      color: #799905;
-      background: rgba(121, 153, 5, 0.14);
-      padding: 4px 8px;
-      border-radius: 3px;
-      letter-spacing: 0.5px;
-    }
-
-    /* Giant Steam Green "PLAY NOW" Button */
-    .steam-btn-green {
+    .store-notify-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 12px 24px;
-      border-radius: 4px;
-      background: linear-gradient(90deg, var(--steam-accent-green), var(--steam-accent-green-bright));
+      padding: 13px 28px;
+      border-radius: 999px;
+      background: #0070d1;
       color: #fff;
       font-size: 14px;
       font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(92, 126, 16, 0.45);
-      transition: all 0.18s ease;
+      box-shadow: 0 6px 20px rgba(0, 112, 209, 0.45);
+      transition: all 0.2s;
     }
-    .steam-btn-green:hover {
-      background: linear-gradient(90deg, #6c9413, #8cb306);
+    .store-notify-btn:hover {
+      background: #0084f7;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(121, 153, 5, 0.6);
-      color: #fff;
+      box-shadow: 0 8px 26px rgba(0, 112, 209, 0.6);
     }
 
-    /* ========================================================
-       4. STEAM LIBRARY GRID (Steam Game Capsules)
-       ======================================================== */
-    .steam-library-section {
-      max-width: 1280px;
-      margin: 32px auto 20px;
-      padding: 0 20px;
-      width: 100%;
-    }
-
-    .steam-capsule-grid {
+    /* Teaser Upcoming Games Grid */
+    .store-upcoming-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
     }
 
-    .steam-capsule-card {
-      background: var(--steam-card-bg);
-      border: 1px solid var(--steam-border);
-      border-radius: 10px;
+    .store-teaser-card {
+      background: var(--ps-surface-card);
+      border: 1px solid var(--ps-card-border);
+      border-radius: 20px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+      transition: all 0.24s;
       position: relative;
     }
-    .steam-capsule-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--steam-blue);
-      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6), 0 0 16px rgba(102, 192, 244, 0.25);
+    .store-teaser-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--ps-cyan);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 254, 0.25);
     }
 
-    .capsule-media {
+    .teaser-media {
+      height: 190px;
+      background: #0b111a;
       position: relative;
-      width: 100%;
-      height: 155px;
-      background: #0f1622;
-      overflow: hidden;
     }
-    .capsule-media img {
-      transition: transform 0.4s ease;
-    }
-    .steam-capsule-card:hover .capsule-media img {
-      transform: scale(1.05);
-    }
-
-    .capsule-overlay-btn {
+    .teaser-badge {
       position: absolute;
-      inset: 0;
-      background: rgba(16, 24, 34, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      backdrop-filter: blur(4px);
-      transition: opacity 0.2s ease;
-    }
-    .steam-capsule-card:hover .capsule-overlay-btn {
-      opacity: 1;
-    }
-    .capsule-play-pill {
-      padding: 9px 18px;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
       border-radius: 4px;
-      background: var(--steam-accent-green-bright);
-      color: #fff;
-      font-size: 13px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid var(--ps-cyan);
+      color: var(--ps-cyan);
+      font-size: 11px;
       font-weight: 800;
+      text-transform: uppercase;
       letter-spacing: 0.5px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      backdrop-filter: blur(6px);
     }
 
-    .capsule-meta {
-      padding: 14px 16px;
+    .teaser-info {
+      padding: 20px;
       display: flex;
       flex-direction: column;
       flex: 1;
     }
 
-    .capsule-title {
-      font-size: 15px;
-      font-weight: 750;
+    .teaser-title {
+      font-size: 18px;
+      font-weight: 850;
       color: #fff;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+    .teaser-desc {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 18px;
     }
 
-    .capsule-sub {
-      font-size: 12px;
-      color: var(--steam-text-sub);
-      margin-bottom: 12px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .capsule-footer {
+    .teaser-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-top: auto;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .capsule-genre {
-      font-size: 11px;
-      color: var(--steam-text-sub);
-    }
-
-    .capsule-free-badge {
-      font-size: 11px;
+    .teaser-date {
+      font-size: 12px;
       font-weight: 700;
-      color: #799905;
-      background: rgba(121, 153, 5, 0.14);
-      padding: 3px 6px;
-      border-radius: 3px;
+      color: var(--ps-plus-gold);
+    }
+
+    .wishlist-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--ps-card-border);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .wishlist-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: #fff;
+    }
+    .wishlist-btn.wishlisted {
+      background: #ff4757;
+      border-color: #ff4757;
+      box-shadow: 0 0 14px rgba(255, 71, 87, 0.5);
     }
 
     /* ========================================================
-       5. STEAM COMMUNITY & LEADERBOARD PANEL
+       6. STEAM COMMUNITY LEADERBOARD (PS5 Styled)
        ======================================================== */
-    .steam-community-section {
-      max-width: 1280px;
-      margin: 20px auto 40px;
-      padding: 0 20px;
+    .ps-leaderboard-section {
+      max-width: 1360px;
+      margin: 10px auto 30px;
+      padding: 0 24px;
       width: 100%;
     }
 
     .homeScores {
-      background: linear-gradient(135deg, rgba(27, 40, 56, 0.95), rgba(16, 24, 34, 0.95));
-      border: 1px solid var(--steam-border);
-      border-radius: 12px;
+      background: var(--ps-surface-card);
+      border: 1px solid var(--ps-card-border);
+      border-radius: 20px;
       padding: 24px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
     }
 
     .homeScoresHeader {
@@ -627,77 +741,79 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .homeScoresEyebrow {
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 850;
       letter-spacing: 1.2px;
       text-transform: uppercase;
-      color: var(--steam-blue);
+      color: var(--ps-cyan);
       margin-bottom: 4px;
     }
     .homeScoresHeader h2 {
       font-size: 18px;
-      font-weight: 800;
+      font-weight: 850;
       color: #fff;
     }
+
     .homeScoresFullLink {
-      color: var(--steam-blue);
+      color: #fff;
       font-size: 12.5px;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 4px;
-      background: rgba(102, 192, 244, 0.1);
-      border: 1px solid rgba(102, 192, 244, 0.25);
+      font-weight: 750;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--ps-blue);
+      box-shadow: 0 0 14px var(--ps-blue-glow);
       transition: all 0.18s;
     }
     .homeScoresFullLink:hover {
-      background: rgba(102, 192, 244, 0.2);
+      background: #0084f7;
+      transform: translateY(-1px);
     }
 
-    /* Game switcher tab buttons */
     .homeGameSwitcher {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       margin: 14px 0 16px;
     }
     .homeGameSwitchBtn {
-      padding: 7px 14px;
-      border-radius: 4px;
-      border: 1px solid var(--steam-border);
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--ps-card-border);
       background: rgba(255, 255, 255, 0.05);
-      color: var(--steam-text-main);
-      font-size: 12.5px;
-      font-weight: 600;
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
       transition: all 0.18s;
+      font-family: inherit;
     }
     .homeGameSwitchBtn:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.12);
       color: #fff;
     }
     .homeGameSwitchBtn.active {
-      background: rgba(102, 192, 244, 0.18);
-      border-color: var(--steam-blue);
-      color: var(--steam-blue);
-      font-weight: 700;
+      background: linear-gradient(90deg, var(--ps-blue), #0084f7);
+      border-color: var(--ps-cyan);
+      color: #fff;
+      box-shadow: 0 0 14px var(--ps-blue-glow);
     }
 
     .homePlayerState {
       font-size: 12.5px;
-      color: var(--steam-text-sub);
+      color: var(--text-sub);
       margin-bottom: 12px;
     }
     .homeSignInPrompt {
       font-size: 12.5px;
-      color: var(--steam-gold);
-      background: rgba(255, 209, 102, 0.08);
-      border: 1px solid rgba(255, 209, 102, 0.25);
-      border-radius: 6px;
+      color: var(--ps-plus-gold);
+      background: rgba(255, 190, 0, 0.08);
+      border: 1px solid rgba(255, 190, 0, 0.25);
+      border-radius: 8px;
       padding: 10px 14px;
       margin-bottom: 16px;
       display: flex;
@@ -706,12 +822,11 @@
       gap: 12px;
     }
     .homeSignInPrompt a {
-      font-weight: 700;
-      color: #fff;
-      background: var(--steam-gold);
-      color: #111;
-      padding: 4px 10px;
-      border-radius: 4px;
+      font-weight: 800;
+      background: var(--ps-plus-gold);
+      color: #050811;
+      padding: 5px 12px;
+      border-radius: 999px;
     }
 
     .homeScoresList {
@@ -724,24 +839,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      border-radius: 6px;
+      padding: 10px 16px;
+      border-radius: 10px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
+      font-size: 13.5px;
     }
     .homeScoresRow.isPlayer {
-      background: rgba(102, 192, 244, 0.12);
-      border-color: rgba(102, 192, 244, 0.4);
+      background: rgba(0, 112, 209, 0.15);
+      border-color: var(--ps-cyan);
     }
     .homeScoresRank {
-      font-weight: 750;
-      color: var(--steam-text-sub);
+      font-weight: 800;
+      color: var(--text-sub);
       width: 70px;
     }
     .homeScoresName {
       flex: 1;
-      font-weight: 600;
+      font-weight: 700;
       color: #fff;
       display: flex;
       align-items: center;
@@ -749,481 +864,561 @@
     }
     .homeScoresYouBadge {
       font-size: 10px;
-      padding: 1px 6px;
-      border-radius: 3px;
-      background: var(--steam-blue);
-      color: #0b1a2a;
-      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--ps-cyan);
+      color: #050811;
+      font-weight: 850;
       text-transform: uppercase;
     }
     .homeScoresScore {
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-      font-size: 14px;
+      font-weight: 800;
+      font-size: 14.5px;
     }
     .homeScoresEmpty {
-      color: var(--steam-text-sub);
+      color: var(--text-sub);
       font-size: 13px;
-      padding: 14px 0;
+      padding: 16px 0;
       text-align: center;
-    }
-    .homeScoresDivider {
-      font-size: 11px;
-      color: var(--steam-text-sub);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      padding: 4px 0;
     }
 
     /* ========================================================
-       6. STEAM BOTTOM DOCK / FRIENDS DRAWER
+       7. PLAYSTATION CONTROL CENTER (BOTTOM QUICK DOCK)
        ======================================================== */
-    .steam-dock {
+    .ps-control-center {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: 54px;
-      background: rgba(16, 24, 34, 0.94);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-top: 1px solid var(--steam-border);
+      height: 56px;
+      background: rgba(8, 13, 24, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--ps-card-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
-      z-index: 90;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+      padding: 0 28px;
+      z-index: 95;
+      box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.5);
     }
 
-    .steam-dock-left {
+    .ps-dock-left {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 20px;
     }
-    .steam-dock-link {
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--steam-text-sub);
-      transition: color 0.16s;
-    }
-    .steam-dock-link:hover, .steam-dock-link.active {
-      color: #fff;
+    .ps-dock-brand {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
     }
 
-    .steam-dock-right {
+    .ps-dock-right {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .steam-friends-pill {
+    .ps-quick-friends {
       display: flex;
       align-items: center;
       gap: 8px;
       padding: 6px 14px;
-      border-radius: 4px;
+      border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--steam-border);
+      border: 1px solid var(--ps-card-border);
       color: #fff;
-      font-size: 12.5px;
-      font-weight: 700;
-      transition: all 0.18s;
+      font-size: 13px;
+      font-weight: 750;
+      transition: all 0.2s;
     }
-    .steam-friends-pill:hover {
-      background: rgba(102, 192, 244, 0.2);
-      border-color: var(--steam-blue);
-      color: var(--steam-blue);
-    }
-    .steam-friends-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #799905;
-      box-shadow: 0 0 6px #799905;
+    .ps-quick-friends:hover {
+      background: rgba(0, 112, 209, 0.25);
+      border-color: var(--ps-cyan);
+      color: var(--ps-cyan);
     }
 
-    /* Floating Chat Pill */
-    .steam-chat-pill {
+    .ps-quick-chat {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
-      border-radius: 4px;
-      background: #1999e3;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--ps-blue);
       color: #fff;
-      font-size: 12.5px;
-      font-weight: 700;
-      box-shadow: 0 2px 10px rgba(25, 153, 227, 0.4);
-      transition: all 0.18s;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 0 14px var(--ps-blue-glow);
+      transition: all 0.2s;
     }
-    .steam-chat-pill:hover {
-      background: #2cb3ff;
+    .ps-quick-chat:hover {
+      background: #0084f7;
       transform: translateY(-1px);
     }
 
     /* Guest Modal */
     .loginReminder {
-      border: 1px solid var(--steam-blue);
-      border-radius: 12px;
-      background: var(--steam-panel);
+      border: 1px solid var(--ps-cyan);
+      border-radius: 16px;
+      background: #0d1526;
       color: #fff;
-      padding: 24px;
-      max-width: 400px;
+      padding: 28px;
+      max-width: 420px;
       margin: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.8);
     }
     .loginReminder::backdrop {
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.75);
       backdrop-filter: blur(8px);
     }
     .loginReminder h2 {
       margin-bottom: 8px;
+      font-weight: 850;
     }
     .loginReminder p {
-      font-size: 13.5px;
-      color: var(--steam-text-main);
-      margin-bottom: 20px;
-      line-height: 1.45;
+      font-size: 14px;
+      color: var(--text-sub);
+      margin-bottom: 22px;
+      line-height: 1.5;
     }
     .loginReminderActions {
       display: flex;
-      gap: 10px;
+      gap: 12px;
     }
     .loginReminderSignIn {
       flex: 1;
       text-align: center;
-      padding: 10px;
-      border-radius: 4px;
-      background: var(--steam-blue);
-      color: #0b1a2a;
-      font-weight: 700;
+      padding: 11px;
+      border-radius: 999px;
+      background: var(--ps-blue);
+      color: #fff;
+      font-weight: 800;
     }
     .loginReminderDismiss {
       flex: 1;
-      padding: 10px;
-      border-radius: 4px;
+      padding: 11px;
+      border-radius: 999px;
       background: rgba(255,255,255,0.08);
-      border: 1px solid var(--steam-border);
+      border: 1px solid var(--ps-card-border);
       color: #fff;
       cursor: pointer;
+      font-weight: 700;
     }
 
-    @media (max-width: 860px) {
-      .steam-spotlight-box {
-        grid-template-columns: 1fr;
-      }
-      .steam-nav-tabs {
-        display: none;
-      }
-      .steam-subbar-inner {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .steam-search-wrap {
-        width: 100%;
-      }
+    @media (max-width: 768px) {
+      .ps-symbols-watermark { display: none; }
+      .ps-nav-tabs .ps-tab-text { display: none; }
+      .ps-topbar-inner { padding: 0 16px; }
+      .ps-deck-section, .ps-hero-stage, .ps-leaderboard-section { padding: 0 16px; }
+      .ps-game-card { flex: 0 0 170px; }
+      .ps-card-art { height: 130px; }
     }
   </style>
 </head>
 <body>
-  <div class="steam-ambient" aria-hidden="true"></div>
+  <!-- 1. PS5 DYNAMIC FULL-BLEED BACKDROP -->
+  <div class="ps-backdrop-wrap" aria-hidden="true">
+    <div class="ps-dynamic-bg" id="dynamicBackdrop" style="background-image: url('Games/GalaxyShooter/GalaxyBanner.svg');"></div>
+    <div class="ps-backdrop-overlay"></div>
+    <div class="ps-symbols-watermark">▲ ✖ ◼ ⬢</div>
+  </div>
 
   <div id="consoleContainer">
-    <!-- 1. STEAM TOP CLIENT BAR -->
-    <header class="steam-topbar">
-      <div class="steam-topbar-inner">
-        <div class="steam-brand">
-          <div class="steam-logo-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2a10 10 0 0 0-10 10c0 4.7 3.2 8.6 7.6 9.7l2.8-4a3.5 3.5 0 0 1 1.6-4.6 3.5 3.5 0 0 1 4.6 1.6 3.5 3.5 0 0 1-1.6 4.6l-3.8 2.6A10 10 0 1 0 12 2zm0 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/>
-            </svg>
-          </div>
+    <!-- 2. PS5 & STEAM HYBRID TOPBAR -->
+    <header class="ps-topbar">
+      <div class="ps-topbar-inner">
+        <div class="ps-brand">
+          <div class="ps-brand-mark" aria-hidden="true">🎮</div>
           <div>
-            <div class="steam-brand-name">Pocket Console</div>
-            <div class="steam-brand-sub">Steam Deck Client</div>
+            <div class="ps-brand-title">
+              Pocket Console
+              <span class="ps-brand-badge">PlayStation 5 • Steam</span>
+            </div>
           </div>
         </div>
 
-        <nav class="steam-nav-tabs" aria-label="Steam Navigation">
-          <a class="steam-tab active" href="#store">Store</a>
-          <a class="steam-tab" href="#library">Library</a>
-          <a class="steam-tab" href="HighScoreBoard.html">Community</a>
-          <a class="steam-tab" href="FriendManagementPage.html">Friends</a>
-          <a class="steam-tab" href="ChatPage.html">Chat</a>
+        <!-- Navigation Switcher: Games vs PlayStation Store -->
+        <nav class="ps-nav-tabs" aria-label="Console Navigation">
+          <button type="button" class="ps-tab active" id="tabGames" data-view="games">
+            <span aria-hidden="true">🎮</span>
+            <span class="ps-tab-text">Games</span>
+          </button>
+          <button type="button" class="ps-tab" id="tabStore" data-view="store">
+            <span aria-hidden="true">🛍️</span>
+            <span class="ps-tab-text">Pocket Store</span>
+            <span class="ps-store-badge">Coming Soon</span>
+          </button>
+          <a class="ps-tab" href="HighScoreBoard.html">
+            <span aria-hidden="true">🏆</span>
+            <span class="ps-tab-text">Trophies</span>
+          </a>
+          <a class="ps-tab" href="FriendManagementPage.html">
+            <span aria-hidden="true">👥</span>
+            <span class="ps-tab-text">Friends</span>
+          </a>
+          <a class="ps-tab" href="ChatPage.html">
+            <span aria-hidden="true">💬</span>
+            <span class="ps-tab-text">Chat</span>
+          </a>
         </nav>
 
-        <div class="steam-client-actions">
-          <div class="steam-clock" id="bottomTime">00:00</div>
+        <div class="ps-topbar-actions">
+          <div class="ps-time-clock" id="bottomTime">00:00</div>
           
-          <a href="AccSettings.html" class="steam-user-deck" title="Account Settings">
-            <div class="steam-avatar-ring">
+          <a href="AccSettings.html" class="ps-user-pill" title="PlayStation Network Account">
+            <div class="ps-avatar-wrap">
               <div id="userAvatar" class="userAvatar"></div>
               <span class="onlineDot" aria-hidden="true"></span>
             </div>
-            <span class="steam-username" id="topUserName">Player</span>
+            <span class="ps-user-name" id="topUserName">Player</span>
           </a>
         </div>
       </div>
     </header>
 
-    <!-- 2. STEAM SUB-BAR & SEARCH CATEGORIES -->
-    <section class="steam-subbar">
-      <div class="steam-subbar-inner">
-        <div class="steam-filter-tags" id="categoryFilters" role="tablist">
-          <button type="button" class="steam-pill-btn active" data-cat="all">All Games (7)</button>
-          <button type="button" class="steam-pill-btn" data-cat="action">🚀 Action & Arcade</button>
-          <button type="button" class="steam-pill-btn" data-cat="racing">🏎️ Racing</button>
-          <button type="button" class="steam-pill-btn" data-cat="multiplayer">👥 Multiplayer</button>
-          <button type="button" class="steam-pill-btn" data-cat="typing">⌨️ Syntax Velocity</button>
+    <!-- MAIN VIEW: GAMES DECK (PLAYSTATION EXPERIENCE) -->
+    <main id="viewGames">
+      <!-- 3. PS5 HERO STAGE SPOTLIGHT -->
+      <section class="ps-hero-stage">
+        <div class="ps-hero-info">
+          <div class="ps-hero-eyebrow" id="heroCategory">🚀 Action • Space Combat</div>
+          <h1 class="ps-hero-title" id="heroTitle">Galaxy Strike</h1>
+          <p class="ps-hero-desc" id="heroDesc">
+            Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters.
+          </p>
+
+          <div class="ps-hero-meta-row">
+            <div class="ps-trophy-badge" id="heroTrophy">🏆 5 Waves • Boss Slayer</div>
+            <div class="ps-category-badge" id="heroFormat">Instant Play • Fullscreen</div>
+          </div>
+
+          <a href="Games/GalaxyShooter/GalaxyShooter.html" class="ps-play-btn" id="heroPlayBtn">
+            <span aria-hidden="true">▶</span>
+            <span>Play Game</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- 4. PS5 HORIZONTAL CARD DECK -->
+      <section class="ps-deck-section">
+        <div class="ps-deck-header">
+          <div class="ps-deck-title">
+            <span aria-hidden="true">⚡</span>
+            <span>Console Game Library (7)</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-sub);">Hover card to preview</div>
         </div>
 
-        <div class="steam-search-wrap">
-          <span class="steam-search-icon" aria-hidden="true">🔍</span>
-          <input type="text" id="gameSearchInput" class="steam-search-input" placeholder="Search games by title..." aria-label="Search library games" />
+        <div class="ps-card-deck" id="gameDeck">
+          
+          <!-- Game 1: Galaxy Strike -->
+          <div class="ps-game-card active"
+               data-title="Galaxy Strike"
+               data-cat="🚀 Action • Space Combat"
+               data-desc="Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters."
+               data-trophy="🏆 5 Waves • Boss Slayer"
+               data-art="Games/GalaxyShooter/GalaxyBanner.svg"
+               data-link="Games/GalaxyShooter/GalaxyShooter.html">
+            <div class="ps-card-art">
+              <img src="Games/GalaxyShooter/GalaxyBanner.svg" alt="Galaxy Strike poster" loading="eager" />
+              <span class="ps-card-tag" style="background:#0070d1;">New Drop</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">Galaxy Strike</div>
+              <div class="ps-card-sub">Space Arcade Shooter</div>
+            </div>
+          </div>
+
+          <!-- Game 2: Turbo Drift -->
+          <div class="ps-game-card"
+               data-title="Turbo Drift"
+               data-cat="🏎️ Racing • Precision Drift"
+               data-desc="Precision 2D top-down drift racer with city and desert circuits. Master acute hairpins, lay down burning rubber streaks, and challenge top speeds with responsive arcade handling."
+               data-trophy="🏆 High-Speed Drifter"
+               data-art="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg"
+               data-link="Games/TurboDrift2D/TurboDrift.html">
+            <div class="ps-card-art">
+              <img src="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg" alt="Turbo Drift poster" loading="lazy" />
+              <span class="ps-card-tag">Racing</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">Turbo Drift</div>
+              <div class="ps-card-sub">2D Drift Racing</div>
+            </div>
+          </div>
+
+          <!-- Game 3: Lane Rush -->
+          <div class="ps-game-card"
+               data-title="Lane Rush"
+               data-cat="🏎️ Arcade • Highway Rush"
+               data-desc="High-octane 3-lane highway traffic survival. Weave through congestion with dynamic synthesizer engine sounds, near-miss points, and explosive crashes."
+               data-trophy="🏆 Traffic Dodger"
+               data-art="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp"
+               data-link="Games/LaneRushV1/LaneRushV1.html">
+            <div class="ps-card-art">
+              <img src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp" alt="Lane Rush poster" loading="lazy" />
+              <span class="ps-card-tag">Speed</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">Lane Rush</div>
+              <div class="ps-card-sub">Highway Survival</div>
+            </div>
+          </div>
+
+          <!-- Game 4: Keycraft Typing -->
+          <div class="ps-game-card"
+               data-title="Keycraft Typing"
+               data-cat="⌨️ Syntax Velocity • Java Edition"
+               data-desc="Monkeytype-inspired Java syntax velocity trainer. Sharpen your typing velocity on real object-oriented classes, loops, brackets, and syntax with Google ranking."
+               data-trophy="🏆 Master Java Typist"
+               data-art="Games/Keycraft TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg"
+               data-link="Games/Keycraft%20TypingV1/KeycraftTypingV1.html">
+            <div class="ps-card-art">
+              <img src="Games/Keycraft%20TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg" alt="Keycraft Typing poster" loading="lazy" />
+              <span class="ps-card-tag">Java</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">Keycraft Typing</div>
+              <div class="ps-card-sub">Typing Velocity</div>
+            </div>
+          </div>
+
+          <!-- Game 5: Snake Arcade -->
+          <div class="ps-game-card"
+               data-title="Snake Arcade"
+               data-cat="🐍 Retro Arcade • Global Leaderboard"
+               data-desc="Classic cyber retro snake survival with power apples and global high score competition on the live PlayStation / Firebase leaderboard."
+               data-trophy="🏆 Longest Tail Record"
+               data-art="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg"
+               data-link="Games/SnakeGameV1/SnakeGameV1.html">
+            <div class="ps-card-art">
+              <img src="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg" alt="Snake Arcade poster" loading="lazy" />
+              <span class="ps-card-tag">Arcade</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">Snake Arcade</div>
+              <div class="ps-card-sub">Cyber Retro Snake</div>
+            </div>
+          </div>
+
+          <!-- Game 6: XO Tic Tac Toe -->
+          <div class="ps-game-card"
+               data-title="XO Tic Tac Toe"
+               data-cat="👥 1v1 Online • Pass & Play"
+               data-desc="Multiplayer tactical duel with real-time Firebase online matchmaking against friends, live presence indicators, and offline pass-and-play."
+               data-trophy="🏆 Grandmaster Strategist"
+               data-art="Games/XOV1/Assets/IconsAndBanners/XOXBanner1.jpg"
+               data-link="Games/XOV1/XOV1.html">
+            <div class="ps-card-art">
+              <img src="Games/XOV1/Assets/IconsAndBanners/XOXBanner1.jpg" alt="XO Tic Tac Toe poster" loading="lazy" />
+              <span class="ps-card-tag">1v1 Online</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">XO Tic Tac Toe</div>
+              <div class="ps-card-sub">Multiplayer Match</div>
+            </div>
+          </div>
+
+          <!-- Game 7: Kenny Adventure -->
+          <div class="ps-game-card"
+               data-title="Kenny Adventure"
+               data-cat="🏃 2D Platformer • Sunny Meadow"
+               data-desc="Classic 2D side-scrolling platformer quest. Leap across perilous chasms, stomp slimes, collect golden coins and sapphire gems."
+               data-trophy="🏆 Meadow Explorer"
+               data-art="Games/KennyAdventureV1/Assets/kenney_new-platformer-pack-1.1/Sample A.png"
+               data-link="Games/KennyAdventureV1/KennyAdventure.html">
+            <div class="ps-card-art">
+              <img src="Games/KennyAdventureV1/Assets/kenney_new-platformer-pack-1.1/Sample A.png" alt="Kenny Adventure poster" loading="lazy" />
+              <span class="ps-card-tag">Platformer</span>
+            </div>
+            <div class="ps-card-meta">
+              <div class="ps-card-title">Kenny Adventure</div>
+              <div class="ps-card-sub">Platformer Quest</div>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- 3. STEAM HERO SPOTLIGHT SHOWCASE -->
-    <section class="steam-hero-section" id="store">
-      <div class="steam-section-heading">
-        <span>Featured & Recommended</span>
-        <span class="badge">🔥 Spotlight Release</span>
-      </div>
+      <!-- 6. PS5 COMMUNITY LEADERBOARD -->
+      <section class="ps-leaderboard-section">
+        <div class="homeScores">
+          <div class="homeScoresHeader">
+            <div>
+              <div class="homeScoresEyebrow">PlayStation & Steam Leaderboards</div>
+              <h2 id="leaderboardSectionTitle">☕ Keycraft Typing high scores</h2>
+            </div>
+            <a class="homeScoresFullLink" href="HighScoreBoard.html">Global Standings 🏆</a>
+          </div>
 
-      <div class="steam-spotlight-box">
-        <div class="spotlight-media">
-          <img
-            src="Games/GalaxyShooter/GalaxyBanner.svg"
-            alt="Galaxy Strike Banner"
-            id="spotlightImg"
-            loading="eager"
-          />
-          <div class="spotlight-tag-badge" id="spotlightBadge">New Drop • Arcade Combat</div>
+          <div class="homeGameSwitcher" role="tablist" aria-label="Select Game Leaderboard">
+            <button type="button" class="homeGameSwitchBtn active" data-game="typewriter" role="tab" aria-selected="true">
+              <span>☕</span> Keycraft Typing
+            </button>
+            <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
+              <span>🐍</span> Snake game
+            </button>
+          </div>
+
+          <div class="homePlayerState" id="homePlayerState" data-state="loading" aria-live="polite">Checking PlayStation Network state…</div>
+          
+          <div class="homeSignInPrompt" id="homeSignInPrompt" hidden>
+            <span id="homePromptText">Sign in with your account to register personal best scores on the global board.</span>
+            <a href="AccSettings.html">Sign In</a>
+          </div>
+
+          <ol class="homeScoresList" id="homeScoresList" aria-label="Top scores">
+            <li class="homeScoresEmpty">Loading live scores…</li>
+          </ol>
         </div>
+      </section>
+    </main>
 
-        <div class="spotlight-info">
-          <div>
-            <h2 class="spotlight-title" id="spotlightTitle">Galaxy Strike</h2>
-            <p class="spotlight-desc" id="spotlightDesc">
-              Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters.
-            </p>
-            <div class="spotlight-tags">
-              <span class="spotlight-pill">Space Combat</span>
-              <span class="spotlight-pill">Sci-Fi</span>
-              <span class="spotlight-pill">Arcade</span>
-              <span class="spotlight-pill">Boss Fights</span>
-              <span class="spotlight-pill">Web Audio</span>
-            </div>
-          </div>
+    <!-- 5. POCKET STORE VIEW (PLAYSTATION STYLE - COMING SOON) -->
+    <section id="viewStore">
+      <div class="store-hero-banner">
+        <div class="store-coming-pill">🚀 Pocket Store • Coming Soon</div>
+        <h1 class="store-headline">The Next-Gen Game Store<br>Is Arriving on Pocket Console</h1>
+        <p class="store-lead">
+          Get ready for a curated digital storefront featuring upcoming indie hits, community mods, cloud saves, and exclusive season badges.
+        </p>
 
-          <div class="spotlight-cta-row">
-            <span class="spotlight-price">FREE TO PLAY</span>
-            <a href="Games/GalaxyShooter/GalaxyShooter.html" class="steam-btn-green" id="spotlightPlayBtn">
-              <span>▶ Play Game</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. STEAM LIBRARY GRID (Game Capsules) -->
-    <section class="steam-library-section" id="library">
-      <div class="steam-section-heading">
-        <span>Browse Game Library (7)</span>
-        <span class="badge" id="visibleCountBadge">Showing 7 Games</span>
-      </div>
-
-      <div class="steam-capsule-grid" id="libraryGrid">
-        
-        <!-- Game 1: Galaxy Strike -->
-        <a class="steam-capsule-card" href="Games/GalaxyShooter/GalaxyShooter.html" data-category="action" data-title="Galaxy Strike Space Shooter">
-          <div class="capsule-media">
-            <img src="Games/GalaxyShooter/GalaxyBanner.svg" alt="Galaxy Strike poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">Galaxy Strike</div>
-            <div class="capsule-sub">Retro Laser Combat • Alien Armada</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Action • Space</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-        <!-- Game 2: Turbo Drift -->
-        <a class="steam-capsule-card" href="Games/TurboDrift2D/TurboDrift.html" data-category="racing" data-title="Turbo Drift Racing">
-          <div class="capsule-media">
-            <img src="Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg" alt="Turbo Drift poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">Turbo Drift</div>
-            <div class="capsule-sub">High-Octane Precision 2D Drift</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Racing • City Tracks</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-        <!-- Game 3: Lane Rush -->
-        <a class="steam-capsule-card" href="Games/LaneRushV1/LaneRushV1.html" data-category="racing action" data-title="Lane Rush Highway">
-          <div class="capsule-media">
-            <img src="Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp" alt="Lane Rush poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">Lane Rush</div>
-            <div class="capsule-sub">Highway Reflex & Collision Survival</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Arcade • Highway</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-        <!-- Game 4: Keycraft Typing -->
-        <a class="steam-capsule-card" href="Games/Keycraft%20TypingV1/KeycraftTypingV1.html" data-category="typing" data-title="Keycraft Typing Java Edition">
-          <div class="capsule-media">
-            <img src="Games/Keycraft%20TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg" alt="Keycraft Typing poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">Keycraft Typing</div>
-            <div class="capsule-sub">Java Edition Code Velocity Practice</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Typing • Syntax Mastery</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-        <!-- Game 5: Snake Arcade -->
-        <a class="steam-capsule-card" href="Games/SnakeGameV1/SnakeGameV1.html" data-category="action" data-title="Snake Arcade Cyber">
-          <div class="capsule-media">
-            <img src="Games/SnakeGameV1/Assets/IconsAndBanners/SnakeGameV1Banner1.jpg" alt="Snake Arcade poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">Snake Arcade</div>
-            <div class="capsule-sub">Cyber Retro Survival & Global Rank</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Classic • Leaderboards</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-        <!-- Game 6: XO Tic Tac Toe -->
-        <a class="steam-capsule-card" href="Games/XOV1/XOV1.html" data-category="multiplayer" data-title="XO Tic Tac Toe Online">
-          <div class="capsule-media">
-            <img src="Games/XOV1/Assets/IconsAndBanners/XOXBanner1.jpg" alt="XO Tic Tac Toe poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">XO Tic Tac Toe</div>
-            <div class="capsule-sub">Online Realtime 1v1 & Pass-Play</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Multiplayer • Strategy</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-        <!-- Game 7: Kenny Adventure -->
-        <a class="steam-capsule-card" href="Games/KennyAdventureV1/KennyAdventure.html" data-category="action" data-title="Kenny Adventure Platformer">
-          <div class="capsule-media">
-            <img src="Games/KennyAdventureV1/Assets/kenney_new-platformer-pack-1.1/Sample A.png" alt="Kenny Adventure poster" loading="lazy" />
-            <div class="capsule-overlay-btn"><span class="capsule-play-pill">▶ Play Game</span></div>
-          </div>
-          <div class="capsule-meta">
-            <div class="capsule-title">Kenny Adventure</div>
-            <div class="capsule-sub">Sunny Meadow 2D Platformer Quest</div>
-            <div class="capsule-footer">
-              <span class="capsule-genre">Platformer • Single Player</span>
-              <span class="capsule-free-badge">FREE</span>
-            </div>
-          </div>
-        </a>
-
-      </div>
-    </section>
-
-    <!-- 5. STEAM COMMUNITY & LEADERBOARD PANEL -->
-    <section class="steam-community-section">
-      <div class="homeScores">
-        <div class="homeScoresHeader">
-          <div>
-            <div class="homeScoresEyebrow">Steam Community Leaderboard</div>
-            <h2 id="leaderboardSectionTitle">☕ Keycraft Typing high scores</h2>
-          </div>
-          <a class="homeScoresFullLink" href="HighScoreBoard.html">View Global Standings 🏆</a>
-        </div>
-
-        <div class="homeGameSwitcher" role="tablist" aria-label="Select Game Leaderboard">
-          <button type="button" class="homeGameSwitchBtn active" data-game="typewriter" role="tab" aria-selected="true">
-            <span>☕</span> Keycraft Typing
+        <div class="store-action-row">
+          <button class="store-notify-btn" id="btnNotifyMe" type="button">
+            <span>🔔 Get Notified at Launch</span>
           </button>
-          <button type="button" class="homeGameSwitchBtn" data-game="snake" role="tab" aria-selected="false">
-            <span>🐍</span> Snake game
-          </button>
+          <div style="font-size: 13px; color: var(--ps-cyan);" id="notifyMsg"></div>
         </div>
+      </div>
 
-        <div class="homePlayerState" id="homePlayerState" data-state="loading" aria-live="polite">Checking Steam player state…</div>
+      <div style="margin-bottom: 20px;">
+        <h2 style="font-size: 20px; font-weight: 850; margin-bottom: 6px;">Upcoming Game Drops</h2>
+        <p style="font-size: 13.5px; color: var(--text-sub);">Add upcoming titles to your wishlist to receive instant launch notifications.</p>
+      </div>
+
+      <!-- Upcoming Teaser Cards Grid -->
+      <div class="store-upcoming-grid">
         
-        <div class="homeSignInPrompt" id="homeSignInPrompt" hidden>
-          <span id="homePromptText">Sign in to save your game scores and claim your rank on global leaderboards.</span>
-          <a href="AccSettings.html">Sign In</a>
+        <!-- Teaser 1 -->
+        <div class="store-teaser-card">
+          <div class="teaser-media">
+            <svg viewBox="0 0 400 240" width="100%" height="100%">
+              <defs>
+                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0a192f"/>
+                  <stop offset="100%" stop-color="#1e3c72"/>
+                </linearGradient>
+              </defs>
+              <rect width="400" height="240" fill="url(#g1)"/>
+              <circle cx="200" cy="120" r="60" fill="none" stroke="#00f2fe" stroke-width="2" stroke-dasharray="10,6" opacity="0.6"/>
+              <text x="200" y="125" font-family="system-ui" font-size="48" text-anchor="middle" fill="#fff">🥷</text>
+            </svg>
+            <span class="teaser-badge">Action RPG</span>
+          </div>
+          <div class="teaser-info">
+            <h3 class="teaser-title">Shadow Ninja: Cyber Quest</h3>
+            <p class="teaser-desc">Fast-paced cyberpunk stealth action. Wall-run, deflect laser blasts with plasma katanas, and defeat megacorp sentinels.</p>
+            <div class="teaser-footer">
+              <span class="teaser-date">🗓️ Expected Q1 2027</span>
+              <button class="wishlist-btn" type="button">❤️ Wishlist (<span class="wl-count">142</span>)</button>
+            </div>
+          </div>
         </div>
 
-        <ol class="homeScoresList" id="homeScoresList" aria-label="Top scores">
-          <li class="homeScoresEmpty">Loading live Steam scores…</li>
-        </ol>
+        <!-- Teaser 2 -->
+        <div class="store-teaser-card">
+          <div class="teaser-media">
+            <svg viewBox="0 0 400 240" width="100%" height="100%">
+              <defs>
+                <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2c003e"/>
+                  <stop offset="100%" stop-color="#ff007f"/>
+                </linearGradient>
+              </defs>
+              <rect width="400" height="240" fill="url(#g2)"/>
+              <circle cx="200" cy="120" r="60" fill="none" stroke="#ffd166" stroke-width="2" opacity="0.6"/>
+              <text x="200" y="125" font-family="system-ui" font-size="48" text-anchor="middle" fill="#fff">🏎️</text>
+            </svg>
+            <span class="teaser-badge" style="border-color:#ff007f; color:#ff007f;">Next-Gen 3D</span>
+          </div>
+          <div class="teaser-info">
+            <h3 class="teaser-title">Cyber Drift 2: Tokyo Nights</h3>
+            <p class="teaser-desc">WebGL 3D arcade racing with ray-traced neon wet asphalt, custom tuner cars, and synthwave soundtrack.</p>
+            <div class="teaser-footer">
+              <span class="teaser-date">🗓️ Expected Q2 2027</span>
+              <button class="wishlist-btn" type="button">❤️ Wishlist (<span class="wl-count">289</span>)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teaser 3 -->
+        <div class="store-teaser-card">
+          <div class="teaser-media">
+            <svg viewBox="0 0 400 240" width="100%" height="100%">
+              <defs>
+                <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#020024"/>
+                  <stop offset="100%" stop-color="#097970"/>
+                </linearGradient>
+              </defs>
+              <rect width="400" height="240" fill="url(#g3)"/>
+              <circle cx="200" cy="120" r="60" fill="none" stroke="#00ffcc" stroke-width="2" stroke-dasharray="8,4" opacity="0.6"/>
+              <text x="200" y="125" font-family="system-ui" font-size="48" text-anchor="middle" fill="#fff">🌌</text>
+            </svg>
+            <span class="teaser-badge" style="border-color:#00ffcc; color:#00ffcc;">Space Odyssey</span>
+          </div>
+          <div class="teaser-info">
+            <h3 class="teaser-title">Cosmic Odyssey VR</h3>
+            <p class="teaser-desc">Interstellar space survival and planet terraforming. Mine exotic crystals, trade with alien merchants, and build star bases.</p>
+            <div class="teaser-footer">
+              <span class="teaser-date">🗓️ Expected Q3 2027</span>
+              <button class="wishlist-btn" type="button">❤️ Wishlist (<span class="wl-count">318</span>)</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
-    <!-- 6. STEAM BOTTOM DOCK / FRIENDS DRAWER -->
-    <footer class="steam-dock">
-      <div class="steam-dock-left">
-        <a class="steam-dock-link active" href="#store">Store</a>
-        <a class="steam-dock-link" href="#library">Library</a>
-        <a class="steam-dock-link" href="HighScoreBoard.html">High Scores</a>
-        <a class="steam-dock-link" href="AccSettings.html">Settings</a>
+    <!-- 7. PLAYSTATION CONTROL CENTER (BOTTOM QUICK DOCK) -->
+    <footer class="ps-control-center">
+      <div class="ps-dock-left">
+        <div class="ps-dock-brand">▲ ✖ ◼ ⬢ PlayStation 5 & Steam Client</div>
       </div>
 
-      <div class="steam-dock-right">
-        <a href="FriendManagementPage.html" class="steam-friends-pill" title="View Steam Friends">
-          <span class="steam-friends-dot" aria-hidden="true"></span>
-          <span>Friends & Chat</span>
+      <div class="ps-dock-right">
+        <a href="FriendManagementPage.html" class="ps-quick-friends" title="PlayStation Network Friends">
+          <span style="color:#00ffaa;">●</span>
+          <span>Friends Online</span>
         </a>
-        <a href="ChatPage.html" class="steam-chat-pill" title="Instant Chat">
+        <a href="ChatPage.html" class="ps-quick-chat" title="Direct Messages">
           <span>💬 Chat</span>
         </a>
       </div>
     </footer>
 
-    <!-- GUEST REMINDER DIALOG -->
+    <!-- GUEST MODAL -->
     <dialog class="loginReminder" id="loginReminder" aria-labelledby="loginReminderTitle" aria-describedby="loginReminderMessage">
-      <h2 id="loginReminderTitle">Steam Profile Access</h2>
-      <p id="loginReminderMessage">You are currently exploring as a guest. Log in with your account to unlock friends matchmaking, cloud stats, and leaderboard rankings!</p>
+      <h2 id="loginReminderTitle">PlayStation Network Access</h2>
+      <p id="loginReminderMessage">Log in with your account to unlock friends matchmaking, cloud score saving, and trophy leaderboards!</p>
       <div class="loginReminderActions">
-        <a class="loginReminderSignIn" href="AccSettings.html">Sign In</a>
-        <button class="loginReminderDismiss" id="dismissLoginReminder" type="button">Guest Mode</button>
+        <a class="loginReminderSignIn" href="AccSettings.html">Log In</a>
+        <button class="loginReminderDismiss" id="dismissLoginReminder" type="button">Continue</button>
       </div>
     </dialog>
   </div>
 
-  <!-- FIREBASE & STEAM ENGINE SCRIPT -->
+  <!-- FIREBASE & PLAYSTATION ENGINE SCRIPT -->
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
   import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
   window.addEventListener("DOMContentLoaded", () => {
-    // 1. Firebase Config
+    // 1. Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyANEuAY3tzLEJvpxalLNRMp4BeTTzj25rI",
       authDomain: "pocketconsole-cde70.firebaseapp.com",
@@ -1263,24 +1458,18 @@
       }
       if (homeSignInPrompt) homeSignInPrompt.hidden = true;
       const cachedAvatar = localStorage.getItem("pc_cached_avatar");
-      if (cachedAvatar) setAvatar(cachedAvatar);
+      if (cachedAvatar && avatarEl) {
+        avatarEl.style.backgroundImage = `url("${cachedAvatar}")`;
+      }
     }
-
-    const placeholder =
-      "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAwJyBoZWlnaHQ9JzEwMCcgdmlld0JveD0nMCAwIDEwMCAxMDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PGNpcmNsZSBjeD0nNTAnIGN5PSczNScgcj0nMTgnIGZpbGw9JyM2NjYnLz48cGF0aCBkPSdNMTUgOTBjMC0yMCAxNS0zMCAzNS0zMHMzNSAxMCAzNSAzMCcgZmlsbD0nIzY2NicvPjwvc3ZnPg==";
 
     function setAvatar(url) {
       if (!avatarEl) return;
-      const photo = url || placeholder;
-      const img = new Image();
-      img.onload = () => (avatarEl.style.backgroundImage = `url("${photo}")`);
-      img.onerror = () => (avatarEl.style.backgroundImage = `url("${placeholder}")`);
-      img.src = photo;
-    }
-
-    function setOnlineDotVisible(visible) {
-      if (!onlineDotEl) return;
-      onlineDotEl.style.opacity = visible ? "1" : "0";
+      if (url) {
+        const img = new Image();
+        img.onload = () => (avatarEl.style.backgroundImage = `url("${url}")`);
+        img.src = url;
+      }
     }
 
     function enablePresenceForThisPage(uid) {
@@ -1308,8 +1497,7 @@
       if (!user) {
         localStorage.removeItem("pc_logged_in");
         localStorage.removeItem("pc_cached_avatar");
-        setAvatar(null);
-        setOnlineDotVisible(false);
+        if (onlineDotEl) onlineDotEl.style.opacity = "0";
         if (topUserName) topUserName.textContent = "Guest";
         if (homePlayerState) {
           homePlayerState.dataset.state = "guest";
@@ -1323,7 +1511,7 @@
       if (user.photoURL) localStorage.setItem("pc_cached_avatar", user.photoURL);
       if (loginReminder?.open) loginReminder.close();
       setAvatar(user.photoURL);
-      setOnlineDotVisible(true);
+      if (onlineDotEl) onlineDotEl.style.opacity = "1";
       const name = localStorage.getItem("pc_custom_name") || user.displayName || "Player";
       if (topUserName) topUserName.textContent = name;
       if (homePlayerState) {
@@ -1340,7 +1528,95 @@
     onAuthStateChanged(auth, updateAuthState);
 
     // ==========================================
-    // 2. Leaderboard Logic
+    // 2. PS5 Dynamic Hero Backdrop & Card Deck
+    // ==========================================
+    const dynamicBackdrop = document.getElementById("dynamicBackdrop");
+    const heroCategory = document.getElementById("heroCategory");
+    const heroTitle = document.getElementById("heroTitle");
+    const heroDesc = document.getElementById("heroDesc");
+    const heroTrophy = document.getElementById("heroTrophy");
+    const heroPlayBtn = document.getElementById("heroPlayBtn");
+    const gameCards = Array.from(document.querySelectorAll("#gameDeck .ps-game-card"));
+
+    function selectGameCard(card) {
+      gameCards.forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+
+      const title = card.dataset.title;
+      const cat = card.dataset.cat;
+      const desc = card.dataset.desc;
+      const trophy = card.dataset.trophy;
+      const art = card.dataset.art;
+      const link = card.dataset.link;
+
+      if (heroTitle) heroTitle.textContent = title;
+      if (heroCategory) heroCategory.textContent = cat;
+      if (heroDesc) heroDesc.textContent = desc;
+      if (heroTrophy) heroTrophy.textContent = trophy;
+      if (heroPlayBtn) heroPlayBtn.href = link;
+
+      if (dynamicBackdrop && art) {
+        dynamicBackdrop.style.backgroundImage = `url("${art}")`;
+      }
+    }
+
+    gameCards.forEach((card) => {
+      card.addEventListener("mouseenter", () => selectGameCard(card));
+      card.addEventListener("click", () => {
+        selectGameCard(card);
+        const link = card.dataset.link;
+        if (link) window.location.href = link;
+      });
+    });
+
+    // ==========================================
+    // 3. Tab Navigation: Games vs Store (Coming Soon)
+    // ==========================================
+    const tabGames = document.getElementById("tabGames");
+    const tabStore = document.getElementById("tabStore");
+    const viewGames = document.getElementById("viewGames");
+    const viewStore = document.getElementById("viewStore");
+
+    tabGames?.addEventListener("click", () => {
+      tabGames.classList.add("active");
+      tabStore.classList.remove("active");
+      viewGames.style.display = "block";
+      viewStore.style.display = "none";
+    });
+
+    tabStore?.addEventListener("click", () => {
+      tabStore.classList.add("active");
+      tabGames.classList.remove("active");
+      viewGames.style.display = "none";
+      viewStore.style.display = "block";
+    });
+
+    // Store Wishlist Interactive Buttons
+    const wishlistBtns = document.querySelectorAll(".wishlist-btn");
+    wishlistBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const countEl = btn.querySelector(".wl-count");
+        let count = parseInt(countEl?.textContent || "0");
+        if (btn.classList.contains("wishlisted")) {
+          btn.classList.remove("wishlisted");
+          countEl.textContent = count - 1;
+        } else {
+          btn.classList.add("wishlisted");
+          countEl.textContent = count + 1;
+        }
+      });
+    });
+
+    const btnNotifyMe = document.getElementById("btnNotifyMe");
+    const notifyMsg = document.getElementById("notifyMsg");
+    btnNotifyMe?.addEventListener("click", () => {
+      btnNotifyMe.textContent = "✓ You are on the VIP Launch List!";
+      btnNotifyMe.style.background = "#00c853";
+      if (notifyMsg) notifyMsg.textContent = "We will alert your console the second the Store goes live.";
+    });
+
+    // ==========================================
+    // 4. Leaderboard Logic (Firebase Realtime)
     // ==========================================
     let selectedGame = "typewriter";
     let typewriterScores = [];
@@ -1364,7 +1640,7 @@
       if (!isLoaded) {
         const loadingItem = document.createElement("li");
         loadingItem.className = "homeScoresEmpty";
-        loadingItem.textContent = isTW ? "Loading Keycraft Typing Steam scores…" : "Loading Snake scores…";
+        loadingItem.textContent = isTW ? "Loading Keycraft Typing PlayStation scores…" : "Loading Snake scores…";
         homeScoresList.append(loadingItem);
         return;
       }
@@ -1373,8 +1649,8 @@
         const empty = document.createElement("li");
         empty.className = "homeScoresEmpty";
         empty.textContent = isTW
-          ? "No Keycraft Typing scores yet. Sign in and set a record in Keycraft Typing to claim Rank #1!"
-          : "No scores yet. Sign in and set a new Snake personal best to be first!";
+          ? "No Keycraft Typing scores yet. Sign in to claim Rank #1!"
+          : "No scores yet. Sign in and set a new personal record!";
         homeScoresList.append(empty);
         return;
       }
@@ -1413,7 +1689,7 @@
           score.style.color = "#ffc66d";
           score.textContent = `${entry.score} WPM`;
         } else {
-          score.style.color = "#00ffcc";
+          score.style.color = "#00f2fe";
           score.textContent = `${entry.score.toLocaleString()} pts`;
         }
 
@@ -1422,7 +1698,7 @@
       });
     }
 
-    function switchGame(game, resetTimer = true) {
+    function switchGame(game) {
       selectedGame = game;
       switchButtons.forEach((b) => {
         const isActive = (b.dataset.game === game);
@@ -1439,20 +1715,20 @@
       }
 
       renderCurrentScores();
-      if (resetTimer) {
-        clearInterval(autoSwitchTimer);
-        autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
-      }
     }
 
     function autoSwitchNext() {
       const next = (selectedGame === "typewriter") ? "snake" : "typewriter";
-      switchGame(next, false);
+      switchGame(next);
     }
     autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
 
     switchButtons.forEach((btn) => {
-      btn.addEventListener("click", () => switchGame(btn.dataset.game, true));
+      btn.addEventListener("click", () => {
+        clearInterval(autoSwitchTimer);
+        switchGame(btn.dataset.game);
+        autoSwitchTimer = setInterval(autoSwitchNext, AUTO_SWITCH_INTERVAL);
+      });
     });
 
     function initTypeWriterQuery() {
@@ -1509,7 +1785,7 @@
     initTypeWriterQuery();
     initSnakeQuery();
 
-    // Time Clock
+    // Time update
     function updateTime() {
       const timeEl = document.getElementById("bottomTime");
       if (!timeEl) return;
@@ -1518,103 +1794,6 @@
     }
     updateTime();
     setInterval(updateTime, 1000);
-
-    // ==========================================
-    // 3. Steam Real-Time Filter & Search
-    // ==========================================
-    const searchInput = document.getElementById("gameSearchInput");
-    const filterButtons = document.querySelectorAll("#categoryFilters .steam-pill-btn");
-    const cards = Array.from(document.querySelectorAll("#libraryGrid .steam-capsule-card"));
-    const countBadge = document.getElementById("visibleCountBadge");
-
-    let currentCategory = "all";
-    let searchQuery = "";
-
-    function filterLibrary() {
-      let visible = 0;
-      cards.forEach((card) => {
-        const title = (card.dataset.title || "").toLowerCase();
-        const cat = card.dataset.category || "";
-        const matchesSearch = !searchQuery || title.includes(searchQuery);
-        const matchesCategory = (currentCategory === "all") || cat.includes(currentCategory);
-
-        if (matchesSearch && matchesCategory) {
-          card.style.display = "flex";
-          visible++;
-        } else {
-          card.style.display = "none";
-        }
-      });
-
-      if (countBadge) {
-        countBadge.textContent = `Showing ${visible} of ${cards.length} Games`;
-      }
-    }
-
-    searchInput?.addEventListener("input", (e) => {
-      searchQuery = e.target.value.trim().toLowerCase();
-      filterLibrary();
-    });
-
-    filterButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        filterButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentCategory = btn.dataset.cat;
-        filterLibrary();
-      });
-    });
-
-    // ==========================================
-    // 4. Steam Hero Spotlight Cycler
-    // ==========================================
-    const spotlightGames = [
-      {
-        title: "Galaxy Strike",
-        desc: "Defend your solar sector from menacing alien fleets and dreadnought motherships! Features responsive neon laser plasma cannons, power-up drops, synthesizer audio, and epic multi-stage boss encounters.",
-        img: "Games/GalaxyShooter/GalaxyBanner.svg",
-        badge: "New Drop • Arcade Combat",
-        link: "Games/GalaxyShooter/GalaxyShooter.html"
-      },
-      {
-        title: "Turbo Drift",
-        desc: "Precision 2D top-down drift racer with city & desert circuits. Master acute hairpins, lay down rubber streaks, and challenge high speeds with responsive arcade handling.",
-        img: "Games/TurboDrift2D/assets/IconsAndBanners/TDBanner1.jpg",
-        badge: "Top Rated • Racing",
-        link: "Games/TurboDrift2D/TurboDrift.html"
-      },
-      {
-        title: "Keycraft Typing",
-        desc: "Monkeytype-inspired Java syntax velocity trainer. Sharpen your typing velocity on real object-oriented classes, loops, brackets, and syntax with Google ranking.",
-        img: "Games/Keycraft%20TypingV1/Assets/IconsAndBanners/KeycraftV1Banner1.jpg",
-        badge: "Community Favorite • Syntax",
-        link: "Games/Keycraft%20TypingV1/KeycraftTypingV1.html"
-      },
-      {
-        title: "Lane Rush",
-        desc: "High-octane 3-lane highway traffic survival. Weave through congestion with dynamic synthesizer engine sounds, near-miss points, and explosive crashes.",
-        img: "Games/LaneRushV1/Assets/IconsAndBanners/LaneRushV1Banner1.webp",
-        badge: "Adrenaline • Highway",
-        link: "Games/LaneRushV1/LaneRushV1.html"
-      }
-    ];
-
-    let spotIdx = 0;
-    const sTitle = document.getElementById("spotlightTitle");
-    const sDesc = document.getElementById("spotlightDesc");
-    const sImg = document.getElementById("spotlightImg");
-    const sBadge = document.getElementById("spotlightBadge");
-    const sBtn = document.getElementById("spotlightPlayBtn");
-
-    setInterval(() => {
-      spotIdx = (spotIdx + 1) % spotlightGames.length;
-      const g = spotlightGames[spotIdx];
-      if (sTitle) sTitle.textContent = g.title;
-      if (sDesc) sDesc.textContent = g.desc;
-      if (sImg) sImg.src = g.img;
-      if (sBadge) sBadge.textContent = g.badge;
-      if (sBtn) sBtn.href = g.link;
-    }, 7000);
   });
   </script>
 </body>
