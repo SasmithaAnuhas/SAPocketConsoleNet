@@ -89,6 +89,15 @@
       border-color: rgba(255, 255, 255, 0.25);
       transform: translateY(-1px);
     }
+    .nav-btn.console-back {
+      background: rgba(255, 140, 26, 0.12);
+      border-color: rgba(255, 140, 26, 0.35);
+      color: var(--accent);
+    }
+    .nav-btn.console-back:hover {
+      background: rgba(255, 140, 26, 0.25);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
 
     /* Top Racing HUD */
     .hud {
@@ -415,7 +424,7 @@
 
   <!-- Back to Console Navigation -->
   <div class="nav-bar">
-    <a href="../../index.html" class="nav-btn" title="Back to Pocket Console">‹ Console</a>
+    <a href="../../index.html" class="nav-btn console-back" title="Back to Pocket Console">🎮 Console</a>
   </div>
 
   <!-- Modern Floating Racing HUD -->
@@ -424,6 +433,7 @@
     <div class="hud-pill best">Best: <b id="best">0</b></div>
     <div class="hud-pill speed" id="speedPill">⚡ <b id="speedVal">120</b> <small>KM/H</small></div>
     <button class="hud-btn" id="pauseBtn" type="button" title="Pause Game (P / Esc)">⏸</button>
+    <button class="hud-btn" id="audioToggleBtn" type="button" title="Toggle Sound">🔊</button>
     <button class="hud-btn" id="restart" type="button" title="Restart Run (R)">🔄</button>
   </div>
 
@@ -485,6 +495,146 @@
 
 <script>
 (() => {
+
+  // ==========================================
+  // Web Audio Synthesizer Engine & SFX
+  // ==========================================
+  class RacingAudio {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+      this.engineOsc = null;
+      this.engineGain = null;
+    }
+    init() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) this.ctx = new AC();
+      }
+      if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+    }
+    startEngine() {
+      if (this.muted) return;
+      this.init();
+      if (!this.ctx || this.engineOsc) return;
+      try {
+        this.engineOsc = this.ctx.createOscillator();
+        this.engineGain = this.ctx.createGain();
+        this.engineOsc.type = "sawtooth";
+        this.engineOsc.frequency.setValueAtTime(50, this.ctx.currentTime);
+        this.engineGain.gain.setValueAtTime(0.035, this.ctx.currentTime);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(280, this.ctx.currentTime);
+
+        this.engineOsc.connect(filter);
+        filter.connect(this.engineGain);
+        this.engineGain.connect(this.ctx.destination);
+        this.engineOsc.start();
+      } catch (e) {}
+    }
+    stopEngine() {
+      if (this.engineOsc) {
+        try {
+          this.engineOsc.stop();
+          this.engineOsc.disconnect();
+        } catch (e) {}
+        this.engineOsc = null;
+        this.engineGain = null;
+      }
+    }
+    updateEnginePitch(speedVal) {
+      if (!this.engineOsc || this.muted) return;
+      try {
+        const freq = 48 + Math.min(120, speedVal * 0.16);
+        this.engineOsc.frequency.setTargetAtTime(freq, this.ctx.currentTime, 0.08);
+      } catch (e) {}
+    }
+    play(type) {
+      if (this.muted) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const t = this.ctx.currentTime;
+        if (type === "steer") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(140, t);
+          osc.frequency.exponentialRampToValueAtTime(280, t + 0.08);
+          gain.gain.setValueAtTime(0.06, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.08);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.08);
+        } else if (type === "crash") {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(120, t);
+          osc.frequency.exponentialRampToValueAtTime(25, t + 0.45);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.45);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.45);
+
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.35);
+          const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+          }
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = buffer;
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.25, t);
+          noiseGain.gain.linearRampToValueAtTime(0.001, t + 0.35);
+          noise.connect(noiseGain);
+          noiseGain.connect(this.ctx.destination);
+          noise.start(t);
+        } else if (type === "record") {
+          [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.type = "triangle";
+            o.frequency.setValueAtTime(freq, t + idx * 0.08);
+            g.gain.setValueAtTime(0.16, t + idx * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.08 + 0.32);
+            o.connect(g);
+            g.connect(this.ctx.destination);
+            o.start(t + idx * 0.08);
+            o.stop(t + idx * 0.08 + 0.32);
+          });
+        }
+      } catch (e) {}
+    }
+  }
+
+  const audio = new RacingAudio();
+  const particles = [];
+
+  function spawnExplosion(x, y) {
+    const colors = ["#ff4757", "#ff8c1a", "#ffd166", "#ffffff", "#8fa0b5"];
+    for (let i = 0; i < 35; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 70 + Math.random() * 240;
+      particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: colors[(Math.random() * colors.length) | 0],
+        size: 3 + Math.random() * 5,
+        life: 0.6 + Math.random() * 0.4,
+        maxLife: 1.0,
+      });
+    }
+  }
+
   const canvas = document.getElementById("c");
   const ctx = canvas.getContext("2d");
 
@@ -496,6 +646,18 @@
   const speedValEl = document.getElementById("speedVal");
   const restartBtn = document.getElementById("restart");
   const pauseBtn = document.getElementById("pauseBtn");
+
+  const audioToggleBtn = document.getElementById("audioToggleBtn");
+  if (audioToggleBtn) {
+    audioToggleBtn.addEventListener("click", () => {
+      audio.muted = !audio.muted;
+      audioToggleBtn.textContent = audio.muted ? "🔇" : "🔊";
+      audioToggleBtn.style.opacity = audio.muted ? "0.6" : "1";
+      if (!audio.muted && state.mode === "play") audio.startEngine();
+      else if (audio.muted) audio.stopEngine();
+    });
+  }
+
 
   const overlay = document.getElementById("overlay");
   const overlayBadge = document.getElementById("overlayBadge");
@@ -641,6 +803,7 @@
   }
 
   function pauseGame() {
+    audio.stopEngine();
     if (state.mode !== "play") return;
     state.mode = "pause";
     overlayBadge.textContent = "Paused";
@@ -660,12 +823,16 @@
   }
 
   function resumeGame() {
+    audio.startEngine();
     state.mode = "play";
     state.tPrev = performance.now();
     setUIForMode();
   }
 
   function showGameOver() {
+    audio.stopEngine();
+    audio.play("crash");
+    if (isNewBest) audio.play("record");
     state.mode = "over";
     const isNewBest = state.score > 0 && state.score >= state.best;
 
@@ -761,6 +928,8 @@
   });
 
   startBtn.addEventListener("click", async () => {
+    audio.init();
+    audio.startEngine();
     if (state.mode === "pause") {
       resumeGame();
       return;
@@ -922,6 +1091,7 @@
     state.score += Math.floor(dt * 120);
     scoreEl.textContent = state.score;
     if (speedValEl) speedValEl.textContent = Math.round(state.speed * 0.32);
+    audio.updateEnginePitch(state.speed);
 
     const pBox = {
       x: player.x - player.w/2 + 10,
@@ -933,6 +1103,7 @@
     for (const o of obstacles) {
       const oBox = { x: o.x - o.w/2, y: o.y - o.h/2, w: o.w, h: o.h };
       if (aabb(pBox, oBox)) {
+        spawnExplosion(player.x, player.y);
         if (state.score > state.best) {
           state.best = state.score;
           localStorage.setItem("car_best", String(state.best));
@@ -976,6 +1147,26 @@
   }
 
   function loop(tNow) {
+
+    // Update and draw crash particles
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * 0.016;
+      p.y += p.vy * 0.016;
+      p.life -= 0.016;
+      if (p.life <= 0) {
+        particles.splice(i, 1);
+        continue;
+      }
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     const dt = Math.min(0.033, (tNow - state.tPrev) / 1000);
     state.tPrev = tNow;
 

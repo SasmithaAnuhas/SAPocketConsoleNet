@@ -3,198 +3,691 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>XO Online/Offline</title>
+  <title>XO Tic Tac Toe - Pocket Console</title>
   <style>
-    :root { color-scheme: dark; }
-    body{
-      margin:0; font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:#0b0f14; color:#e8eef6; min-height:100vh;
-      display:flex; align-items:center; justify-content:center; padding:16px;
+    :root {
+      --accent: #00ffcc;
+      --accent-glow: rgba(0, 255, 204, 0.4);
+      --accent-o: #ff6b6b;
+      --accent-o-glow: rgba(255, 107, 107, 0.4);
+      --gold: #ffd166;
+      --gold-glow: rgba(255, 209, 102, 0.45);
+      --bg-dark: #090d14;
+      --panel-bg: rgba(14, 21, 33, 0.85);
+      --card-bg: rgba(18, 27, 43, 0.7);
+      --border-subtle: rgba(255, 255, 255, 0.1);
+      --border-accent: rgba(0, 255, 204, 0.25);
+      color-scheme: dark;
     }
-    .app{
-      width:min(980px, 100%); background:#101824; border:1px solid #223044;
-      border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.35);
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
-    header{
-      padding:14px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between;
-      border-bottom:1px solid #223044; background:rgba(255,255,255,.02);
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-dark);
+      color: #e6eef8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
     }
-    header > div:first-child{ min-width:0; }
-    .brand{ font-weight:700; letter-spacing:.3px; }
-    .row{ display:flex; gap:16px; padding:16px; flex-wrap:wrap; }
-    .card{
-      flex:1 1 300px; min-width:280px; background:#0e1622; border:1px solid #223044;
-      border-radius:14px; padding:14px;
+
+    /* Ambient animated console background */
+    .ambient-glow {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(0, 255, 204, 0.08), transparent 60%),
+        radial-gradient(circle at 80% 85%, rgba(255, 107, 107, 0.07), transparent 60%),
+        radial-gradient(circle at 50% 50%, rgba(140, 110, 255, 0.05), transparent 70%);
+      z-index: 0;
     }
-    button{
-      background:#1a2a3d; color:#e8eef6; border:1px solid #2a3f59;
-      padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:600;
+
+    /* Main Console Container */
+    .app {
+      width: min(940px, 94vw);
+      margin: 18px auto 36px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 22px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 255, 204, 0.08);
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      animation: appFadeIn 0.3s ease-out;
     }
-    button:hover{ filter:brightness(1.07); }
-    button:disabled{ opacity:.55; cursor:not-allowed; }
-    .pill{ padding:7px 10px; border-radius:999px; font-size:13px; }
-    .muted{ color:#9db0c7; font-size:13px; }
-    .endedNotice{
-      background:#2a1b0f;
-      border:1px solid #e3a23b;
-      color:#ffd9a6;
-      padding:8px 10px;
-      border-radius:10px;
-      font-weight:700;
-      display:inline-block;
+
+    @keyframes appFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .ctaGlow{
-      border-color:#e3a23b;
-      box-shadow:0 0 0 2px rgba(227,162,59,.25);
-      color:#ffe0b5;
-      background:#2a2112;
+
+    /* Top HUD / Header Bar */
+    header {
+      padding: 16px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.02);
+      flex-wrap: wrap;
     }
-    .grid{
-      display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:12px;
-      width:min(360px, 100%);
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .cell{
-      aspect-ratio:1/1; border:1px solid #2a3f59; border-radius:12px;
-      display:grid; place-items:center; font-size:40px; font-weight:800;
-      background:#0b111a; user-select:none;
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0, 255, 204, 0.2), rgba(255, 107, 107, 0.2));
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 16px rgba(0, 255, 204, 0.2);
     }
-    .cell:hover{ filter:brightness(1.06); }
-    .topline{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-    .list{ display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-    .item{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:10px; border-radius:12px; border:1px solid #223044; background:#0b111a;
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 750;
+      letter-spacing: 0.5px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .item > div:first-child{ min-width:0; }
+
+    .brand-tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(0, 255, 204, 0.12);
+      border: 1px solid rgba(0, 255, 204, 0.3);
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .muted {
+      color: #8fa0b5;
+      font-size: 13px;
+    }
+
+    /* Header Action Pills */
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-subtle);
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.console-back {
+      background: rgba(0, 255, 204, 0.1);
+      border-color: rgba(0, 255, 204, 0.3);
+      color: var(--accent);
+    }
+    .nav-btn.console-back:hover {
+      background: rgba(0, 255, 204, 0.2);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .pill {
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .pill:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .pill:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Content Layout */
+    .row {
+      display: flex;
+      gap: 20px;
+      padding: 24px;
+      flex-wrap: wrap;
+    }
+
+    .card {
+      flex: 1 1 320px;
+      min-width: 290px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      transition: border-color 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Primary and Accent Buttons */
+    button {
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e8eef6;
+      border: 1px solid var(--border-subtle);
+      padding: 9px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13.5px;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    button:hover:not(:disabled) {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+    button:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #051410;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    .btn-accent:hover:not(:disabled) {
+      background: #33ffdb;
+      box-shadow: 0 0 22px rgba(0, 255, 204, 0.6);
+      color: #000;
+    }
+
+    .btn-accent-o {
+      background: var(--accent-o);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 0 16px var(--accent-o-glow);
+    }
+    .btn-accent-o:hover:not(:disabled) {
+      background: #ff8585;
+      box-shadow: 0 0 22px rgba(255, 107, 107, 0.6);
+    }
+
+    /* Badges & Notices */
+    .badge {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .badge.ok {
+      border-color: rgba(0, 255, 170, 0.4);
+      background: rgba(0, 255, 170, 0.12);
+      color: #00ffaa;
+    }
+    .badge.warn {
+      border-color: rgba(255, 204, 0, 0.4);
+      background: rgba(255, 204, 0, 0.12);
+      color: #ffcc00;
+    }
+    .badge.err {
+      border-color: rgba(255, 71, 87, 0.4);
+      background: rgba(255, 71, 87, 0.12);
+      color: #ff4757;
+    }
+
+    .endedNotice {
+      background: rgba(255, 209, 102, 0.12) !important;
+      border: 1px solid rgba(255, 209, 102, 0.45) !important;
+      color: #ffd166 !important;
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      display: inline-block;
+      animation: noticePulse 1.8s infinite alternate;
+    }
+
+    @keyframes noticePulse {
+      0% { box-shadow: 0 0 6px rgba(255, 209, 102, 0.2); }
+      100% { box-shadow: 0 0 16px rgba(255, 209, 102, 0.45); }
+    }
+
+    .ctaGlow {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 20px var(--gold-glow) !important;
+      color: #111 !important;
+      background: var(--gold) !important;
+      font-weight: 700 !important;
+    }
+
+    /* Scoreboard Banner */
+    .scoreboard {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 12px 16px;
+      background: rgba(10, 16, 26, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      margin-bottom: 18px;
+      gap: 10px;
+    }
+
+    .score-item {
+      text-align: center;
+      flex: 1;
+    }
+    .score-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #8fa0b5;
+      margin-bottom: 2px;
+    }
+    .score-num {
+      font-size: 20px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .score-num.x { color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
+    .score-num.o { color: var(--accent-o); text-shadow: 0 0 10px var(--accent-o-glow); }
+    .score-num.draw { color: var(--gold); }
+
+    /* The Tic Tac Toe Grid */
+    .board-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: min(340px, 100%);
+      aspect-ratio: 1 / 1;
+      padding: 12px;
+      background: rgba(10, 15, 24, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.6), 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .cell {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      font-weight: 900;
+      background: rgba(20, 29, 44, 0.7);
+      cursor: pointer;
+      transition: all 0.16s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .cell:hover:empty {
+      background: rgba(30, 44, 68, 0.9);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: scale(1.02);
+    }
+
+    .cell:active {
+      transform: scale(0.96);
+    }
+
+    /* Styling for X marks */
+    .cell.cell-x {
+      color: var(--accent);
+      text-shadow: 0 0 18px var(--accent-glow);
+      animation: markPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Styling for O marks */
+    .cell.cell-o {
+      color: var(--accent-o);
+      text-shadow: 0 0 18px var(--accent-o-glow);
+      animation: markPop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes markPop {
+      0% { transform: scale(0.4); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Winning line cells */
+    .cell.cell-win {
+      background: rgba(255, 209, 102, 0.18) !important;
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 24px var(--gold-glow), inset 0 0 14px rgba(255, 209, 102, 0.3) !important;
+      animation: winGlow 1.2s infinite alternate;
+    }
+
+    @keyframes winGlow {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    /* Lists for Online Players & Invites */
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(12, 18, 28, 0.8);
+      transition: border-color 0.18s ease;
+    }
+
+    .item:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .item > div:first-child {
+      min-width: 0;
+    }
+
     .item > div:first-child div,
     #pX, #pO,
-    #statusLine{
-      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    #statusLine {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
-    .badge{ font-size:12px; padding:3px 8px; border-radius:999px; border:1px solid #2a3f59; }
-    .ok{ border-color:#2d5; }
-    .warn{ border-color:#ea5; }
-    .err{ border-color:#e55; }
-    .hidden{ display:none !important; }
-    .twoBtns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-    input{
-      background:#0b111a; color:#e8eef6; border:1px solid #223044;
-      padding:10px 12px; border-radius:12px; width:100%;
+
+    .twoBtns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
-    @media (max-width: 720px){
-      header{ flex-direction:column; align-items:flex-start; gap:8px; }
-      .twoBtns{ width:100%; justify-content:flex-start; }
-      .row{ padding:12px; }
-      .card{ flex:1 1 100%; min-width:0; }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Mobile Responsive adjustments */
+    @media (max-width: 720px) {
+      .app {
+        width: 100vw;
+        margin: 0;
+        border-radius: 0;
+        min-height: 100vh;
+        border: none;
+      }
+      header {
+        padding: 12px 14px;
+      }
+      .row {
+        padding: 14px;
+        gap: 14px;
+      }
+      .card {
+        padding: 16px;
+      }
+      .grid {
+        width: min(320px, 90vw);
+      }
     }
   </style>
 </head>
 <body>
+  <div class="ambient-glow" aria-hidden="true"></div>
+
   <div class="app">
+    <!-- Top Console HUD Header -->
     <header>
-      <div>
-        <div class="brand">XO (Offline / Online)</div>
-        <div class="muted" id="statusLine">Not signed in</div>
+      <div class="brand-wrap">
+        <div class="brand-icon" aria-hidden="true">❌⭕</div>
+        <div>
+          <div class="brand-title">
+            XO Tic Tac Toe
+            <span class="brand-tag">Pocket Arcade</span>
+          </div>
+          <div class="muted" id="statusLine">Connecting to console…</div>
+        </div>
       </div>
-      <div class="twoBtns">
-        <button class="pill" id="btnBack" disabled>Back</button>
-        <button class="pill" id="btnSignIn">Sign in</button>
+
+      <div class="header-actions">
+        <!-- Return to Console Hub -->
+        <a href="../../index.html" class="nav-btn console-back" title="Back to Pocket Console">
+          <span aria-hidden="true">🎮</span> Console
+        </a>
+        <!-- Sound Toggle -->
+        <button class="pill" id="btnAudioToggle" type="button" title="Toggle Sound">
+          <span id="audioIcon">🔊</span>
+        </button>
+        <!-- Nav Back within game -->
+        <button class="pill" id="btnBack" type="button" disabled>‹ Back</button>
+        <!-- Sign in button -->
+        <button class="pill btn-accent" id="btnSignIn" type="button">Sign in</button>
       </div>
     </header>
 
-    <!-- MAIN MENU -->
+    <!-- MAIN MENU VIEW -->
     <div class="row" id="viewMenu">
       <div class="card">
         <div class="topline">
           <div>
-            <div style="font-weight:700;">Offline mode</div>
-            <div class="muted">Two players on the same device</div>
+            <div class="card-title">👥 Pass & Play</div>
+            <div class="muted" style="margin-top: 4px;">Two players compete on the same device</div>
           </div>
-          <button id="startOffline">Start Offline</button>
+          <button class="btn-accent" id="startOffline" type="button">Play Offline</button>
         </div>
       </div>
 
       <div class="card">
         <div class="topline">
           <div>
-            <div style="font-weight:700;">Online mode</div>
-            <div class="muted">Invite an online friend and play</div>
+            <div class="card-title">🌐 Online Arena</div>
+            <div class="muted" style="margin-top: 4px;">Challenge connected friends in real-time</div>
           </div>
-          <button id="startOnline">Start Online</button>
+          <button class="btn-accent-o" id="startOnline" type="button">Play Online</button>
         </div>
-        <div class="muted" style="margin-top:10px;" id="onlineHint">
-          Online mode requires sign-in.
+        <div class="muted" style="margin-top: 12px;" id="onlineHint">
+          Sign in with your Pocket Console account to invite online friends.
         </div>
       </div>
     </div>
 
-    <!-- OFFLINE GAME -->
+    <!-- OFFLINE PASS & PLAY GAME VIEW -->
     <div class="row hidden" id="viewOffline">
-      <div class="card">
-        <div class="topline">
+      <div class="card" style="max-width: 520px; margin: 0 auto; width: 100%;">
+        <div class="topline" style="margin-bottom: 12px;">
           <div>
-            <div style="font-weight:700;">Offline Game</div>
-            <div class="muted" id="offlineTurn">Turn: X</div>
+            <div class="card-title">Offline Match</div>
+            <div class="muted" id="offlineTurn" style="margin-top: 4px;">Turn: X</div>
           </div>
-          <button id="offlineReset">Reset</button>
+          <div class="twoBtns">
+            <button id="offlineReset" type="button">Restart Round</button>
+            <button id="offlineResetScores" type="button" style="opacity: 0.75;">Reset Scores</button>
+          </div>
         </div>
-        <div class="grid" id="offlineBoard"></div>
-        <div class="muted" style="margin-top:10px;" id="offlineMsg"></div>
+
+        <!-- Offline Scoreboard -->
+        <div class="scoreboard">
+          <div class="score-item">
+            <div class="score-label">Player X</div>
+            <div class="score-num x" id="scoreX">0</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Draws</div>
+            <div class="score-num draw" id="scoreDraw">0</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Player O</div>
+            <div class="score-num o" id="scoreO">0</div>
+          </div>
+        </div>
+
+        <div class="board-container">
+          <div class="grid" id="offlineBoard"></div>
+        </div>
+        <div class="muted" style="margin-top: 10px; text-align: center;" id="offlineMsg"></div>
       </div>
     </div>
 
-    <!-- ONLINE LOBBY -->
+    <!-- ONLINE LOBBY VIEW -->
     <div class="row hidden" id="viewOnline">
       <div class="card">
         <div class="topline">
           <div>
-            <div style="font-weight:700;">Online Lobby</div>
-            <div class="muted">Friends online</div>
+            <div class="card-title">Online Friends</div>
+            <div class="muted">Challenge anyone who is currently online</div>
           </div>
           <span class="badge err" id="presenceBadge">Offline</span>
         </div>
-
         <div class="list" id="friendsList"></div>
       </div>
 
       <div class="card">
         <div class="topline">
           <div>
-            <div style="font-weight:700;">Invites</div>
-            <div class="muted">Incoming match requests</div>
+            <div class="card-title">Match Invites</div>
+            <div class="muted">Incoming match invitations from friends</div>
           </div>
         </div>
         <div class="list" id="invitesList"></div>
       </div>
     </div>
 
-    <!-- ONLINE GAME -->
+    <!-- ONLINE ROOM VIEW -->
     <div class="row hidden" id="viewRoom">
       <div class="card" style="flex: 2 1 420px;">
         <div class="topline">
           <div>
-            <div style="font-weight:700;">Online Match</div>
+            <div class="card-title">Online 1v1 Battle</div>
             <div class="muted" id="roomLine">Room: -</div>
           </div>
           <div class="twoBtns">
-            <button id="btnLeave" class="warn">Leave</button>
-            <button id="btnRematch" disabled>Rematch</button>
+            <button id="btnLeave" class="badge err" style="padding: 7px 14px; cursor: pointer;">Leave Match</button>
+            <button id="btnRematch" disabled>Request Rematch</button>
           </div>
         </div>
 
-        <div class="muted" style="margin-top:10px;" id="matchMsg"></div>
-        <div class="muted" style="margin-top:10px;" id="matchInfo">-</div>
-        <div class="grid" id="onlineBoard"></div>
+        <div class="muted" style="margin-top: 10px;" id="matchMsg"></div>
+        <div class="muted" style="margin-top: 10px;" id="matchInfo">-</div>
+        
+        <div class="board-container">
+          <div class="grid" id="onlineBoard"></div>
+        </div>
       </div>
 
       <div class="card">
-        <div style="font-weight:700;">Players</div>
-        <div class="list" style="margin-top:10px;">
-          <div class="item"><div id="pX">X: -</div><span class="badge" id="pXb">-</span></div>
-          <div class="item"><div id="pO">O: -</div><span class="badge" id="pOb">-</span></div>
+        <div class="card-title" style="margin-bottom: 10px;">Combatants</div>
+        <div class="list">
+          <div class="item">
+            <div id="pX" style="font-weight: 700; color: var(--accent);">X: -</div>
+            <span class="badge" id="pXb">-</span>
+          </div>
+          <div class="item">
+            <div id="pO" style="font-weight: 700; color: var(--accent-o);">O: -</div>
+            <span class="badge" id="pOb">-</span>
+          </div>
         </div>
-        <div class="muted" style="margin-top:10px;">
-          If a player disconnects, the match ends for both.
+        <div class="muted" style="margin-top: 14px; font-size: 12px; line-height: 1.5;">
+          Matches are synchronized in real-time. If either player disconnects or navigates away, the match ends gracefully.
         </div>
       </div>
     </div>
@@ -225,7 +718,96 @@
     databaseURL: "https://pocketconsole-cde70-default-rtdb.asia-southeast1.firebasedatabase.app"
   };
 
-  // ---------- init ----------
+  // ==========================================
+  // Web Audio Synthesizer (Instant SFX)
+  // ==========================================
+  class XOSoundSystem {
+    constructor() {
+      this.ctx = null;
+      this.muted = false;
+    }
+    init() {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) this.ctx = new AC();
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
+    }
+    play(type) {
+      if (this.muted) return;
+      try {
+        this.init();
+        if (!this.ctx) return;
+        const t = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        if (type === 'move-x') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(360, t);
+          osc.frequency.exponentialRampToValueAtTime(620, t + 0.09);
+          gain.gain.setValueAtTime(0.18, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.09);
+          osc.start(t);
+          osc.stop(t + 0.09);
+        } else if (type === 'move-o') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(560, t);
+          osc.frequency.exponentialRampToValueAtTime(320, t + 0.09);
+          gain.gain.setValueAtTime(0.2, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.09);
+          osc.start(t);
+          osc.stop(t + 0.09);
+        } else if (type === 'win') {
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const o = this.ctx.createOscillator();
+            const g = this.ctx.createGain();
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, t + idx * 0.08);
+            g.gain.setValueAtTime(0.18, t + idx * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.08 + 0.32);
+            o.connect(g);
+            g.connect(this.ctx.destination);
+            o.start(t + idx * 0.08);
+            o.stop(t + idx * 0.08 + 0.32);
+          });
+        } else if (type === 'draw') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(240, t);
+          osc.frequency.linearRampToValueAtTime(180, t + 0.22);
+          gain.gain.setValueAtTime(0.14, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.22);
+          osc.start(t);
+          osc.stop(t + 0.22);
+        } else if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(480, t);
+          gain.gain.setValueAtTime(0.08, t);
+          gain.gain.linearRampToValueAtTime(0.001, t + 0.04);
+          osc.start(t);
+          osc.stop(t + 0.04);
+        }
+      } catch (err) {}
+    }
+  }
+
+  const sfx = new XOSoundSystem();
+
+  // Audio Toggle Button
+  const btnAudioToggle = document.getElementById("btnAudioToggle");
+  const audioIcon = document.getElementById("audioIcon");
+  btnAudioToggle.addEventListener("click", () => {
+    sfx.muted = !sfx.muted;
+    audioIcon.textContent = sfx.muted ? "🔇" : "🔊";
+    btnAudioToggle.style.opacity = sfx.muted ? "0.6" : "1";
+    if (!sfx.muted) sfx.play('click');
+  });
+
+  // ---------- DOM Elements & View Routing ----------
   const $ = (id) => document.getElementById(id);
   const views = {
     menu: $("viewMenu"),
@@ -233,15 +815,18 @@
     online: $("viewOnline"),
     room: $("viewRoom")
   };
+
   function showView(name){
     for (const k of Object.keys(views)) views[k].classList.add("hidden");
     views[name].classList.remove("hidden");
     $("btnBack").disabled = (name === "menu");
   }
+
   function setStatus(text){
     $("statusLine").textContent = text;
     $("statusLine").classList.remove("endedNotice");
   }
+
   function resetAllInviteButtons(){
     const buttons = $("friendsList")?.querySelectorAll("button");
     if (!buttons) return;
@@ -258,68 +843,125 @@
     return "room_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
 
-  // ---------- winner ----------
+  // ---------- Winner Checker with Line Detection ----------
   function winnerOf(board){
     const lines = [
-      [0,1,2],[3,4,5],[6,7,8],
-      [0,3,6],[1,4,7],[2,5,8],
-      [0,4,8],[2,4,6]
+      [0,1,2],[3,4,5],[6,7,8], // rows
+      [0,3,6],[1,4,7],[2,5,8], // cols
+      [0,4,8],[2,4,6]          // diags
     ];
-    for (const [a,b,c] of lines){
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+    for (const line of lines){
+      const [a,b,c] = line;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]){
+        return { winner: board[a], line };
+      }
     }
-    if (board.every(v => v)) return "draw";
-    return "";
+    if (board.every(v => v)) return { winner: "draw", line: null };
+    return { winner: "", line: null };
   }
 
-  // ---------- board builder ----------
+  // ---------- Board Builder ----------
   function buildBoard(container, onClick){
     container.innerHTML = "";
-    for (let i=0;i<9;i++){
+    for (let i=0; i<9; i++){
       const d = document.createElement("div");
       d.className = "cell";
-      d.addEventListener("click", () => onClick(i));
+      d.addEventListener("click", () => {
+        sfx.init();
+        onClick(i);
+      });
       container.appendChild(d);
     }
   }
 
-  // ---------- Offline game ----------
-  const offline = { board: Array(9).fill(""), turn: "X", ended: false };
+  // Helper to render cell content & neon classes
+  function renderCellElement(cellEl, val, isWin){
+    cellEl.textContent = val || "";
+    cellEl.classList.remove("cell-x", "cell-o", "cell-win");
+    if (val === "X") cellEl.classList.add("cell-x");
+    if (val === "O") cellEl.classList.add("cell-o");
+    if (isWin) cellEl.classList.add("cell-win");
+  }
+
+  // ---------- Offline Game State & Scoreboard ----------
+  const offline = {
+    board: Array(9).fill(""),
+    turn: "X",
+    ended: false,
+    score: { X: 0, O: 0, draw: 0 }
+  };
+
+  function updateOfflineScoreboard(){
+    $("scoreX").textContent = offline.score.X;
+    $("scoreO").textContent = offline.score.O;
+    $("scoreDraw").textContent = offline.score.draw;
+  }
 
   function renderOffline(){
-    $("offlineTurn").textContent = offline.ended ? "Match ended." : `Turn: ${offline.turn}`;
-    const win = winnerOf(offline.board);
-    const msg = win === "draw" ? "Draw." : (win ? `${win} wins.` : "");
+    const winResult = winnerOf(offline.board);
+    const win = winResult.winner;
+    const winLine = winResult.line || [];
+
     if (win){
-      $("offlineTurn").textContent = `Match ended - ${msg}`;
+      const msg = win === "draw" ? "Match is a Draw!" : `Player ${win} Wins!`;
+      $("offlineTurn").textContent = msg;
       $("offlineTurn").classList.add("endedNotice");
-      $("offlineMsg").textContent = "";
     } else {
+      $("offlineTurn").textContent = `Turn: Player ${offline.turn}`;
       $("offlineTurn").classList.remove("endedNotice");
-      $("offlineMsg").textContent = "";
     }
+
+    [...$("offlineBoard").children].forEach((c, idx) => {
+      const isWinCell = winLine.includes(idx);
+      renderCellElement(c, offline.board[idx], isWinCell);
+    });
   }
 
   buildBoard($("offlineBoard"), (i) => {
     if (offline.ended) return;
     if (offline.board[i]) return;
-    offline.board[i] = offline.turn;
-    const win = winnerOf(offline.board);
-    if (win) offline.ended = true;
-    offline.turn = offline.turn === "X" ? "O" : "X";
-    [...$("offlineBoard").children].forEach((c, idx) => c.textContent = offline.board[idx]);
+
+    const currentTurn = offline.turn;
+    offline.board[i] = currentTurn;
+    sfx.play(currentTurn === "X" ? "move-x" : "move-o");
+
+    const winResult = winnerOf(offline.board);
+    if (winResult.winner) {
+      offline.ended = true;
+      if (winResult.winner === "draw") {
+        offline.score.draw++;
+        sfx.play("draw");
+      } else {
+        offline.score[winResult.winner]++;
+        sfx.play("win");
+      }
+      updateOfflineScoreboard();
+    } else {
+      offline.turn = offline.turn === "X" ? "O" : "X";
+    }
+
     renderOffline();
   });
 
   $("offlineReset").addEventListener("click", () => {
+    sfx.play("click");
     offline.board = Array(9).fill("");
     offline.turn = "X";
     offline.ended = false;
-    [...$("offlineBoard").children].forEach(c => c.textContent = "");
     renderOffline();
   });
 
-  // ---------- Firebase enable guard ----------
+  $("offlineResetScores").addEventListener("click", () => {
+    sfx.play("click");
+    offline.score = { X: 0, O: 0, draw: 0 };
+    updateOfflineScoreboard();
+    offline.board = Array(9).fill("");
+    offline.turn = "X";
+    offline.ended = false;
+    renderOffline();
+  });
+
+  // ---------- Firebase Init & Guard ----------
   let app, auth, db, fs;
   let firebaseEnabled = true;
   try {
@@ -387,7 +1029,6 @@
   async function clearMyPendingInvites(){
     if (!me) return;
     try {
-      // Rules allow delete only for invites you sent.
       const qFrom = query(
         collection(fs, "gameInvites"),
         where("fromUid", "==", me.uid),
@@ -407,7 +1048,7 @@
     }
   }
 
-  // ---------- Friends list (Firestore) + presence (RTDB) ----------
+  // ---------- Friends List (Firestore) + Presence (RTDB) ----------
   async function subscribeFriends(){
     const listEl = $("friendsList");
     listEl.innerHTML = `<div class="muted">Loading friends...</div>`;
@@ -419,13 +1060,12 @@
       const friendUids = snap.docs.map(d => d.id);
 
       if (!friendUids.length){
-        listEl.innerHTML = `<div class="muted">No friends found in Firestore users/${me.uid}/friends</div>`;
+        listEl.innerHTML = `<div class="muted">No friends found. Add friends from the Console Friends page to play together!</div>`;
         return;
       }
 
       const rows = [];
       for (const fuid of friendUids){
-        // Optional profile read (nice names)
         let nameFromFs = "";
         const prof = await getDoc(doc(fs, "users", fuid));
         if (prof.exists()){
@@ -433,7 +1073,6 @@
           nameFromFs = d.displayName || d.name || "";
         }
 
-        // Initial presence (RTDB)
         const st = await get(ref(db, `status/${fuid}`));
         const val = st.val();
         const online = !!(val && val.state === "online");
@@ -448,8 +1087,8 @@
         item.className = "item";
 
         const left = document.createElement("div");
-        left.innerHTML = `<div style="font-weight:700;">${escapeHtml(r.name)}</div>
-                          <div class="muted">${r.uid}</div>`;
+        left.innerHTML = `<div style="font-weight:700; color:#fff;">${escapeHtml(r.name)}</div>
+                          <div class="muted" style="font-size:11px;">ID: ${r.uid}</div>`;
 
         const right = document.createElement("div");
         right.className = "twoBtns";
@@ -461,7 +1100,10 @@
         const btn = document.createElement("button");
         btn.textContent = "Invite";
         btn.disabled = !r.online || !!currentRoomId;
-        btn.addEventListener("click", () => sendInviteFs(r.uid, r.name, btn));
+        btn.addEventListener("click", () => {
+          sfx.play("click");
+          sendInviteFs(r.uid, r.name, btn);
+        });
 
         right.appendChild(badge);
         right.appendChild(btn);
@@ -500,7 +1142,7 @@
 
     invitesUnsub = onSnapshot(qInv, (snap) => {
       if (snap.empty){
-        listEl.innerHTML = `<div class="muted">No incoming invites.</div>`;
+        listEl.innerHTML = `<div class="muted">No incoming match invites.</div>`;
         return;
       }
 
@@ -513,19 +1155,26 @@
         item.className = "item";
 
         const left = document.createElement("div");
-        left.innerHTML = `<div style="font-weight:700;">${escapeHtml(inv.fromName || "Friend")}</div>
-                          <div class="muted">${inv.fromUid}</div>`;
+        left.innerHTML = `<div style="font-weight:700; color:#fff;">${escapeHtml(inv.fromName || "Friend")}</div>
+                          <div class="muted" style="font-size:11px;">Challenged you to a match</div>`;
 
         const right = document.createElement("div");
         right.className = "twoBtns";
 
         const accept = document.createElement("button");
+        accept.className = "btn-accent";
         accept.textContent = "Accept";
-        accept.addEventListener("click", () => acceptInviteFs(inv.id, inv));
+        accept.addEventListener("click", () => {
+          sfx.play("click");
+          acceptInviteFs(inv.id, inv);
+        });
 
         const reject = document.createElement("button");
-        reject.textContent = "Reject";
-        reject.addEventListener("click", () => rejectInviteFs(inv.id));
+        reject.textContent = "Decline";
+        reject.addEventListener("click", () => {
+          sfx.play("click");
+          rejectInviteFs(inv.id);
+        });
 
         right.appendChild(accept);
         right.appendChild(reject);
@@ -549,7 +1198,6 @@
 
     const roomId = newRoomId();
     try {
-      // Cancel any pending invites to the same friend to avoid conflicts.
       const qExisting = query(
         collection(fs, "gameInvites"),
         where("fromUid", "==", me.uid),
@@ -579,13 +1227,13 @@
 
       if (btn){
         btn.dataset.inviteState = "sent";
-        btn.textContent = "Invitation sent";
+        btn.textContent = "Invitation sent…";
         btn.disabled = true;
       }
       watchInviteResult(inviteRef.id, () => resetInviteButton(btn));
     } catch (e) {
       console.error("[Invite]", e);
-      setStatus("Invite failed. Make sure the friend accepted your request.");
+      setStatus("Invite failed. Make sure friend accepted your request.");
       resetInviteButton(btn);
     }
   }
@@ -606,10 +1254,7 @@
         if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
         if (onResolve) onResolve();
         joinRoomFs(inv.roomId);
-      } else if (inv.status === "rejected"){
-        if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
-        if (onResolve) onResolve();
-      } else if (inv.status === "cancelled"){
+      } else if (inv.status === "rejected" || inv.status === "cancelled"){
         if (inviteWatchUnsub) inviteWatchUnsub(), inviteWatchUnsub = null;
         if (onResolve) onResolve();
       }
@@ -640,7 +1285,6 @@
       updatedAt: fsTimestamp()
     });
 
-    // Join immediately; cleanup can fail due to rules.
     joinRoomFs(roomId);
     try {
       await deleteDoc(doc(fs, "gameInvites", inviteId));
@@ -661,11 +1305,14 @@
     }
   }
 
-  // ---------- Room (Firestore realtime) ----------
+  // ---------- Online Room (Firestore Realtime) ----------
+  let lastAudioMoveCount = 0;
+
   async function joinRoomFs(roomId){
     currentRoomId = roomId;
+    lastAudioMoveCount = 0;
     showView("room");
-    $("roomLine").textContent = `Room: ${roomId}`;
+    $("roomLine").textContent = `Room ID: ${roomId}`;
     $("btnRematch").disabled = true;
     $("matchMsg").textContent = "";
 
@@ -675,7 +1322,7 @@
 
     roomUnsub = onSnapshot(roomRef, async (snap) => {
       if (!snap.exists()){
-        $("matchMsg").textContent = "Room ended.";
+        $("matchMsg").textContent = "Room session ended.";
         $("btnRematch").disabled = true;
         return;
       }
@@ -691,16 +1338,30 @@
       const mySymbol = (players.X === me.uid) ? "X" : (players.O === me.uid ? "O" : "");
       const oppUid = (mySymbol === "X") ? players.O : players.X;
 
+      // Audio feedback on new moves
+      const filledCount = board.filter(Boolean).length;
+      if (filledCount > lastAudioMoveCount) {
+        lastAudioMoveCount = filledCount;
+        sfx.play(turn === "O" ? "move-x" : "move-o");
+      }
+
+      const winResult = winnerOf(board);
+      const winLine = winResult.line || [];
+
       if (status === "ended"){
-        const winLine =
-          winner === "draw" ? "Draw." :
-          winner ? `${winner} wins.` :
+        const winLineText =
+          winner === "draw" ? "Match is a Draw!" :
+          winner ? `${names[players[winner]] || winner} Wins!` :
           "Match ended.";
-        $("matchInfo").textContent = `Match ended - ${winLine}`;
+        $("matchInfo").textContent = winLineText;
         $("matchInfo").classList.add("endedNotice");
         $("btnRematch").classList.add("ctaGlow");
         $("matchMsg").textContent = room.endedReason || "";
         $("matchMsg").classList.toggle("endedNotice", !!(room.endedReason));
+
+        if (winner === "draw") sfx.play("draw");
+        else if (winner === mySymbol) sfx.play("win");
+
         if (room.endedReason && /left|disconnected/i.test(room.endedReason)){
           setStatus(room.endedReason);
           $("statusLine").classList.add("endedNotice");
@@ -708,7 +1369,8 @@
           resetAllInviteButtons();
         }
       } else {
-        $("matchInfo").textContent = `Turn: ${turn} - You are ${mySymbol || "?"}`;
+        const turnName = (turn === mySymbol) ? "Your Turn" : `${names[players[turn]] || "Opponent"}'s Turn`;
+        $("matchInfo").textContent = `${turnName} (You are ${mySymbol || "?"})`;
         $("matchInfo").classList.remove("endedNotice");
         $("btnRematch").classList.remove("ctaGlow");
         $("matchMsg").textContent = "";
@@ -716,12 +1378,14 @@
         $("statusLine").classList.remove("endedNotice");
       }
 
-      [...$("onlineBoard").children].forEach((c, idx) => c.textContent = board[idx] || "");
+      [...$("onlineBoard").children].forEach((c, idx) => {
+        const isWinCell = winLine.includes(idx);
+        renderCellElement(c, board[idx], isWinCell);
+      });
 
       $("pX").textContent = `X: ${names[players.X] || players.X || "-"}`;
       $("pO").textContent = `O: ${names[players.O] || players.O || "-"}`;
 
-      // Presence check (RTDB)
       if (oppUid){
         const oppSnap = await get(ref(db, `status/${oppUid}`));
         const oppOnline = !!(oppSnap.val() && oppSnap.val().state === "online");
@@ -764,7 +1428,8 @@
 
     board[i] = mySymbol;
 
-    const w = winnerOf(board);
+    const winResult = winnerOf(board);
+    const w = winResult.winner;
     const next = {
       board,
       turn: (mySymbol === "X" ? "O" : "X"),
@@ -780,11 +1445,12 @@
     await updateDoc(roomRef, next);
   }
 
-  // Build online board clicks once
+  // Online board clicks
   buildBoard($("onlineBoard"), (i) => tryMoveFs(i));
 
-  // Leave
+  // Leave Room
   $("btnLeave").addEventListener("click", async () => {
+    sfx.play("click");
     if (!currentRoomId) { showView("online"); return; }
     const roomRef = doc(fs, "gameRooms", currentRoomId);
     const snap = await getDoc(roomRef);
@@ -804,8 +1470,9 @@
     resetAllInviteButtons();
   });
 
-  // Rematch (two votes)
+  // Rematch
   $("btnRematch").addEventListener("click", async () => {
+    sfx.play("click");
     if (!currentRoomId || !me) return;
 
     const roomRef = doc(fs, "gameRooms", currentRoomId);
@@ -835,15 +1502,15 @@
         endedReason: "",
         updatedAt: fsTimestamp()
       });
-
-      $("matchMsg").textContent = "Rematch started.";
+      $("matchMsg").textContent = "Rematch initiated!";
     } else {
-      $("matchMsg").textContent = "Rematch requested. Waiting for friend...";
+      $("matchMsg").textContent = "Rematch requested. Waiting for opponent…";
     }
   });
 
-  // ---------- Navigation ----------
+  // Navigation Back Button
   $("btnBack").addEventListener("click", () => {
+    sfx.play("click");
     if (!views.room.classList.contains("hidden")){
       $("btnLeave").click();
       return;
@@ -852,40 +1519,42 @@
   });
 
   $("startOffline").addEventListener("click", () => {
+    sfx.play("click");
     showView("offline");
     $("offlineReset").click();
   });
 
   $("startOnline").addEventListener("click", async () => {
+    sfx.play("click");
     if (!firebaseEnabled){
       alert("Online mode is unavailable. Firebase is not configured.");
       return;
     }
     if (!me){
-      alert("Please sign in first to use Online mode.");
+      alert("Please sign in first with your Pocket Console account to enter Online mode.");
       return;
     }
     showView("online");
   });
 
-  // ---------- Auth ----------
+  // Google Sign-In
   $("btnSignIn").addEventListener("click", async () => {
+    sfx.play("click");
     if (!firebaseEnabled) return;
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
   });
 
   window.addEventListener("beforeunload", () => {
-    // Best-effort cleanup of my pending invites when leaving the page
     clearMyPendingInvites();
   });
 
-  // ---------- Auth state ----------
+  // Auth State Listener
   if (!firebaseEnabled){
     $("btnSignIn").disabled = true;
     $("startOnline").disabled = true;
-    $("onlineHint").textContent = "Online mode disabled (Firebase not configured).";
-    setStatus("Offline mode only");
+    $("onlineHint").textContent = "Online mode disabled (Firebase offline).";
+    setStatus("Offline pass & play mode only");
     showView("menu");
   } else {
     onAuthStateChanged(auth, async (user) => {
@@ -894,7 +1563,7 @@
 
       if (!user){
         me = null;
-        setStatus("Not signed in");
+        setStatus("Playing as Guest");
         $("btnSignIn").classList.remove("hidden");
         $("presenceBadge").textContent = "Offline";
         $("presenceBadge").className = "badge err";
@@ -904,7 +1573,6 @@
 
       me = { uid: user.uid, name: user.displayName || "Player" };
 
-      // Prefer presence stored name (if you used Save)
       const saved = await loadMyNameFromPresence(me.uid);
       if (saved) me.name = saved;
 
@@ -913,7 +1581,6 @@
 
       await writePresenceOnline(me.uid, me.name);
 
-      // Online lobby live data
       await subscribeFriends();
       subscribeInvites();
     });
