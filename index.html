@@ -2786,6 +2786,8 @@
         tabGames?.click();
       } else if (e.key === "2") {
         tabStore?.click();
+      } else if (e.key === "3") {
+        tabFriends?.click();
       } else if (e.key === "Escape") {
         if (gameHubDialog?.open) gameHubDialog.close();
         if (trophyDialog?.open) trophyDialog.close();
@@ -3788,6 +3790,331 @@
     initSnakeQuery();
     loadAllCommunityRatings();
     checkPostGameRatingSession();
+
+
+    // ==========================================
+    // 14. FRIENDS FEED & SUGGESTIONS ENGINE
+    // ==========================================
+    const btnFilterSuggestions = document.getElementById("btnFilterSuggestions");
+    const btnFilterMyFriends = document.getElementById("btnFilterMyFriends");
+    const btnFilterLiveActivity = document.getElementById("btnFilterLiveActivity");
+    const feedPanelSuggestions = document.getElementById("feedPanelSuggestions");
+    const feedPanelMyFriends = document.getElementById("feedPanelMyFriends");
+    const feedPanelActivity = document.getElementById("feedPanelActivity");
+
+    function switchFeedSubtab(sub) {
+      [btnFilterSuggestions, btnFilterMyFriends, btnFilterLiveActivity].forEach(b => b?.classList.remove("active"));
+      [feedPanelSuggestions, feedPanelMyFriends, feedPanelActivity].forEach(p => { if (p) p.style.display = "none"; });
+
+      if (sub === "suggestions") {
+        btnFilterSuggestions?.classList.add("active");
+        if (feedPanelSuggestions) feedPanelSuggestions.style.display = "block";
+      } else if (sub === "myfriends") {
+        btnFilterMyFriends?.classList.add("active");
+        if (feedPanelMyFriends) feedPanelMyFriends.style.display = "block";
+      } else if (sub === "activity") {
+        btnFilterLiveActivity?.classList.add("active");
+        if (feedPanelActivity) feedPanelActivity.style.display = "block";
+      }
+    }
+
+    btnFilterSuggestions?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      switchFeedSubtab("suggestions");
+    });
+    btnFilterMyFriends?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      switchFeedSubtab("myfriends");
+    });
+    btnFilterLiveActivity?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      switchFeedSubtab("activity");
+    });
+
+    document.getElementById("btnRefreshSuggestions")?.addEventListener("click", () => {
+      consoleAudio.play("tick");
+      loadSuggestedPlayers(auth.currentUser);
+    });
+
+    async function sendFriendRequestFromFeed(targetUid, targetName, targetPublicId, targetPhoto) {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        showToast("🔒 Sign In Required", "Log in with PlayStation Network to add friends.", "🔒");
+        loginReminder?.showModal();
+        return false;
+      }
+
+      const myPublicId = "PC-" + currentUser.uid.slice(0, 8).toUpperCase();
+      const myName = localStorage.getItem("pc_custom_name") || currentUser.displayName || "Player";
+      const myPhoto = currentUser.photoURL || null;
+
+      const rid = (currentUser.uid < targetUid) 
+        ? (currentUser.uid + "_" + targetUid) 
+        : (targetUid + "_" + currentUser.uid);
+
+      try {
+        consoleAudio.play("select");
+        await setDoc(doc(fs, "friendRequests", rid), {
+          fromUid: currentUser.uid,
+          toUid: targetUid,
+          fromPublicId: myPublicId,
+          toPublicId: targetPublicId || ("PC-" + targetUid.slice(0, 8).toUpperCase()),
+          fromName: myName,
+          fromPhoto: myPhoto,
+          toName: targetName || "Player",
+          toPhoto: targetPhoto || null,
+          createdAt: serverTimestamp()
+        }, { merge: true });
+
+        showToast("👥 Friend Request Sent!", `Sent an invite to ${targetName}.`, "👥");
+        return true;
+      } catch (err) {
+        console.error("[FriendRequest] Error sending:", err);
+        showToast("⚠️ Notice", "Could not send friend request: " + err.message, "⚠️");
+        return false;
+      }
+    }
+
+    async function loadSuggestedPlayers(currentUser) {
+      const suggestionsGrid = document.getElementById("suggestionsGrid");
+      const countEl = document.getElementById("suggestedPlayersCount");
+
+      try {
+        const existingFriendUids = new Set();
+        if (currentUser) {
+          try {
+            const friendsSnap = await getDocs(collection(fs, `users/${currentUser.uid}/friends`));
+            friendsSnap.forEach(d => existingFriendUids.add(d.id));
+          } catch (_) {}
+        }
+
+        const allUsers = [];
+        try {
+          const publicSnap = await getDocs(query(collection(fs, "publicUsers"), limit(60)));
+          publicSnap.forEach(d => {
+            const data = d.data();
+            if (data && data.uid) allUsers.push(data);
+          });
+        } catch (_) {}
+
+        if (allUsers.length < 5) {
+          try {
+            const usersSnap = await getDocs(query(collection(fs, "users"), limit(60)));
+            usersSnap.forEach(d => {
+              const u = d.data();
+              if (u && u.uid && !allUsers.some(x => x.uid === u.uid)) {
+                allUsers.push({
+                  uid: u.uid,
+                  displayName: u.displayName || "Console Player",
+                  publicId: u.publicId || ("PC-" + u.uid.slice(0, 8).toUpperCase()),
+                  photoURL: u.photoURL || null
+                });
+              }
+            });
+          } catch (_) {}
+        }
+
+        const myUid = currentUser?.uid;
+        const suggestions = allUsers.filter(u => u.uid !== myUid && !existingFriendUids.has(u.uid));
+
+        if (countEl) countEl.textContent = suggestions.length;
+
+        if (!suggestions.length) {
+          if (suggestionsGrid) {
+            suggestionsGrid.innerHTML = `
+              <div style="text-align:center; padding:30px; color:var(--text-sub); grid-column:1/-1;">
+                No new suggestions right now. Share your Public ID with friends to connect!
+              </div>
+            `;
+          }
+          return;
+        }
+
+        if (suggestionsGrid) {
+          suggestionsGrid.innerHTML = suggestions.map(u => {
+            const pId = u.publicId || ("PC-" + u.uid.slice(0, 8).toUpperCase());
+            const name = u.displayName || "Console Gamer";
+            const photo = u.photoURL || "";
+            const avatarStyle = photo ? `background-image: url('${photo}');` : "";
+
+            return `
+              <div class="suggestion-card" data-uid="${u.uid}">
+                <div class="suggestion-avatar-wrap">
+                  <div class="suggestion-avatar" style="${avatarStyle}"></div>
+                  <span class="suggestion-status-dot" id="presDot_${u.uid}"></span>
+                </div>
+                <div class="suggestion-info">
+                  <div class="suggestion-name">${name}</div>
+                  <div class="suggestion-id">${pId}</div>
+                  <div class="suggestion-status-text" id="presText_${u.uid}">Checking status…</div>
+                </div>
+                <div class="suggestion-actions">
+                  <button type="button" class="btn-add-friend" 
+                          data-uid="${u.uid}" 
+                          data-name="${name}" 
+                          data-pid="${pId}" 
+                          data-photo="${photo}">
+                    <span>➕ Add Friend</span>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          suggestionsGrid.querySelectorAll(".btn-add-friend").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const targetUid = btn.dataset.uid;
+              const targetName = btn.dataset.name;
+              const targetPid = btn.dataset.pid;
+              const targetPhoto = btn.dataset.photo;
+              btn.disabled = true;
+              btn.textContent = "Sending…";
+
+              const success = await sendFriendRequestFromFeed(targetUid, targetName, targetPid, targetPhoto);
+              if (success) {
+                btn.textContent = "✓ Request Sent";
+                btn.style.background = "#00c853";
+                btn.style.borderColor = "#00c853";
+              } else {
+                btn.disabled = false;
+                btn.textContent = "➕ Add Friend";
+              }
+            });
+          });
+
+          suggestions.forEach(u => {
+            onValue(ref(rtdb, `/status/${u.uid}`), (snap) => {
+              const isOnline = snap.val()?.state === "online";
+              const dot = document.getElementById(`presDot_${u.uid}`);
+              const txt = document.getElementById(`presText_${u.uid}`);
+              if (dot) dot.classList.toggle("online", isOnline);
+              if (txt) txt.textContent = isOnline ? "🟢 Online Playing" : "⚪ Offline";
+            });
+          });
+        }
+      } catch (err) {
+        console.error("[Suggestions] Error loading suggestions:", err);
+      }
+    }
+
+    async function loadMyFriendsList(currentUser) {
+      const friendsGrid = document.getElementById("myFriendsGrid");
+      const countEl = document.getElementById("myFriendsTotalCount");
+      const topOnlineBadge = document.getElementById("friendsOnlineIndicator");
+
+      if (!currentUser) {
+        if (countEl) countEl.textContent = "0";
+        if (topOnlineBadge) topOnlineBadge.textContent = "0 Online";
+        if (friendsGrid) {
+          friendsGrid.innerHTML = `
+            <div style="text-align:center; padding:36px; color:var(--text-sub); grid-column:1/-1;">
+              <div style="font-size:32px; margin-bottom:8px;">🔒</div>
+              <div style="font-size:15px; font-weight:800; color:#fff; margin-bottom:4px;">Sign in to view your friends roster</div>
+              <p style="font-size:13px; margin-bottom:14px;">Connect with your gaming buddies on PlayStation Network.</p>
+              <a href="AccSettings.html" class="ps-play-btn" style="padding:8px 20px; font-size:12.5px; display:inline-block;">Sign In</a>
+            </div>
+          `;
+        }
+        return;
+      }
+
+      try {
+        const snap = await getDocs(collection(fs, `users/${currentUser.uid}/friends`));
+        const friends = [];
+        snap.forEach(d => friends.push(d.data()));
+
+        if (countEl) countEl.textContent = friends.length;
+
+        if (!friends.length) {
+          if (friendsGrid) {
+            friendsGrid.innerHTML = `
+              <div style="text-align:center; padding:36px; color:var(--text-sub); grid-column:1/-1;">
+                <div style="font-size:32px; margin-bottom:8px;">👥</div>
+                <div style="font-size:15px; font-weight:800; color:#fff; margin-bottom:4px;">No Friends Added Yet</div>
+                <p style="font-size:13px; margin-bottom:16px;">Check out Suggested Players to connect with active players!</p>
+                <button type="button" class="deck-filter-btn active" id="btnGoToSuggestions" style="padding:8px 20px;">
+                  ✨ View Suggested Players
+                </button>
+              </div>
+            `;
+            document.getElementById("btnGoToSuggestions")?.addEventListener("click", () => {
+              document.getElementById("btnFilterSuggestions")?.click();
+            });
+          }
+          return;
+        }
+
+        let onlineCount = 0;
+        if (friendsGrid) {
+          friendsGrid.innerHTML = friends.map(f => {
+            const photo = f.photoURL || "";
+            const avatarStyle = photo ? `background-image: url('${photo}');` : "";
+            const name = f.displayName || "Friend";
+            const pId = f.publicId || ("PC-" + f.uid.slice(0, 8).toUpperCase());
+
+            return `
+              <div class="suggestion-card" id="friendCard_${f.uid}">
+                <div class="suggestion-avatar-wrap">
+                  <div class="suggestion-avatar" style="${avatarStyle}"></div>
+                  <span class="suggestion-status-dot" id="fDot_${f.uid}"></span>
+                </div>
+                <div class="suggestion-info">
+                  <div class="suggestion-name">${name}</div>
+                  <div class="suggestion-id">${pId}</div>
+                  <div class="suggestion-status-text" id="fText_${f.uid}">Checking…</div>
+                </div>
+                <div class="friend-quick-actions">
+                  <a href="ChatPage.html?friendUid=${f.uid}" class="feed-icon-action" title="Open Chat">💬 Chat</a>
+                  <a href="Games/XOV1/XOV1.html" class="feed-icon-action duel" title="Invite 1v1">⚔️ Duel</a>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+          friends.forEach(f => {
+            onValue(ref(rtdb, `/status/${f.uid}`), (s) => {
+              const isOnline = s.val()?.state === "online";
+              const dot = document.getElementById(`fDot_${f.uid}`);
+              const txt = document.getElementById(`fText_${f.uid}`);
+              const card = document.getElementById(`friendCard_${f.uid}`);
+
+              if (dot) dot.classList.toggle("online", isOnline);
+              if (txt) txt.textContent = isOnline ? "🟢 Online" : "⚪ Offline";
+              if (card) card.classList.toggle("online-border", isOnline);
+
+              if (isOnline) onlineCount++;
+              if (topOnlineBadge) topOnlineBadge.textContent = `${onlineCount} Online`;
+            });
+          });
+        }
+      } catch (err) {
+        console.error("[Friends] Error loading friends roster:", err);
+      }
+    }
+
+    function loadCommunityActivityFeed() {
+      const feedList = document.getElementById("activityFeedList");
+      if (!feedList) return;
+
+      const activities = [
+        { icon: "🚀", title: "Galaxy Strike Armada Cleared", meta: "High score logged on solar sector defense wave 5", time: "Just now" },
+        { icon: "⌨️", title: "Keycraft Typing Leaderboard Surge", meta: "Global top 3 WPM records updated on Java syntax", time: "5m ago" },
+        { icon: "🐍", title: "Snake Arcade Ouroboros Master", meta: "Cyber serpent grew past 45 apples", time: "12m ago" },
+        { icon: "🏎️", title: "Lane Rush Traffic Phantom", meta: "30 vehicles successfully dodged at highway turbo speeds", time: "25m ago" },
+        { icon: "🛍️", title: "Pocket Store VIP Registration", meta: "New player joined the Day-1 Beta Launch list", time: "42m ago" }
+      ];
+
+      feedList.innerHTML = activities.map(a => `
+        <div class="activity-feed-card">
+          <div class="activity-icon">${a.icon}</div>
+          <div class="activity-content">
+            <div class="activity-headline">${a.title}</div>
+            <div class="activity-meta">${a.meta}</div>
+          </div>
+          <div class="activity-time">${a.time}</div>
+        </div>
+      `).join("");
+    }
 
     // Time update
     function updateTime() {
